@@ -1,0 +1,74 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Xcode
+## User settings
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+## Build artefacts (regenerate from source)
+build/
+DerivedData/
+*.xcworkspace
+!default.xcworkspace
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+
+## Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+## CocoaPods
+Pods/
+*.xcworkspace
+
+## Carthage
+Carthage/Build/
+
+## Accio
+Dependencies/
+.accio/
+
+## fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# The Xcode project is generated from project.yml by xcodegen.
+# Re-run `xcodegen` after editing project.yml. We still commit the
+# generated .xcodeproj so open-from-Xcode works without a toolchain,
+# but ignore user-specific scheme data.
+Draftr.xcodeproj/xcuserdata/
+Draftr.xcodeproj/project.xcworkspace/xcuserdata/
+Draftr.xcodeproj/project.xcworkspace/xcshareddata/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets
+*.cer
+*.p8
+*.p12
+*.mobileprovision
+*.key
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log

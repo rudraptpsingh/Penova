@@ -1,0 +1,91 @@
+# Navigation Graph — Draftr v0.1
+
+```
+                           ┌──────────┐
+                           │ S01 Splash│
+                           └─────┬────┘
+                                 ▼
+                      ┌──────────────────┐
+                      │ S02 Onboarding   │  (first launch only)
+                      └────────┬─────────┘
+                               ▼
+                      ┌──────────────────┐
+                      │ S03 Sign-in      │  (Sign in with Apple)
+                      └────────┬─────────┘
+                               ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │                    TabView (Bottom Nav)                  │
+  ├──────────┬──────────┬──────────────┬─────────────────────┤
+  │ Home S04 │ Scripts  │ Characters   │ Scenes              │
+  │          │ (→ S05)  │ (S14 → S15)  │ (S16 → S17)         │
+  └────┬─────┴────┬─────┴──────┬───────┴──────┬──────────────┘
+       │          │            │              │
+       ▼          ▼            ▼              ▼
+   ┌───────┐  ┌───────┐    ┌───────┐      ┌───────┐
+   │ S04   │  │ S05   │    │ S14   │      │ S16   │
+   │ Home  │  │ Proj  │    │ Chars │      │ Scenes│
+   └───┬───┘  └───┬───┘    └───┬───┘      └───┬───┘
+       │ + new    │             │              │
+       ▼          ▼             ▼              ▼
+   ┌───────┐  ┌───────┐    ┌───────┐      ┌───────┐
+   │ S06   │  │ S07   │    │ S15   │      │ S17   │
+   │ New   │  │ Epis. │    │ Char  │      │ Search│
+   │ Proj  │  │ List  │    │ Detail│      │       │
+   └───────┘  └───┬───┘    └───────┘      └───────┘
+                  ▼
+              ┌───────┐
+              │ S08   │
+              │ Scene │
+              │ List  │
+              └───┬───┘
+                  │ tap scene / + new
+       ┌──────────┴──────────┐
+       ▼                     ▼
+   ┌───────┐             ┌───────┐
+   │ S09   │             │ S10   │
+   │ New   │             │ Scene │
+   │ Scene │             │ Detail│
+   └───────┘             └───┬───┘
+                             ▼
+                         ┌───────┐
+                         │ S11   │  (full-screen editor)
+                         │ Editor│◄──┐
+                         └───┬───┘   │
+                             │       │
+                  ┌──────────┐
+                  ▼          │
+              ┌───────┐      │
+              │ S12   │      │
+              │ Elem. │      │
+              │ Type  │      │
+              └───────┘      │
+                             │
+  Global FAB ──────► S19 Quick Capture (sheet) ─┘
+  Settings  ──────► S18 Settings (push)
+  Export    ──────► S15 Export Sheet (sheet)
+  Paywall   ──────► S20 (sheet, from anywhere)
+  Limit     ──────► S22 (sheet, triggered by FreemiumCheck)
+  Delete    ──────► S21 (confirmationDialog)
+```
+
+## Stack rules
+
+- **Root = `TabView`** with 4 tabs. Each tab owns its own `NavigationStack`.
+- **Push** (chevron back): S05, S07, S08, S10, S11, S15, S17, S18.
+- **Sheet** (drag down): S06, S09, S12, S19, S20, S22, S15-export.
+- **confirmationDialog** (destructive): S21.
+- **Full-screen cover**: S01 splash, S02 onboarding, S03 sign-in (pre-auth only).
+
+## Tab-bar visibility
+
+- Hidden in S11 (editor — needs full canvas).
+- Hidden in all sheets (native behaviour).
+- Visible everywhere else.
+
+## Deep-link entry points (post-v0.1 but worth stubbing)
+
+- `draftr://project/{id}` → S05
+- `draftr://scene/{id}` → S11
+- `draftr://new-capture` → S19
+
+Use `.onOpenURL` on root view.
