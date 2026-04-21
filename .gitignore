@@ -50,9 +50,9 @@ fastlane/test_output
 # Re-run `xcodegen` after editing project.yml. We still commit the
 # generated .xcodeproj so open-from-Xcode works without a toolchain,
 # but ignore user-specific scheme data.
-Draftr.xcodeproj/xcuserdata/
-Draftr.xcodeproj/project.xcworkspace/xcuserdata/
-Draftr.xcodeproj/project.xcworkspace/xcshareddata/
+Penova.xcodeproj/xcuserdata/
+Penova.xcodeproj/project.xcworkspace/xcuserdata/
+Penova.xcodeproj/project.xcworkspace/xcshareddata/
 
 # IDE
 .idea/

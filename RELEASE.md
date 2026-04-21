@@ -1,4 +1,4 @@
-# Shipping Draftr to the App Store
+# Shipping Penova to the App Store
 
 This file captures the steps needed to turn the current source tree into a
 TestFlight / App Store build. Nothing here is automated — every item is a
@@ -8,10 +8,10 @@ or App Store Connect.
 ## 1. Before you open Xcode
 
 - [ ] Confirm Apple Developer Program membership is active.
-- [ ] Bundle ID `com.rudrapratapsingh.draftr` is registered in Certificates,
+- [ ] Bundle ID `com.rudrapratapsingh.penova` is registered in Certificates,
       Identifiers & Profiles with the **Sign in with Apple** capability on.
 - [ ] An App record exists in App Store Connect with the same bundle ID,
-      name "Draftr", primary language English (UK), category **Productivity**
+      name "Penova", primary language English (UK), category **Productivity**
       (secondary: Entertainment).
 
 ## 2. One-off project edits (done in this repo)
@@ -28,14 +28,14 @@ or App Store Connect.
 - `PrivacyInfo.xcprivacy` declares zero tracking, zero data collection, and
   required-reason codes for UserDefaults (`CA92.1`), file timestamp
   (`C617.1`), disk space (`E174.1`), system boot time (`35F9.1`).
-- `Draftr.entitlements` enables **Sign in with Apple**.
+- `Penova.entitlements` enables **Sign in with Apple**.
 - `AppIcon.appiconset` contains a single universal 1024×1024 PNG
   (`icon-1024.png`) — Xcode generates every runtime size from it.
 
 ## 3. In Xcode, one-time per machine
 
-1. Open `Draftr.xcodeproj`.
-2. Select the `Draftr` target → **Signing & Capabilities**:
+1. Open `Penova.xcodeproj`.
+2. Select the `Penova` target → **Signing & Capabilities**:
    - Tick **Automatically manage signing**.
    - Pick the correct Team.
    - Keep **Sign in with Apple** capability.
@@ -55,7 +55,7 @@ or App Store Connect.
 
 The code ships the product; this copy ships the listing.
 
-- **App name:** Draftr
+- **App name:** Penova
 - **Subtitle:** Write the page. Hide the app.
 - **Promotional text (170 chars):** A dark-first screenplay editor built
   for phones. INT/EXT scenes, clean mono dialogue, one-tap industry-format
@@ -85,7 +85,7 @@ works portrait as-is because we allow iPad rotation in project.yml.
 
 ## 7. Review notes to paste into App Store Connect
 
-> Draftr is a single-player offline screenplay editor. Sign in with Apple
+> Penova is a single-player offline screenplay editor. Sign in with Apple
 > is offered for a future sync feature but is not required to use the app
 > — the user can dismiss onboarding and proceed. The microphone + speech
 > recognition permissions are used only when the user explicitly taps the
@@ -109,10 +109,10 @@ works portrait as-is because we allow iPad rotation in project.yml.
 
 ```sh
 xcodegen
-xcodebuild -project Draftr.xcodeproj -scheme Draftr \
+xcodebuild -project Penova.xcodeproj -scheme Penova \
   -configuration Debug \
   -destination "platform=iOS Simulator,name=iPhone 17 Pro" build
 ```
 
-Do not hand-edit `Draftr.xcodeproj/project.pbxproj` — regeneration will
+Do not hand-edit `Penova.xcodeproj/project.pbxproj` — regeneration will
 overwrite it.

@@ -1,4 +1,4 @@
-# Draftr
+# Penova
 
 **Write the page. Hide the app.**
 
@@ -18,14 +18,14 @@ PDF. No accounts required.
 
 ```sh
 brew install xcodegen                # once
-xcodegen                             # regenerate Draftr.xcodeproj
-open Draftr.xcodeproj
+xcodegen                             # regenerate Penova.xcodeproj
+open Penova.xcodeproj
 ```
 
 Or from the CLI:
 
 ```sh
-xcodebuild -project Draftr.xcodeproj -scheme Draftr \
+xcodebuild -project Penova.xcodeproj -scheme Penova \
   -configuration Debug \
   -destination "platform=iOS Simulator,name=iPhone 17 Pro" build
 ```
@@ -33,11 +33,11 @@ xcodebuild -project Draftr.xcodeproj -scheme Draftr \
 ## Project layout
 
 ```
-Draftr/
+Penova/
 ├── App/              # App entry, root flow, seed data
 ├── Features/         # Screen-level SwiftUI views (Home, Scene, Voice, …)
 └── Resources/        # Assets.xcassets, Fonts, PrivacyInfo.xcprivacy
-DraftrSpec/           # Design tokens, icons, models, copy — pure Swift, no UI
+PenovaSpec/           # Design tokens, icons, models, copy — pure Swift, no UI
 project.yml           # xcodegen source of truth — never hand-edit .pbxproj
 ```
 
@@ -51,4 +51,4 @@ Every deferred feature (FDX export, StoreKit 2, sync) is tracked as a
 ## License
 
 Proprietary. See [LICENSE](LICENSE). Bundled fonts retain their original
-open-font licenses (see `Draftr/Resources/Fonts/*.txt`).
+open-font licenses (see `Penova/Resources/Fonts/*.txt`).

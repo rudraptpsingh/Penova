@@ -1,4 +1,4 @@
-name: Draftr
+name: Penova
 options:
   bundleIdPrefix: com.rudrapratapsingh
   deploymentTarget:
@@ -16,28 +16,28 @@ settings:
     SWIFT_EMIT_LOC_STRINGS: YES
 
 targets:
-  Draftr:
+  Penova:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: Draftr/App
-      - path: Draftr/Features
-      - path: DraftrSpec
+      - path: Penova/App
+      - path: Penova/Features
+      - path: PenovaSpec
         includes:
           - "*.swift"
-      - path: Draftr/Resources
+      - path: Penova/Resources
         buildPhase: resources
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.rudrapratapsingh.draftr
-        PRODUCT_NAME: Draftr
+        PRODUCT_BUNDLE_IDENTIFIER: com.rudrapratapsingh.penova
+        PRODUCT_NAME: Penova
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        CODE_SIGN_ENTITLEMENTS: Draftr/App/Draftr.entitlements
-        INFOPLIST_FILE: Draftr/App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Penova/App/Penova.entitlements
+        INFOPLIST_FILE: Penova/App/Info.plist
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent

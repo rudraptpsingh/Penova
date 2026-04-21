@@ -1,0 +1,665 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0558212BAB6B626A87C40DCE /* ScriptPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */; };
+		05CB5087FA61CF1AA1279F4C /* AppFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */; };
+		0AB3BE8773AE713171446A70 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B21D2904059E29899CC365 /* Copy.swift */; };
+		0B22BADB791826FE15738A6C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D9B7F2F7A18A3156660103 /* RootView.swift */; };
+		124441D3EA9131225BE4F16C /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80956E613FA97F2234F7D02F /* SettingsScreen.swift */; };
+		15CBDE9031EE185AAE07D1F1 /* VoiceCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */; };
+		44FE4E2F65D671B6E1AA3597 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD3EFDD08147034632786F2 /* Icons.swift */; };
+		45303C6FD7E32611E6895DFF /* DesignSystemGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC376E071873F871BF16D1 /* DesignSystemGallery.swift */; };
+		4DC274E8363B8E0B21D539BA /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77473BD2458260CD0DC78303 /* SeedData.swift */; };
+		65AC2666F3FB5D7A6BFDE537 /* CharacterDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */; };
+		673C1493ADD68D3F8D2D3095 /* SceneElementEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FEED76686D936CF9C7623 /* SceneElementEditor.swift */; };
+		69190BB81A070D08F3251619 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */; };
+		69E1F46CB2DBE5B025D50B30 /* NewEpisodeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */; };
+		6DAF2A5656E5286EA2CE1DEA /* ProjectDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */; };
+		6E21DD5369614FCF0D68FE9D /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F666DB32F59BFC32A6D905 /* Models.swift */; };
+		73134856768E274B337D3FDA /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8CB50832240858F20B0320BA /* PlayfairDisplay.ttf */; };
+		7B23584A9B6C26C0D8984C36 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 25D486CD1D488EE931D32996 /* Inter-Bold.ttf */; };
+		7D643FFF30255530742EAE0F /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275123948266F141979EEDD0 /* Components.swift */; };
+		7DDC9BB371CA9CB4E3AEC8DD /* PaywallSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAA9B28656B88F63BBAA4DB /* PaywallSheet.swift */; };
+		867DB5CA26F4FAE13A078F07 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F944A2B63518E0B22F3C06 /* DesignTokens.swift */; };
+		88F6DF7D512568D43C137C61 /* Inter-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */; };
+		8AF45CF5D8A835ABF579E109 /* RobotoMono-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */; };
+		922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */; };
+		960B361F049C22AC5F8905BB /* NewCharacterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */; };
+		98C4412427DA93BEA7000304 /* EpisodeDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978D6DFC08C6404283F4CA0A /* EpisodeDetailScreen.swift */; };
+		9B0DD11A70F2C5340D94C2DB /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E6CC3E7EAD85F7B429F31 /* Inter-Medium.ttf */; };
+		A59363BB5C3DE4F3BD51E4A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53F0831EB94C9C9471297ABF /* Assets.xcassets */; };
+		A5E29C51C287C972F469FC6B /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */; };
+		AB1B1DB6D66A34370C194C98 /* SceneDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */; };
+		AEB6496287E2AB90F38BA9D4 /* CharactersTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */; };
+		AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */; };
+		B61168FAA47E3BBF32A6BEFA /* ElementTypeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F0F4B0239CF6D189E9D7190 /* ElementTypeSheet.swift */; };
+		B8172462B32AC9F3A7940A93 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */; };
+		BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */; };
+		CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */; };
+		D43068233BC7C0D981FC490B /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */; };
+		D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */; };
+		DF778C848CC79E275A935009 /* RobotoMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 370B8E31B601FA355C655840 /* RobotoMono-Medium.ttf */; };
+		E7B99A1BC466E0B30BBD0A79 /* FreemiumLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05218C1511F1F4A3F14DFAB6 /* FreemiumLimits.swift */; };
+		EC0FE37E44AEC0C693E9E9EA /* PenovaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */; };
+		EF10AD4FB1EB99795AA890C9 /* ExportShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C174318333423CB299A2A6C /* ExportShareSheet.swift */; };
+		F364BA6E265C32EE075427BF /* PlayfairDisplay-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = D0C16A6B0183760ACD3CD49D /* PlayfairDisplay-OFL.txt */; };
+		FB1464A5DD604EFB72CBBA1D /* LimitReachedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19DF2517AFDDEB06C87C528E /* LimitReachedSheet.swift */; };
+		FD2F533A3237E7A629520350 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 949E0C9EEA7AA70FB8A69256 /* SplashScreen.swift */; };
+		FEA45B391C76DB181CB67EE4 /* NewProjectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCharacterSheet.swift; sourceTree = "<group>"; };
+		02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScreen.swift; sourceTree = "<group>"; };
+		02F944A2B63518E0B22F3C06 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		05218C1511F1F4A3F14DFAB6 /* FreemiumLimits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreemiumLimits.swift; sourceTree = "<group>"; };
+		0C174318333423CB299A2A6C /* ExportShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportShareSheet.swift; sourceTree = "<group>"; };
+		100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenesTabScreen.swift; sourceTree = "<group>"; };
+		172CACD48B8CA9B61E3EFE75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		19DF2517AFDDEB06C87C528E /* LimitReachedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitReachedSheet.swift; sourceTree = "<group>"; };
+		1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersTabScreen.swift; sourceTree = "<group>"; };
+		25D486CD1D488EE931D32996 /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
+		25DC376E071873F871BF16D1 /* DesignSystemGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemGallery.swift; sourceTree = "<group>"; };
+		275123948266F141979EEDD0 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		27D9B7F2F7A18A3156660103 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		2B5E6CC3E7EAD85F7B429F31 /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
+		370B8E31B601FA355C655840 /* RobotoMono-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Medium.ttf"; sourceTree = "<group>"; };
+		3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsTabScreen.swift; sourceTree = "<group>"; };
+		386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCaptureSheet.swift; sourceTree = "<group>"; };
+		3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaApp.swift; sourceTree = "<group>"; };
+		49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptPDFRenderer.swift; sourceTree = "<group>"; };
+		53F0831EB94C9C9471297ABF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSceneSheet.swift; sourceTree = "<group>"; };
+		5FD3EFDD08147034632786F2 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
+		7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDetailScreen.swift; sourceTree = "<group>"; };
+		74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailScreen.swift; sourceTree = "<group>"; };
+		77473BD2458260CD0DC78303 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
+		7D2FEED76686D936CF9C7623 /* SceneElementEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneElementEditor.swift; sourceTree = "<group>"; };
+		7F0F4B0239CF6D189E9D7190 /* ElementTypeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementTypeSheet.swift; sourceTree = "<group>"; };
+		80956E613FA97F2234F7D02F /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		87B21D2904059E29899CC365 /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Copy.swift; sourceTree = "<group>"; };
+		8C0A7A64681635BBE97E67C6 /* Penova.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Penova.entitlements; sourceTree = "<group>"; };
+		8CB50832240858F20B0320BA /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayfairDisplay.ttf; sourceTree = "<group>"; };
+		9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
+		949E0C9EEA7AA70FB8A69256 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
+		978D6DFC08C6404283F4CA0A /* EpisodeDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeDetailScreen.swift; sourceTree = "<group>"; };
+		9AAA9B28656B88F63BBAA4DB /* PaywallSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallSheet.swift; sourceTree = "<group>"; };
+		A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
+		A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
+		AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFlowView.swift; sourceTree = "<group>"; };
+		CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		D0C16A6B0183760ACD3CD49D /* PlayfairDisplay-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "PlayfairDisplay-OFL.txt"; sourceTree = "<group>"; };
+		D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RobotoMono-OFL.txt"; sourceTree = "<group>"; };
+		D7F666DB32F59BFC32A6D905 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProjectSheet.swift; sourceTree = "<group>"; };
+		E84EA7836B350608A4B2B035 /* Penova.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Penova.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailScreen.swift; sourceTree = "<group>"; };
+		FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
+		FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEpisodeSheet.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		01D2EFC534D0C046FA80E61F /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
+		32454888D7F0917B1E76FAC2 /* QuickCapture */ = {
+			isa = PBXGroup;
+			children = (
+				386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */,
+			);
+			path = QuickCapture;
+			sourceTree = "<group>";
+		};
+		3AC9FD385B55E5482B65356A /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */,
+				949E0C9EEA7AA70FB8A69256 /* SplashScreen.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		3F50E81B8DCF3194540B79B1 /* Paywall */ = {
+			isa = PBXGroup;
+			children = (
+				19DF2517AFDDEB06C87C528E /* LimitReachedSheet.swift */,
+				9AAA9B28656B88F63BBAA4DB /* PaywallSheet.swift */,
+			);
+			path = Paywall;
+			sourceTree = "<group>";
+		};
+		508F5F3427E71B408FE3228F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				53F0831EB94C9C9471297ABF /* Assets.xcassets */,
+				D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */,
+				FCCD3BFDD1ECD25EA3DDC6C1 /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		5B7A06C19E7DF05C4B001ADF /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				0C174318333423CB299A2A6C /* ExportShareSheet.swift */,
+				49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
+		5CA80157693DFD89968EB7D3 /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		641242B5A83F5F7924A5CAC1 /* PenovaSpec */ = {
+			isa = PBXGroup;
+			children = (
+				275123948266F141979EEDD0 /* Components.swift */,
+				87B21D2904059E29899CC365 /* Copy.swift */,
+				02F944A2B63518E0B22F3C06 /* DesignTokens.swift */,
+				05218C1511F1F4A3F14DFAB6 /* FreemiumLimits.swift */,
+				5FD3EFDD08147034632786F2 /* Icons.swift */,
+				D7F666DB32F59BFC32A6D905 /* Models.swift */,
+				8544091BE2B4C39624260894 /* screens */,
+			);
+			path = PenovaSpec;
+			sourceTree = "<group>";
+		};
+		73BBEF8A56BF78600D42DE56 /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */,
+				DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */,
+				74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */,
+			);
+			path = Project;
+			sourceTree = "<group>";
+		};
+		7659BBC34F303C07322E11DC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E84EA7836B350608A4B2B035 /* Penova.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8544091BE2B4C39624260894 /* screens */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = screens;
+			sourceTree = "<group>";
+		};
+		877B1EA535C8525FB0A01B3E /* Episode */ = {
+			isa = PBXGroup;
+			children = (
+				978D6DFC08C6404283F4CA0A /* EpisodeDetailScreen.swift */,
+			);
+			path = Episode;
+			sourceTree = "<group>";
+		};
+		AF65C8DC1B0372E714FC35AC /* Penova */ = {
+			isa = PBXGroup;
+			children = (
+				E96F25384978B12E1DDEF0B0 /* App */,
+				B4438DAFB5D657B4315402BD /* Features */,
+				508F5F3427E71B408FE3228F /* Resources */,
+			);
+			path = Penova;
+			sourceTree = "<group>";
+		};
+		AFEDD0E6DEC686210C840229 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				80956E613FA97F2234F7D02F /* SettingsScreen.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		B4438DAFB5D657B4315402BD /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				E82EB8D49DE76E044DA506E3 /* Characters */,
+				877B1EA535C8525FB0A01B3E /* Episode */,
+				5B7A06C19E7DF05C4B001ADF /* Export */,
+				CE35D1E1E5804C9FBCF84F99 /* Gallery */,
+				C8ADE7973F3270223EC9A896 /* Home */,
+				3AC9FD385B55E5482B65356A /* Onboarding */,
+				3F50E81B8DCF3194540B79B1 /* Paywall */,
+				73BBEF8A56BF78600D42DE56 /* Project */,
+				32454888D7F0917B1E76FAC2 /* QuickCapture */,
+				C411B8A7C76277562D9CAB7B /* Scene */,
+				5CA80157693DFD89968EB7D3 /* Scenes */,
+				01D2EFC534D0C046FA80E61F /* Scripts */,
+				AFEDD0E6DEC686210C840229 /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		B7508883A6C3A501831A3B4B = {
+			isa = PBXGroup;
+			children = (
+				AF65C8DC1B0372E714FC35AC /* Penova */,
+				641242B5A83F5F7924A5CAC1 /* PenovaSpec */,
+				7659BBC34F303C07322E11DC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C411B8A7C76277562D9CAB7B /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				7F0F4B0239CF6D189E9D7190 /* ElementTypeSheet.swift */,
+				56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */,
+				7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */,
+				7D2FEED76686D936CF9C7623 /* SceneElementEditor.swift */,
+			);
+			path = Scene;
+			sourceTree = "<group>";
+		};
+		C8ADE7973F3270223EC9A896 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		CE35D1E1E5804C9FBCF84F99 /* Gallery */ = {
+			isa = PBXGroup;
+			children = (
+				25DC376E071873F871BF16D1 /* DesignSystemGallery.swift */,
+			);
+			path = Gallery;
+			sourceTree = "<group>";
+		};
+		E82EB8D49DE76E044DA506E3 /* Characters */ = {
+			isa = PBXGroup;
+			children = (
+				EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */,
+				1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */,
+				0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */,
+			);
+			path = Characters;
+			sourceTree = "<group>";
+		};
+		E96F25384978B12E1DDEF0B0 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */,
+				172CACD48B8CA9B61E3EFE75 /* Info.plist */,
+				8C0A7A64681635BBE97E67C6 /* Penova.entitlements */,
+				3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */,
+				27D9B7F2F7A18A3156660103 /* RootView.swift */,
+				77473BD2458260CD0DC78303 /* SeedData.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		FCCD3BFDD1ECD25EA3DDC6C1 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				25D486CD1D488EE931D32996 /* Inter-Bold.ttf */,
+				2B5E6CC3E7EAD85F7B429F31 /* Inter-Medium.ttf */,
+				A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */,
+				A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */,
+				CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */,
+				D0C16A6B0183760ACD3CD49D /* PlayfairDisplay-OFL.txt */,
+				8CB50832240858F20B0320BA /* PlayfairDisplay.ttf */,
+				370B8E31B601FA355C655840 /* RobotoMono-Medium.ttf */,
+				D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */,
+				FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4346D55D19BD2F63304DED35 /* Penova */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8774DC3BE088BD6C86514B8E /* Build configuration list for PBXNativeTarget "Penova" */;
+			buildPhases = (
+				D44FA31476161DA9A6F6A6AD /* Sources */,
+				7861E164A428B8DB333DB0B8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Penova;
+			packageProductDependencies = (
+			);
+			productName = Penova;
+			productReference = E84EA7836B350608A4B2B035 /* Penova.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		49DA52B5E2104ACC6DAE449F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					4346D55D19BD2F63304DED35 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = F4DAF84D725703BDB320BCB0 /* Build configuration list for PBXProject "Penova" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B7508883A6C3A501831A3B4B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7659BBC34F303C07322E11DC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4346D55D19BD2F63304DED35 /* Penova */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7861E164A428B8DB333DB0B8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A59363BB5C3DE4F3BD51E4A4 /* Assets.xcassets in Resources */,
+				7B23584A9B6C26C0D8984C36 /* Inter-Bold.ttf in Resources */,
+				9B0DD11A70F2C5340D94C2DB /* Inter-Medium.ttf in Resources */,
+				88F6DF7D512568D43C137C61 /* Inter-OFL.txt in Resources */,
+				69190BB81A070D08F3251619 /* Inter-Regular.ttf in Resources */,
+				A5E29C51C287C972F469FC6B /* Inter-SemiBold.ttf in Resources */,
+				F364BA6E265C32EE075427BF /* PlayfairDisplay-OFL.txt in Resources */,
+				73134856768E274B337D3FDA /* PlayfairDisplay.ttf in Resources */,
+				BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */,
+				DF778C848CC79E275A935009 /* RobotoMono-Medium.ttf in Resources */,
+				8AF45CF5D8A835ABF579E109 /* RobotoMono-OFL.txt in Resources */,
+				D43068233BC7C0D981FC490B /* RobotoMono-Regular.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D44FA31476161DA9A6F6A6AD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05CB5087FA61CF1AA1279F4C /* AppFlowView.swift in Sources */,
+				65AC2666F3FB5D7A6BFDE537 /* CharacterDetailScreen.swift in Sources */,
+				AEB6496287E2AB90F38BA9D4 /* CharactersTabScreen.swift in Sources */,
+				7D643FFF30255530742EAE0F /* Components.swift in Sources */,
+				0AB3BE8773AE713171446A70 /* Copy.swift in Sources */,
+				45303C6FD7E32611E6895DFF /* DesignSystemGallery.swift in Sources */,
+				867DB5CA26F4FAE13A078F07 /* DesignTokens.swift in Sources */,
+				B61168FAA47E3BBF32A6BEFA /* ElementTypeSheet.swift in Sources */,
+				98C4412427DA93BEA7000304 /* EpisodeDetailScreen.swift in Sources */,
+				EF10AD4FB1EB99795AA890C9 /* ExportShareSheet.swift in Sources */,
+				E7B99A1BC466E0B30BBD0A79 /* FreemiumLimits.swift in Sources */,
+				B8172462B32AC9F3A7940A93 /* HomeScreen.swift in Sources */,
+				44FE4E2F65D671B6E1AA3597 /* Icons.swift in Sources */,
+				FB1464A5DD604EFB72CBBA1D /* LimitReachedSheet.swift in Sources */,
+				6E21DD5369614FCF0D68FE9D /* Models.swift in Sources */,
+				960B361F049C22AC5F8905BB /* NewCharacterSheet.swift in Sources */,
+				69E1F46CB2DBE5B025D50B30 /* NewEpisodeSheet.swift in Sources */,
+				FEA45B391C76DB181CB67EE4 /* NewProjectSheet.swift in Sources */,
+				922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */,
+				AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */,
+				7DDC9BB371CA9CB4E3AEC8DD /* PaywallSheet.swift in Sources */,
+				EC0FE37E44AEC0C693E9E9EA /* PenovaApp.swift in Sources */,
+				6DAF2A5656E5286EA2CE1DEA /* ProjectDetailScreen.swift in Sources */,
+				0B22BADB791826FE15738A6C /* RootView.swift in Sources */,
+				AB1B1DB6D66A34370C194C98 /* SceneDetailScreen.swift in Sources */,
+				673C1493ADD68D3F8D2D3095 /* SceneElementEditor.swift in Sources */,
+				CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */,
+				0558212BAB6B626A87C40DCE /* ScriptPDFRenderer.swift in Sources */,
+				D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */,
+				4DC274E8363B8E0B21D539BA /* SeedData.swift in Sources */,
+				124441D3EA9131225BE4F16C /* SettingsScreen.swift in Sources */,
+				FD2F533A3237E7A629520350 /* SplashScreen.swift in Sources */,
+				15CBDE9031EE185AAE07D1F1 /* VoiceCaptureSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		050161D1FF7A7399DE83B24D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_LANGUAGE = en;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7AC7FDE51F36A3B64FCDF0C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_LANGUAGE = en;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8D629F38D4F213EFD6F73BC6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Penova/App/Penova.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Penova/App/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
+				PRODUCT_NAME = Penova;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B374E7C7A3DF1FDFCACF58E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Penova/App/Penova.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Penova/App/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
+				PRODUCT_NAME = Penova;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8774DC3BE088BD6C86514B8E /* Build configuration list for PBXNativeTarget "Penova" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B374E7C7A3DF1FDFCACF58E8 /* Debug */,
+				8D629F38D4F213EFD6F73BC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F4DAF84D725703BDB320BCB0 /* Build configuration list for PBXProject "Penova" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				050161D1FF7A7399DE83B24D /* Debug */,
+				7AC7FDE51F36A3B64FCDF0C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 49DA52B5E2104ACC6DAE449F /* Project object */;
+}
