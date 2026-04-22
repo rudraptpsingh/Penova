@@ -106,7 +106,7 @@ enum SeedData {
         )
 
         [iqbal, ravi, meena, sharma, conductor].forEach {
-            $0.project = project
+            $0.projects.append(project)
             context.insert($0)
         }
 

@@ -31,9 +31,12 @@ struct CharactersTabScreen: View {
     }
 
     private var grouped: [(project: Project, chars: [ScriptCharacter])] {
-        let byProject = Dictionary(grouping: filtered) { $0.project?.id ?? "" }
+        // With many-to-many, a character can appear under multiple projects.
+        // Flatten: for each character, emit one membership per project.
         return activeProjects.compactMap { project -> (Project, [ScriptCharacter])? in
-            let chars = byProject[project.id] ?? []
+            let chars = filtered.filter { ch in
+                ch.projects.contains(where: { $0.id == project.id })
+            }
             return chars.isEmpty ? nil : (project, chars)
         }
     }

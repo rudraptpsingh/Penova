@@ -105,7 +105,7 @@ struct NewCharacterSheet: View {
 
     private func hydrate() {
         if let c = editing {
-            selectedProjectId = c.project?.id ?? ""
+            selectedProjectId = c.projects.first?.id ?? ""
             name = c.name
             role = c.role
             ageText = c.ageText ?? ""
@@ -151,7 +151,7 @@ struct NewCharacterSheet: View {
             c.goal = goal.isEmpty ? nil : goal
             c.conflict = conflict.isEmpty ? nil : conflict
             c.notes = notes.isEmpty ? nil : notes
-            c.project = project
+            c.projects = [project]
             context.insert(c)
         }
         try? context.save()

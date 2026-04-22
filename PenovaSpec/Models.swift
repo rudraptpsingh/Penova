@@ -14,7 +14,10 @@
 //
 //  Deletion:
 //   - Project → Episode → ScriptScene → SceneElement cascade
-//   - Project → ScriptCharacter cascade
+//   - Project ↔ ScriptCharacter is many-to-many: deleting a Project detaches
+//     its characters (they may still belong to other projects) but does NOT
+//     delete the ScriptCharacter rows. Deleting a character just removes it
+//     from every project it was linked to.
 //   - Scene → Character links are weak refs (we keep names), not SwiftData
 //     relationships, so deleting a character doesn't wipe dialogue blocks.
 //
@@ -117,7 +120,12 @@ public final class Project {
     @Relationship(deleteRule: .cascade, inverse: \Episode.project)
     public var episodes: [Episode] = []
 
-    @Relationship(deleteRule: .cascade, inverse: \ScriptCharacter.project)
+    // Many-to-many with ScriptCharacter. No explicit deleteRule: on a
+    // to-many relationship the SwiftData default (nullify) is what we want —
+    // deleting a Project detaches it from each character's `projects` array
+    // without deleting the character rows themselves. `.cascade` would be
+    // wrong because characters can be shared across projects.
+    @Relationship(inverse: \ScriptCharacter.projects)
     public var characters: [ScriptCharacter] = []
 
     public init(
@@ -250,7 +258,10 @@ public final class SceneElement {
 @Model
 public final class ScriptCharacter {
     @Attribute(.unique) public var id: ID
-    public var project: Project?
+    /// Projects this character belongs to. Many-to-many: a single character
+    /// can appear in multiple projects (e.g. shared across a series of films
+    /// or a spin-off). Inverse is declared on `Project.characters`.
+    public var projects: [Project] = []
     public var name: String
     public var role: CharacterRole
     /// Age expressed as text so we accept "38" or "mid-30s" equally.
