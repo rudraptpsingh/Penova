@@ -171,8 +171,12 @@ struct ProjectDetailScreen: View {
     }
 
     private func exportFDX() {
-        // STUB: FDX writer — real Final Draft XML serializer lands in a later release. See STUBS.md.
-        exportError = "FDX export is coming in the next release."
+        do {
+            let url = try FinalDraftXMLWriter.write(project: project)
+            exportFile = ExportFile(url: url, format: .fdx)
+        } catch {
+            exportError = error.localizedDescription
+        }
     }
 
     private var header: some View {
