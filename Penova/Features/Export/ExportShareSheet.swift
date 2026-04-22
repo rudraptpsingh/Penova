@@ -9,6 +9,10 @@
 
 import SwiftUI
 
+public enum ExportFormat: String, Codable, CaseIterable {
+    case pdf, fdx, fountain
+}
+
 struct ExportFile: Identifiable {
     let id = UUID()
     let url: URL

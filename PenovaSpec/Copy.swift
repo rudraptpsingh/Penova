@@ -99,12 +99,6 @@ public enum Copy {
         public static let formatDialogue      = "Dialogue"
         public static let formatParenthetical = "Parenthetical"
         public static let formatTransition    = "Transition"
-
-        public static func sceneLimitBanner(remaining: Int) -> String {
-            remaining == 1 ? "1 scene left on free plan"
-                           : "\(remaining) scenes left on free plan"
-        }
-        public static let sceneLimitReachedBanner = "Free limit reached — Upgrade to Pro"
     }
 
     // MARK: Characters
@@ -148,63 +142,12 @@ public enum Copy {
         public static let discardPrompt = "Discard this capture?"
     }
 
-    // MARK: Paywall
-    public enum paywall {
-        public static let badge = "Penova Pro"
-        public static let titleDefault       = "Write without limits."
-        public static let titleSceneLimit    = "Need more scenes?"
-        public static let titleProjectLimit  = "Ready for project 2?"
-        public static let titleExportFdx     = "Your script deserves Final Draft format."
-        public static let subtitle           = "You get Penova free for one project. When your stories outgrow that, Pro is here."
-        public static let annualLabel        = "Annual"
-        public static let annualPrice        = "₹3,999 / year  ·  ₹333 / mo billed yearly"
-        public static let annualSave         = "SAVE 33%"
-        public static let monthlyLabel       = "Monthly"
-        public static let monthlyPrice       = "₹499 / month"
-        public static let ctaUpgrade         = "Upgrade to Pro"
-        public static let footnote           = "No trial. Start free. Upgrade only when Penova has earned it. Cancel anytime in Settings."
-        public static let restore            = "Restore purchases"
-        public static let featureProjects    = "Projects"
-        public static let featureScenes      = "Scenes per project"
-        public static let featurePdf         = "Export PDF"
-        public static let featureFdx         = "Export .fdx (Final Draft)"
-        public static let featureOffline     = "Offline editing"
-        public static let featureCharacters  = "Character profiles"
-        public static let freeUnlimited      = "Unlimited"
-        public static let freeOnePerProject  = "15"
-    }
-
-    // MARK: Limit Reached (S22)
-    public enum limitReached {
-        public static let sceneTitle = "One scene away from unlimited."
-        public static func sceneSubtitle(used: Int, cap: Int) -> String {
-            "\(used) scenes in this project"
-        }
-        public static let sceneBody = "Finish your pilot. Then Penova Pro unlocks the rest — a second project, a third, .fdx export, and no ceiling."
-
-        public static let projectTitle = "Finish your pilot first."
-        public static let projectBody  = "Free gives you one project at a time — enough room for a whole feature or pilot. Archive this one when you're done, or go Pro to start the next in parallel."
-
-        public static let upgradeButton = "Upgrade to Pro"
-        public static let keepOnFree    = "Keep on free plan"
-        public static let hint          = "Archive a finished project and you can start a new one on free."
-    }
-
     // MARK: Settings
     public enum settings {
         public static let title             = "Settings"
         public static let accountLabel      = "Account"
         public static let emailLabel        = "Email"
         public static let signOut           = "Sign out"
-        public static let subscriptionLabel = "Subscription"
-        public static let freePlanLabel     = "Free plan"
-        public static let proPlanLabel      = "Penova Pro"
-        public static let freePlanFeatures  = "1 active project · unlimited scenes"
-        public static let proPlanFeatures   = "Everything unlimited · .fdx export"
-        public static let scenesUsedLabel   = "Scenes used"
-        public static func scenesUsedValue(used: Int, cap: Int) -> String { "\(used) of \(cap)" }
-        public static let manageSubscription = "Manage subscription"
-        public static func renewsOn(_ date: String) -> String { "Renews \(date)" }
 
         public static let writingLabel     = "Writing"
         public static let fontSizeLabel    = "Font size"
