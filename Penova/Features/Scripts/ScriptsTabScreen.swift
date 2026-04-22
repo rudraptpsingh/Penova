@@ -16,6 +16,8 @@ struct ScriptsTabScreen: View {
     @State private var filter: ProjectStatus = .active
     @State private var search: String = ""
     @State private var showNewProject = false
+    @State private var showImportPicker = false
+    @State private var importError: String?
     @State private var showGlobalSearch = false
     @State private var editing: Project?
     @State private var pendingDelete: Project?
@@ -84,6 +86,25 @@ struct ScriptsTabScreen: View {
             .navigationDestination(for: Project.self) { project in
                 ProjectDetailScreen(project: project)
             }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showNewProject = true
+                        } label: {
+                            Label("New project", systemImage: "plus")
+                        }
+                        Button {
+                            showImportPicker = true
+                        } label: {
+                            Label("Import from Fountain…", systemImage: "square.and.arrow.down")
+                        }
+                    } label: {
+                        PenovaIconView(.plus, size: 18, color: PenovaColor.snow)
+                    }
+                    .accessibilityLabel("Add")
+                }
+            }
 
             PenovaFAB(icon: .plus) { showNewProject = true }
                 .padding(PenovaSpace.l)
@@ -102,6 +123,22 @@ struct ScriptsTabScreen: View {
             NewProjectSheet(editing: project)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showImportPicker) {
+            FountainImportPicker { url in
+                handleFountainImport(url: url)
+            }
+        }
+        .alert(
+            "Import failed",
+            isPresented: Binding(
+                get: { importError != nil },
+                set: { if !$0 { importError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { importError = nil }
+        } message: {
+            Text(importError ?? "")
         }
         .alert(
             "Delete project?",
@@ -133,6 +170,29 @@ struct ScriptsTabScreen: View {
         project.status = status
         project.updatedAt = .now
         try? context.save()
+    }
+
+    private func handleFountainImport(url: URL) {
+        do {
+            // Scoped access: security-scoped URLs are required for document
+            // picker results on iOS.
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+
+            let data = try Data(contentsOf: url)
+            guard let text = String(data: data, encoding: .utf8)
+                ?? String(data: data, encoding: .isoLatin1) else {
+                importError = "Could not read file as text."
+                return
+            }
+            let doc = FountainParser.parse(text)
+            let name = url.deletingPathExtension().lastPathComponent
+            let title = name.isEmpty ? "Untitled" : name
+            _ = FountainImporter.makeProject(title: title, from: doc, context: context)
+            try context.save()
+        } catch {
+            importError = error.localizedDescription
+        }
     }
 
     private func confirmDelete() {

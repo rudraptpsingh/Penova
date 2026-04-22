@@ -32,6 +32,8 @@ struct HomeScreen: View {
 
     @State private var showNewProject = false
     @State private var showQuickCapture = false
+    /// Per-project page-count cache, keyed by project.id + updatedAt signature.
+    @State private var pageCountByProject: [String: (stamp: Date, pages: Int)] = [:]
 
     private var greeting: String {
         Copy.home.greeting(forHour: Calendar.current.component(.hour, from: Date()))
@@ -58,7 +60,7 @@ struct HomeScreen: View {
                         VStack(spacing: PenovaSpace.m) {
                             ForEach(projects) { project in
                                 NavigationLink(value: project) {
-                                    ProjectCard(project: project)
+                                    ProjectCard(project: project, pageCount: pageCount(for: project))
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -106,6 +108,27 @@ struct HomeScreen: View {
             VoiceCaptureSheet()
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+        }
+        .onAppear(perform: refreshPageCounts)
+        .onChange(of: allProjects.count) { _, _ in refreshPageCounts() }
+        .onChange(of: allProjects.map(\.updatedAt)) { _, _ in refreshPageCounts() }
+    }
+
+    /// Read the cached page count for a project. If not yet measured, returns
+    /// nil and the card hides the meta entry until `refreshPageCounts()` runs.
+    private func pageCount(for project: Project) -> Int? {
+        guard let entry = pageCountByProject[project.id],
+              entry.stamp == project.updatedAt else { return nil }
+        return entry.pages
+    }
+
+    /// Populate / refresh the cache for the currently visible projects.
+    /// Cheap: just skips entries whose `updatedAt` hasn't changed.
+    private func refreshPageCounts() {
+        for project in projects {
+            if pageCountByProject[project.id]?.stamp == project.updatedAt { continue }
+            let pages = ScriptPDFRenderer.measurePageCount(project: project)
+            pageCountByProject[project.id] = (project.updatedAt, pages)
         }
     }
 

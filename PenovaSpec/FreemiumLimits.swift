@@ -31,7 +31,7 @@ public struct Limits {
 }
 
 public enum ExportFormat: String, CaseIterable {
-    case pdf, fdx
+    case pdf, fdx, fountain
 }
 
 public enum FreemiumLimitsTable {

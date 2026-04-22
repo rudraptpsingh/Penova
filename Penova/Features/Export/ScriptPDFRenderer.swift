@@ -56,52 +56,100 @@ enum ScriptPDFRenderer {
         try? FileManager.default.removeItem(at: url)
 
         try renderer.writePDF(to: url) { ctx in
-            var state = LayoutState(pageRect: pageRect)
-            drawTitlePage(project: project, ctx: ctx, state: &state)
-            for (epIndex, episode) in project.activeEpisodesOrdered.enumerated() {
-                state.startScriptPage(ctx: ctx)
-                if project.activeEpisodesOrdered.count > 1 {
-                    drawEpisodeHeader(episode, index: epIndex, ctx: ctx, state: &state)
-                }
-                for scene in episode.scenesOrdered {
-                    drawScene(scene, ctx: ctx, state: &state)
-                }
-            }
+            var state = LayoutState(pageRect: pageRect, mode: .draw(ctx))
+            layout(project: project, state: &state)
         }
 
         return url
     }
 
+    /// Measure how many numbered script pages the given project would produce
+    /// if rendered. Uses the exact same layout math as `render(project:)`
+    /// so the count agrees with the emitted PDF. Excludes the (unnumbered)
+    /// title page. Returns 0 for a project with no renderable content.
+    static func measurePageCount(project: Project) -> Int {
+        let pageRect = CGRect(x: 0, y: 0, width: 612, height: 792)
+        var state = LayoutState(pageRect: pageRect, mode: .measure)
+        layout(project: project, state: &state)
+        // If we never advanced past the title page (empty project), nothing to count.
+        if state.onTitlePage { return 0 }
+        // A project with episodes but zero scenes still consumes one blank page
+        // per episode (we beginPage before walking episode scenes); but nothing
+        // was drawn — count that as 0.
+        if !state.drewAnyContent { return 0 }
+        return state.scriptPageNumber
+    }
+
+    // MARK: - Shared layout walker
+
+    private static func layout(project: Project, state: inout LayoutState) {
+        drawTitlePage(project: project, state: &state)
+        let resetPerEpisode = project.activeEpisodesOrdered.count > 1
+        var sceneNumber = 1
+        for (epIndex, episode) in project.activeEpisodesOrdered.enumerated() {
+            state.startScriptPage()
+            if project.activeEpisodesOrdered.count > 1 {
+                drawEpisodeHeader(episode, index: epIndex, state: &state)
+            }
+            if resetPerEpisode { sceneNumber = 1 }
+            for scene in episode.scenesOrdered {
+                drawScene(scene, number: sceneNumber, state: &state)
+                sceneNumber += 1
+            }
+        }
+    }
+
     // MARK: - Layout state
 
-    private struct LayoutState {
+    /// How the layout walker handles page breaks and drawing primitives.
+    /// `.draw` emits into a real PDF context; `.measure` walks the same
+    /// flow without touching UIKit draw calls so we can return a page count.
+    enum RenderMode {
+        case draw(UIGraphicsPDFRendererContext)
+        case measure
+    }
+
+    struct LayoutState {
         let pageRect: CGRect
+        let mode: RenderMode
         var y: CGFloat
         var scriptPageNumber: Int      // 1-based, excludes title page
         var onTitlePage: Bool
+        /// Set true the first time real content (not just a beginPage)
+        /// is emitted on a script page. Lets `measurePageCount` distinguish
+        /// "empty project" from "project with one rendered page".
+        var drewAnyContent: Bool
 
-        init(pageRect: CGRect) {
+        init(pageRect: CGRect, mode: RenderMode) {
             self.pageRect = pageRect
+            self.mode = mode
             self.y = Margins.top
             self.scriptPageNumber = 0
             self.onTitlePage = true
+            self.drewAnyContent = false
+        }
+
+        var isDrawing: Bool {
+            if case .draw = mode { return true }
+            return false
         }
 
         /// Begin the first (or next) numbered script page.
-        mutating func startScriptPage(ctx: UIGraphicsPDFRendererContext) {
-            ctx.beginPage()
+        mutating func startScriptPage() {
+            if case .draw(let ctx) = mode { ctx.beginPage() }
             onTitlePage = false
             scriptPageNumber += 1
             y = Margins.top
-            Self.drawPageNumber(page: scriptPageNumber, in: pageRect)
+            Self.drawPageNumber(page: scriptPageNumber, in: pageRect, mode: mode)
         }
 
         /// Continue to the next page mid-script (same numbering scheme).
-        mutating func nextPage(ctx: UIGraphicsPDFRendererContext) {
-            startScriptPage(ctx: ctx)
+        mutating func nextPage() {
+            startScriptPage()
         }
 
-        private static func drawPageNumber(page: Int, in pageRect: CGRect) {
+        private static func drawPageNumber(page: Int, in pageRect: CGRect, mode: RenderMode) {
+            guard case .draw = mode else { return }
             guard page >= 2 else { return }   // first script page unnumbered (industry convention)
             let attrs: [NSAttributedString.Key: Any] = [
                 .font: bodyFont,
@@ -145,8 +193,8 @@ enum ScriptPDFRenderer {
 
     // MARK: - Title Page (industry standard)
 
-    private static func drawTitlePage(project: Project, ctx: UIGraphicsPDFRendererContext, state: inout LayoutState) {
-        ctx.beginPage()
+    private static func drawTitlePage(project: Project, state: inout LayoutState) {
+        if case .draw(let ctx) = state.mode { ctx.beginPage() } else { return }
         // Title centred at ~1/3 down the page.
         let centerX: CGFloat = 0
         let pageWidth = state.pageRect.width
@@ -169,19 +217,21 @@ enum ScriptPDFRenderer {
         author.draw(with: CGRect(x: centerX, y: titleY + 6 * lineHeight, width: pageWidth, height: lineHeight + 4),
                     options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
-        // Contact block, bottom-left, 1.5" from left & bottom.
-        let contactY = state.pageRect.height - Margins.bottom - 3 * lineHeight
+        // Optional contact block, bottom-left, 1" from left & bottom.
+        // Only rendered when the project has one set — no hardcoded fallback.
+        let contact = project.contactBlock.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !contact.isEmpty else { return }
+        let contactLines = contact.components(separatedBy: .newlines).count
+        let contactHeight = CGFloat(max(contactLines, 1)) * lineHeight + 4
+        let contactY = state.pageRect.height - Margins.bottom - contactHeight
         let contactAttrs: [NSAttributedString.Key: Any] = [
             .font: bodyFont,
             .foregroundColor: UIColor.black
         ]
-        let contact = NSAttributedString(
-            string: "Drafted in Penova\n\(dateString())",
-            attributes: contactAttrs
-        )
-        contact.draw(with: CGRect(x: Margins.left, y: contactY,
-                                  width: 200, height: 3 * lineHeight),
-                     options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        let contactAttr = NSAttributedString(string: contact, attributes: contactAttrs)
+        contactAttr.draw(with: CGRect(x: Margins.left, y: contactY,
+                                      width: 260, height: contactHeight),
+                         options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
     }
 
     private static func authorName() -> String {
@@ -198,27 +248,26 @@ enum ScriptPDFRenderer {
 
     // MARK: - Episode header (only when a project has >1 episode)
 
-    private static func drawEpisodeHeader(_ episode: Episode, index: Int, ctx: UIGraphicsPDFRendererContext, state: inout LayoutState) {
+    private static func drawEpisodeHeader(_ episode: Episode, index: Int, state: inout LayoutState) {
         let title = "EPISODE \(episode.order + 1): \(episode.title.uppercased())"
         draw(
             text: title,
             x: Margins.left,
             width: BlockWidth.action,
             blankLinesAfter: 2,
-            state: &state,
-            ctx: ctx
+            state: &state
         )
     }
 
     // MARK: - Scene
 
-    private static func drawScene(_ scene: ScriptScene, ctx: UIGraphicsPDFRendererContext, state: inout LayoutState) {
+    private static func drawScene(_ scene: ScriptScene, number: Int, state: inout LayoutState) {
         // 2 blank lines before a scene heading (but not if we just started a page).
         if state.y > Margins.top {
             state.y += 2 * blank
         }
 
-        drawHeading(scene.heading.uppercased(), ctx: ctx, state: &state)
+        drawHeading(scene.heading.uppercased(), number: number, state: &state)
 
         let elements = scene.elementsOrdered.filter { $0.kind != .heading }
         if elements.isEmpty, let desc = scene.sceneDescription, !desc.isEmpty {
@@ -228,60 +277,91 @@ enum ScriptPDFRenderer {
                 x: Indent.action,
                 width: BlockWidth.action,
                 blankLinesAfter: 1,
-                state: &state,
-                ctx: ctx
+                state: &state
             )
             return
         }
 
         var previousKind: SceneElementKind?
         for el in elements {
-            drawElement(el, previousKind: previousKind, ctx: ctx, state: &state)
+            drawElement(el, previousKind: previousKind, state: &state)
             previousKind = el.kind
         }
     }
 
-    private static func drawHeading(_ text: String, ctx: UIGraphicsPDFRendererContext, state: inout LayoutState) {
+    /// Draw the scene heading plus scene-number "gutter" markers in both the
+    /// left and right margins (0.5" from each page edge, 12pt Courier).
+    /// Markers sit on the same baseline as the heading and stay outside
+    /// the heading text column.
+    private static func drawHeading(_ text: String, number: Int, state: inout LayoutState) {
+        // Stamp the gutter numbers at the heading's current y BEFORE `draw`
+        // advances it — both gutters use the same baseline as the heading.
+        let baselineY = state.y
+        if case .draw = state.mode {
+            let label = "\(number)."
+            // Left gutter: 0.5" from left page edge.
+            let leftAttrs: [NSAttributedString.Key: Any] = [
+                .font: bodyFont,
+                .foregroundColor: UIColor.black
+            ]
+            NSAttributedString(string: label, attributes: leftAttrs).draw(
+                with: CGRect(x: 36, y: baselineY,
+                             width: Indent.action - 36 - 8,
+                             height: lineHeight + 2),
+                options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil
+            )
+            // Right gutter: right-aligned so its right edge sits 0.5" from
+            // the right page edge.
+            let rightAttrs: [NSAttributedString.Key: Any] = [
+                .font: bodyFont,
+                .foregroundColor: UIColor.black,
+                .paragraphStyle: rightAligned()
+            ]
+            let rightWidth: CGFloat = 72   // 1" wide box
+            let rightX = state.pageRect.width - 36 - rightWidth
+            NSAttributedString(string: label, attributes: rightAttrs).draw(
+                with: CGRect(x: rightX, y: baselineY,
+                             width: rightWidth, height: lineHeight + 2),
+                options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil
+            )
+        }
         draw(
             text: text,
             x: Indent.action,
             width: BlockWidth.action,
             blankLinesAfter: 1,
-            state: &state,
-            ctx: ctx
+            state: &state
         )
     }
 
     private static func drawElement(_ element: SceneElement,
                                     previousKind: SceneElementKind?,
-                                    ctx: UIGraphicsPDFRendererContext,
                                     state: inout LayoutState) {
         switch element.kind {
         case .action:
             if previousKind != nil { state.y += blank }
             draw(text: element.text,
                  x: Indent.action, width: BlockWidth.action,
-                 blankLinesAfter: 0, state: &state, ctx: ctx)
+                 blankLinesAfter: 0, state: &state)
 
         case .character:
             // Character cue is preceded by a blank line.
             if previousKind != nil { state.y += blank }
             draw(text: element.text.uppercased(),
                  x: Indent.character, width: BlockWidth.action - (Indent.character - Indent.action),
-                 blankLinesAfter: 0, state: &state, ctx: ctx)
+                 blankLinesAfter: 0, state: &state)
 
         case .parenthetical:
             // Sits directly under character / between dialogue — no blank.
             draw(text: formatParenthetical(element.text),
                  x: Indent.parens, width: BlockWidth.parens,
-                 blankLinesAfter: 0, state: &state, ctx: ctx)
+                 blankLinesAfter: 0, state: &state)
 
         case .dialogue:
             // Sits directly under character or parenthetical — no blank.
             drawDialogueWithMoreContd(
                 text: element.text,
                 characterForContd: nearestCharacter(before: element),
-                ctx: ctx,
                 state: &state
             )
 
@@ -290,7 +370,7 @@ enum ScriptPDFRenderer {
             let text = formatTransition(element.text)
             drawRightAligned(text: text,
                              width: BlockWidth.transition,
-                             state: &state, ctx: ctx)
+                             state: &state)
 
         case .heading:
             break  // rendered via drawHeading at scene start only
@@ -299,14 +379,13 @@ enum ScriptPDFRenderer {
             // Centered, underlined, ALL CAPS — "END OF ACT ONE" convention.
             // Writers type whatever label they want; we just style it.
             if previousKind != nil { state.y += 2 * blank }
-            drawActBreak(text: element.text, ctx: ctx, state: &state)
+            drawActBreak(text: element.text, state: &state)
             state.y += blank
         }
     }
 
     private static func drawActBreak(
         text: String,
-        ctx: UIGraphicsPDFRendererContext,
         state: inout LayoutState
     ) {
         let label = text.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
@@ -322,7 +401,7 @@ enum ScriptPDFRenderer {
         ])
         let height = measure(attributed, width: BlockWidth.action)
         if state.y + height > state.pageRect.height - Margins.bottom {
-            state.nextPage(ctx: ctx)
+            state.nextPage()
         }
         attributed.draw(
             with: CGRect(x: Margins.left, y: state.y, width: BlockWidth.action, height: height),
@@ -364,7 +443,6 @@ enum ScriptPDFRenderer {
     private static func drawDialogueWithMoreContd(
         text: String,
         characterForContd: String?,
-        ctx: UIGraphicsPDFRendererContext,
         state: inout LayoutState
     ) {
         let attributed = attributedString(text, alignment: .left)
@@ -392,7 +470,7 @@ enum ScriptPDFRenderer {
             drawLine("(MORE)", x: Indent.parens, width: BlockWidth.parens, state: &state)
         }
 
-        state.nextPage(ctx: ctx)
+        state.nextPage()
 
         // Character (CONT'D)
         if let name = characterForContd {
@@ -417,21 +495,23 @@ enum ScriptPDFRenderer {
         x: CGFloat,
         width: CGFloat,
         blankLinesAfter: Int,
-        state: inout LayoutState,
-        ctx: UIGraphicsPDFRendererContext
+        state: inout LayoutState
     ) -> CGFloat {
         let attributed = attributedString(text, alignment: .left)
         let height = measure(attributed, width: width)
 
         if state.y + height > state.pageRect.height - Margins.bottom {
-            state.nextPage(ctx: ctx)
+            state.nextPage()
         }
 
-        attributed.draw(
-            with: CGRect(x: x, y: state.y, width: width, height: height),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil
-        )
+        if state.isDrawing {
+            attributed.draw(
+                with: CGRect(x: x, y: state.y, width: width, height: height),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                context: nil
+            )
+        }
+        state.drewAnyContent = true
         state.y += height + CGFloat(blankLinesAfter) * blank
         return state.y
     }
@@ -439,29 +519,34 @@ enum ScriptPDFRenderer {
     private static func drawRightAligned(
         text: String,
         width: CGFloat,
-        state: inout LayoutState,
-        ctx: UIGraphicsPDFRendererContext
+        state: inout LayoutState
     ) {
         let attributed = attributedString(text, alignment: .right)
         let height = measure(attributed, width: width)
         if state.y + height > state.pageRect.height - Margins.bottom {
-            state.nextPage(ctx: ctx)
+            state.nextPage()
         }
-        attributed.draw(
-            with: CGRect(x: Margins.left, y: state.y, width: width, height: height),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil
-        )
+        if state.isDrawing {
+            attributed.draw(
+                with: CGRect(x: Margins.left, y: state.y, width: width, height: height),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                context: nil
+            )
+        }
+        state.drewAnyContent = true
         state.y += height
     }
 
     private static func drawLine(_ text: String, x: CGFloat, width: CGFloat, state: inout LayoutState) {
-        let attributed = attributedString(text, alignment: .left)
-        attributed.draw(
-            with: CGRect(x: x, y: state.y, width: width, height: lineHeight + 2),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil
-        )
+        if state.isDrawing {
+            let attributed = attributedString(text, alignment: .left)
+            attributed.draw(
+                with: CGRect(x: x, y: state.y, width: width, height: lineHeight + 2),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                context: nil
+            )
+        }
+        state.drewAnyContent = true
         state.y += lineHeight
     }
 

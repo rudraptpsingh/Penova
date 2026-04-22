@@ -20,6 +20,7 @@ struct NewProjectSheet: View {
     @State private var title: String = ""
     @State private var logline: String = ""
     @State private var selectedGenres: Set<Genre> = [.drama]
+    @State private var contactBlock: String = ""
     @State private var limitContext: LimitReachedContext?
 
     private var canSave: Bool {
@@ -55,6 +56,31 @@ struct NewProjectSheet: View {
                                 }
                             }
                         }
+                    }
+                    VStack(alignment: .leading, spacing: PenovaSpace.s) {
+                        Text("Contact (title page)")
+                            .font(PenovaFont.labelCaps)
+                            .tracking(PenovaTracking.labelCaps)
+                            .foregroundStyle(PenovaColor.snow3)
+                        ZStack(alignment: .topLeading) {
+                            if contactBlock.isEmpty {
+                                Text("name@email.com\n+1 555 0100\nAgent: ...")
+                                    .font(PenovaFont.body)
+                                    .foregroundStyle(PenovaColor.snow4)
+                                    .padding(.horizontal, PenovaSpace.m)
+                                    .padding(.vertical, PenovaSpace.s + 2)
+                                    .allowsHitTesting(false)
+                            }
+                            TextEditor(text: $contactBlock)
+                                .font(PenovaFont.body)
+                                .foregroundStyle(PenovaColor.snow)
+                                .scrollContentBackground(.hidden)
+                                .padding(.horizontal, PenovaSpace.s)
+                                .padding(.vertical, PenovaSpace.xs)
+                                .frame(minHeight: 96)
+                        }
+                        .background(PenovaColor.ink2)
+                        .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
                     }
                     PenovaButton(title: editing == nil ? "Create project" : "Save changes", variant: .primary) {
                         save()
@@ -93,6 +119,7 @@ struct NewProjectSheet: View {
         title = p.title
         logline = p.logline
         selectedGenres = Set(p.genre.isEmpty ? [.drama] : p.genre)
+        contactBlock = p.contactBlock
     }
 
     private func toggle(_ genre: Genre) {
@@ -118,6 +145,7 @@ struct NewProjectSheet: View {
             p.title = trimmed
             p.logline = logline.trimmingCharacters(in: .whitespaces)
             p.genre = Array(selectedGenres)
+            p.contactBlock = contactBlock
             p.updatedAt = .now
         } else {
             let project = Project(
@@ -125,6 +153,7 @@ struct NewProjectSheet: View {
                 logline: logline.trimmingCharacters(in: .whitespaces),
                 genre: Array(selectedGenres)
             )
+            project.contactBlock = contactBlock
             context.insert(project)
 
             let pilot = Episode(title: "Pilot", order: 0)
