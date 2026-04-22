@@ -311,22 +311,12 @@ struct SceneDetailScreen: View {
     }
 
     private func nextKind(after kind: SceneElementKind) -> SceneElementKind {
-        switch kind {
-        case .heading:       return .action
-        case .action:        return .action
-        case .character:     return .dialogue
-        case .dialogue:      return .action
-        case .parenthetical: return .dialogue
-        case .transition:    return .heading
-        }
+        EditorLogic.nextKind(after: kind)
     }
 
     /// Tab / accessory chip cycles the current row's kind.
     private func cycleKind(of el: SceneElement) {
-        let all = SceneElementKind.allCases
-        guard let i = all.firstIndex(of: el.kind) else { return }
-        let next = all[(i + 1) % all.count]
-        setKind(next, on: el)
+        setKind(EditorLogic.tabCycle(from: el.kind), on: el)
     }
 
     private func setKind(_ kind: SceneElementKind, on el: SceneElement) {
