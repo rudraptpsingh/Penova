@@ -13,10 +13,13 @@ import SwiftData
 
 struct SceneDetailScreen: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     @Bindable var scene: ScriptScene
 
     @State private var pendingEdit: SceneElement?
     @State private var showElementType = false
+    @State private var showEditScene = false
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -57,6 +60,18 @@ struct SceneDetailScreen: View {
                                        color: scene.bookmarked ? PenovaColor.amber : PenovaColor.snow3)
                     }
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button { showEditScene = true } label: {
+                            Label("Edit scene", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) { showDeleteConfirm = true } label: {
+                            Label("Delete scene", systemImage: "trash")
+                        }
+                    } label: {
+                        PenovaIconView(.more, size: 18, color: PenovaColor.snow)
+                    }
+                }
             }
 
             if !scene.elements.isEmpty {
@@ -80,6 +95,26 @@ struct SceneDetailScreen: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showEditScene) {
+            if let episode = scene.episode {
+                NewSceneSheet(episode: episode, editing: scene)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+        }
+        .alert("Delete scene?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) { deleteScene() }
+        } message: {
+            Text("This removes the scene and all of its elements.")
+        }
+    }
+
+    private func deleteScene() {
+        scene.episode?.updatedAt = .now
+        context.delete(scene)
+        try? context.save()
+        dismiss()
     }
 
     private var heading: some View {

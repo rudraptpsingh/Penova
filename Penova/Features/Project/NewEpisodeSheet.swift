@@ -13,6 +13,7 @@ struct NewEpisodeSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Bindable var project: Project
+    var editing: Episode? = nil
 
     @State private var title: String = ""
 
@@ -32,14 +33,14 @@ struct NewEpisodeSheet: View {
                     text: $title,
                     placeholder: nextOrder == 0 ? "Pilot" : "Episode \(nextOrder + 1)"
                 )
-                PenovaButton(title: "Create episode", variant: .primary) { save() }
+                PenovaButton(title: editing == nil ? "Create episode" : "Save changes", variant: .primary) { save() }
                     .disabled(!canSave)
                     .opacity(canSave ? 1 : 0.5)
                 Spacer()
             }
             .padding(PenovaSpace.l)
             .background(PenovaColor.ink0)
-            .navigationTitle("New episode")
+            .navigationTitle(editing == nil ? "New episode" : "Edit episode")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -47,13 +48,22 @@ struct NewEpisodeSheet: View {
                         .foregroundStyle(PenovaColor.snow3)
                 }
             }
+            .onAppear {
+                if let ep = editing { title = ep.title }
+            }
         }
     }
 
     private func save() {
-        let ep = Episode(title: title.trimmingCharacters(in: .whitespaces), order: nextOrder)
-        ep.project = project
-        context.insert(ep)
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        if let ep = editing {
+            ep.title = trimmed
+            ep.updatedAt = .now
+        } else {
+            let ep = Episode(title: trimmed, order: nextOrder)
+            ep.project = project
+            context.insert(ep)
+        }
         project.updatedAt = .now
         try? context.save()
         dismiss()

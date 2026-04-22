@@ -14,6 +14,7 @@ struct NewSceneSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Bindable var episode: Episode
+    var editing: ScriptScene? = nil
 
     @State private var locationName: String = ""
     @State private var location: SceneLocation = .interior
@@ -63,14 +64,14 @@ struct NewSceneSheet: View {
                         text: $description,
                         placeholder: "What happens here — one line."
                     )
-                    PenovaButton(title: "Create scene", variant: .primary) { save() }
+                    PenovaButton(title: editing == nil ? "Create scene" : "Save changes", variant: .primary) { save() }
                         .disabled(!canSave)
                         .opacity(canSave ? 1 : 0.5)
                 }
                 .padding(PenovaSpace.l)
             }
             .background(PenovaColor.ink0)
-            .navigationTitle("New scene")
+            .navigationTitle(editing == nil ? "New scene" : "Edit scene")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -78,7 +79,16 @@ struct NewSceneSheet: View {
                         .foregroundStyle(PenovaColor.snow3)
                 }
             }
+            .onAppear(perform: hydrate)
         }
+    }
+
+    private func hydrate() {
+        guard let s = editing else { return }
+        locationName = s.locationName
+        location = s.location
+        time = s.time
+        description = s.sceneDescription ?? ""
     }
 
     @ViewBuilder
@@ -107,15 +117,24 @@ struct NewSceneSheet: View {
     }
 
     private func save() {
-        let scene = ScriptScene(
-            locationName: locationName,
-            location: location,
-            time: time,
-            order: nextOrder,
-            sceneDescription: description.isEmpty ? nil : description
-        )
-        scene.episode = episode
-        context.insert(scene)
+        if let s = editing {
+            s.locationName = locationName.uppercased()
+            s.location = location
+            s.time = time
+            s.sceneDescription = description.isEmpty ? nil : description
+            s.rebuildHeading()
+            s.updatedAt = .now
+        } else {
+            let scene = ScriptScene(
+                locationName: locationName,
+                location: location,
+                time: time,
+                order: nextOrder,
+                sceneDescription: description.isEmpty ? nil : description
+            )
+            scene.episode = episode
+            context.insert(scene)
+        }
         episode.updatedAt = .now
         try? context.save()
         dismiss()

@@ -16,6 +16,8 @@ struct ScriptsTabScreen: View {
     @State private var filter: ProjectStatus = .active
     @State private var search: String = ""
     @State private var showNewProject = false
+    @State private var editing: Project?
+    @State private var pendingDelete: Project?
 
     private var filtered: [Project] {
         let q = search.trimmingCharacters(in: .whitespaces).lowercased()
@@ -55,6 +57,11 @@ struct ScriptsTabScreen: View {
                                     ProjectCard(project: project)
                                 }
                                 .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button("Edit") { editing = project }
+                                    statusActions(for: project)
+                                    Button("Delete", role: .destructive) { pendingDelete = project }
+                                }
                             }
                         }
                     }
@@ -77,5 +84,47 @@ struct ScriptsTabScreen: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+        .sheet(item: $editing) { project in
+            NewProjectSheet(editing: project)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .alert(
+            "Delete project?",
+            isPresented: Binding(
+                get: { pendingDelete != nil },
+                set: { if !$0 { pendingDelete = nil } }
+            )
+        ) {
+            Button("Cancel", role: .cancel) { pendingDelete = nil }
+            Button("Delete", role: .destructive) { confirmDelete() }
+        } message: {
+            Text("Removes “\(pendingDelete?.title ?? "")” and all of its episodes, scenes, and characters.")
+        }
+    }
+
+    @ViewBuilder
+    private func statusActions(for project: Project) -> some View {
+        switch project.status {
+        case .active:
+            Button("Archive") { setStatus(project, .archived) }
+        case .archived:
+            Button("Restore") { setStatus(project, .active) }
+        case .trashed:
+            Button("Restore") { setStatus(project, .active) }
+        }
+    }
+
+    private func setStatus(_ project: Project, _ status: ProjectStatus) {
+        project.status = status
+        project.updatedAt = .now
+        try? context.save()
+    }
+
+    private func confirmDelete() {
+        guard let project = pendingDelete else { return }
+        context.delete(project)
+        try? context.save()
+        pendingDelete = nil
     }
 }

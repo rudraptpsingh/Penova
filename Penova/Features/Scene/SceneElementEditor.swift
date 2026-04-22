@@ -19,6 +19,7 @@ struct SceneElementEditor: View {
     var onNext: ((SceneElement) -> Void)? = nil
 
     @FocusState private var focused: Bool
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         NavigationStack {
@@ -46,6 +47,16 @@ struct SceneElementEditor: View {
                 Spacer()
 
                 nextElementChips
+
+                Button(role: .destructive) {
+                    showDeleteConfirm = true
+                } label: {
+                    Label("Delete element", systemImage: "trash")
+                        .font(PenovaFont.body)
+                        .foregroundStyle(PenovaColor.ember)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, PenovaSpace.s)
+                }
             }
             .padding(PenovaSpace.l)
             .background(PenovaColor.ink0)
@@ -68,7 +79,21 @@ struct SceneElementEditor: View {
                 element.scene?.updatedAt = .now
                 try? context.save()
             }
+            .alert("Delete element?", isPresented: $showDeleteConfirm) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) { deleteElement() }
+            } message: {
+                Text("This removes the \(element.kind.display.lowercased()) from the scene.")
+            }
         }
+    }
+
+    private func deleteElement() {
+        let scene = element.scene
+        context.delete(element)
+        scene?.updatedAt = .now
+        try? context.save()
+        dismiss()
     }
 
     // MARK: Character autocomplete

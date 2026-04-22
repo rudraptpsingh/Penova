@@ -14,6 +14,8 @@ struct NewProjectSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
+    var editing: Project? = nil
+
     @State private var title: String = ""
     @State private var logline: String = ""
     @State private var selectedGenres: Set<Genre> = [.drama]
@@ -52,7 +54,7 @@ struct NewProjectSheet: View {
                             }
                         }
                     }
-                    PenovaButton(title: "Create project", variant: .primary) {
+                    PenovaButton(title: editing == nil ? "Create project" : "Save changes", variant: .primary) {
                         save()
                     }
                     .disabled(!canSave)
@@ -61,7 +63,7 @@ struct NewProjectSheet: View {
                 .padding(PenovaSpace.l)
             }
             .background(PenovaColor.ink0)
-            .navigationTitle("New project")
+            .navigationTitle(editing == nil ? "New project" : "Edit project")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -69,7 +71,15 @@ struct NewProjectSheet: View {
                         .foregroundStyle(PenovaColor.snow3)
                 }
             }
+            .onAppear(perform: hydrate)
         }
+    }
+
+    private func hydrate() {
+        guard let p = editing else { return }
+        title = p.title
+        logline = p.logline
+        selectedGenres = Set(p.genre.isEmpty ? [.drama] : p.genre)
     }
 
     private func toggle(_ genre: Genre) {
@@ -82,17 +92,23 @@ struct NewProjectSheet: View {
 
     private func save() {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
-        let project = Project(
-            title: trimmed,
-            logline: logline.trimmingCharacters(in: .whitespaces),
-            genre: Array(selectedGenres)
-        )
-        context.insert(project)
+        if let p = editing {
+            p.title = trimmed
+            p.logline = logline.trimmingCharacters(in: .whitespaces)
+            p.genre = Array(selectedGenres)
+            p.updatedAt = .now
+        } else {
+            let project = Project(
+                title: trimmed,
+                logline: logline.trimmingCharacters(in: .whitespaces),
+                genre: Array(selectedGenres)
+            )
+            context.insert(project)
 
-        let pilot = Episode(title: "Pilot", order: 0)
-        pilot.project = project
-        context.insert(pilot)
-
+            let pilot = Episode(title: "Pilot", order: 0)
+            pilot.project = project
+            context.insert(pilot)
+        }
         try? context.save()
         dismiss()
     }
