@@ -59,6 +59,10 @@ public enum FountainExporter {
                         var t = el.text.uppercased().trimmingCharacters(in: .whitespaces)
                         if !t.hasSuffix(":") { t += ":" }
                         out += t + "\n\n"
+                    case .actBreak:
+                        // Fountain centered-text syntax: > TEXT <
+                        let t = el.text.uppercased().trimmingCharacters(in: .whitespaces)
+                        out += "> " + t + " <\n\n"
                     }
                 }
             }

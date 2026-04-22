@@ -84,6 +84,7 @@ struct ProjectDetailScreen: View {
                     } label: {
                         PenovaIconView(.export, size: 18, color: PenovaColor.snow)
                     }
+                    .accessibilityLabel("Export project")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -96,6 +97,7 @@ struct ProjectDetailScreen: View {
                     } label: {
                         PenovaIconView(.more, size: 18, color: PenovaColor.snow)
                     }
+                    .accessibilityLabel("Project actions")
                 }
             }
 

@@ -176,18 +176,18 @@ public enum Copy {
 
     // MARK: Limit Reached (S22)
     public enum limitReached {
-        public static let sceneTitle = "You've filled your free plan."
+        public static let sceneTitle = "One scene away from unlimited."
         public static func sceneSubtitle(used: Int, cap: Int) -> String {
-            "\(used) of \(cap) scenes used  ·  1 of 1 project"
+            "\(used) scenes in this project"
         }
-        public static let sceneBody = "You've made real use of the free tier. To add more scenes or start a second project, upgrade to Pro — you also unlock .fdx export."
+        public static let sceneBody = "Finish your pilot. Then Penova Pro unlocks the rest — a second project, a third, .fdx export, and no ceiling."
 
-        public static let projectTitle = "Ready for project 2?"
-        public static let projectBody  = "Free plan gives you one project. You've used it well. Pro gives you unlimited projects."
+        public static let projectTitle = "Finish your pilot first."
+        public static let projectBody  = "Free gives you one project at a time — enough room for a whole feature or pilot. Archive this one when you're done, or go Pro to start the next in parallel."
 
         public static let upgradeButton = "Upgrade to Pro"
         public static let keepOnFree    = "Keep on free plan"
-        public static let hint          = "Your project stays readable and editable on free — you just can't add more scenes."
+        public static let hint          = "Archive a finished project and you can start a new one on free."
     }
 
     // MARK: Settings
@@ -199,7 +199,7 @@ public enum Copy {
         public static let subscriptionLabel = "Subscription"
         public static let freePlanLabel     = "Free plan"
         public static let proPlanLabel      = "Penova Pro"
-        public static let freePlanFeatures  = "1 project · 15 scenes"
+        public static let freePlanFeatures  = "1 active project · unlimited scenes"
         public static let proPlanFeatures   = "Everything unlimited · .fdx export"
         public static let scenesUsedLabel   = "Scenes used"
         public static func scenesUsedValue(used: Int, cap: Int) -> String { "\(used) of \(cap)" }

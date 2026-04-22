@@ -148,6 +148,7 @@ struct SceneElementEditor: View {
         case .parenthetical: return [.dialogue]
         case .dialogue:      return [.action, .character]
         case .transition:    return [.heading]
+        case .actBreak:      return [.heading]
         }
     }
 
