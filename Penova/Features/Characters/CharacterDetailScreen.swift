@@ -18,10 +18,62 @@ struct CharacterDetailScreen: View {
     @State private var showEdit = false
     @State private var showDeleteConfirm = false
 
+    /// Computed character report — walks every SceneElement in every project
+    /// this character belongs to and tallies lines + scene appearances.
+    /// Plain struct (not a cached view model) because scene element counts
+    /// change often and the tiles are cheap to redraw.
+    private struct CharacterReport {
+        let lineCount: Int
+        let sceneCount: Int
+        let firstSceneHeading: String?
+        let lastSceneHeading: String?
+    }
+
+    private var report: CharacterReport {
+        let upperName = character.name.uppercased()
+        var lineCount = 0
+        var sceneIDs = Set<ID>()
+        var appearingScenes: [ScriptScene] = []
+
+        for project in character.projects {
+            for episode in project.episodes {
+                for scene in episode.scenes {
+                    var speaking = false
+                    var currentSpeaker: String?
+                    for el in scene.elementsOrdered {
+                        switch el.kind {
+                        case .character:
+                            currentSpeaker = el.text.uppercased()
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            if currentSpeaker == upperName { speaking = true }
+                        case .dialogue:
+                            if currentSpeaker == upperName { lineCount += 1 }
+                        default:
+                            break
+                        }
+                    }
+                    if speaking, !sceneIDs.contains(scene.id) {
+                        sceneIDs.insert(scene.id)
+                        appearingScenes.append(scene)
+                    }
+                }
+            }
+        }
+
+        let sorted = appearingScenes.sorted { $0.order < $1.order }
+        return CharacterReport(
+            lineCount: lineCount,
+            sceneCount: sceneIDs.count,
+            firstSceneHeading: sorted.first?.heading,
+            lastSceneHeading: sorted.last?.heading
+        )
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: PenovaSpace.l) {
                 headerBlock
+                reportBlock
                 if !character.projects.isEmpty {
                     VStack(alignment: .leading, spacing: PenovaSpace.s) {
                         Text("Projects")
@@ -109,6 +161,62 @@ struct CharacterDetailScreen: View {
             }
             Spacer()
         }
+    }
+
+    private var reportBlock: some View {
+        let r = report
+        return VStack(alignment: .leading, spacing: PenovaSpace.s) {
+            Text("Report")
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(PenovaColor.snow3)
+            HStack(spacing: PenovaSpace.s) {
+                reportTile(value: "\(r.lineCount)", label: "Lines")
+                reportTile(value: "\(r.sceneCount)", label: "Scenes")
+                reportTile(
+                    value: r.firstSceneHeading != nil ? "✓" : "—",
+                    label: "Appears"
+                )
+            }
+            if let first = r.firstSceneHeading {
+                VStack(alignment: .leading, spacing: PenovaSpace.xs) {
+                    Text("First scene")
+                        .font(PenovaFont.labelCaps)
+                        .tracking(PenovaTracking.labelCaps)
+                        .foregroundStyle(PenovaColor.snow3)
+                    Text(first)
+                        .font(PenovaFont.monoScript)
+                        .foregroundStyle(PenovaColor.snow)
+                }
+            }
+            if let last = r.lastSceneHeading, last != r.firstSceneHeading {
+                VStack(alignment: .leading, spacing: PenovaSpace.xs) {
+                    Text("Last scene")
+                        .font(PenovaFont.labelCaps)
+                        .tracking(PenovaTracking.labelCaps)
+                        .foregroundStyle(PenovaColor.snow3)
+                    Text(last)
+                        .font(PenovaFont.monoScript)
+                        .foregroundStyle(PenovaColor.snow)
+                }
+            }
+        }
+    }
+
+    private func reportTile(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.xs) {
+            Text(value)
+                .font(PenovaFont.hero)
+                .foregroundStyle(PenovaColor.snow)
+            Text(label.uppercased())
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(PenovaColor.snow3)
+        }
+        .padding(PenovaSpace.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PenovaColor.ink2)
+        .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
     }
 
     private func field(label: String, value: String) -> some View {

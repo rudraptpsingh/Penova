@@ -16,6 +16,7 @@ struct ScriptsTabScreen: View {
     @State private var filter: ProjectStatus = .active
     @State private var search: String = ""
     @State private var showNewProject = false
+    @State private var showGlobalSearch = false
     @State private var editing: Project?
     @State private var pendingDelete: Project?
 
@@ -72,12 +73,25 @@ struct ScriptsTabScreen: View {
             .background(PenovaColor.ink0)
             .navigationTitle("Scripts")
             .searchable(text: $search, prompt: "Search scripts")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showGlobalSearch = true } label: {
+                        PenovaIconView(.search, size: 18, color: PenovaColor.snow)
+                    }
+                    .accessibilityLabel("Search all scripts")
+                }
+            }
             .navigationDestination(for: Project.self) { project in
                 ProjectDetailScreen(project: project)
             }
 
             PenovaFAB(icon: .plus) { showNewProject = true }
                 .padding(PenovaSpace.l)
+        }
+        .sheet(isPresented: $showGlobalSearch) {
+            GlobalSearchView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showNewProject) {
             NewProjectSheet()

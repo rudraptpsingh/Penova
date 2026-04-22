@@ -59,6 +59,7 @@ struct SceneDetailScreen: View {
                         PenovaIconView(.bookmark, size: 18,
                                        color: scene.bookmarked ? PenovaColor.amber : PenovaColor.snow3)
                     }
+                    .accessibilityLabel(scene.bookmarked ? "Remove bookmark" : "Bookmark scene")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -71,6 +72,7 @@ struct SceneDetailScreen: View {
                     } label: {
                         PenovaIconView(.more, size: 18, color: PenovaColor.snow)
                     }
+                    .accessibilityLabel("Scene actions")
                 }
             }
 
@@ -101,6 +103,11 @@ struct SceneDetailScreen: View {
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             }
+        }
+        .onAppear {
+            // Remember this scene as the "last opened" so Home can offer a
+            // resume card next launch. Keyed per the stream brief.
+            UserDefaults.standard.set(scene.id, forKey: "penova.lastOpenedSceneID")
         }
         .alert("Delete scene?", isPresented: $showDeleteConfirm) {
             Button("Cancel", role: .cancel) {}
@@ -155,6 +162,7 @@ struct SceneDetailScreen: View {
         case .dialogue:      placeholder = ""
         case .parenthetical: placeholder = ""
         case .transition:    placeholder = "CUT TO:"
+        case .actBreak:      placeholder = "END OF ACT ONE"
         }
         let el = SceneElement(kind: kind, text: placeholder, order: nextOrder)
         el.scene = scene
@@ -243,6 +251,13 @@ struct SceneElementRow: View {
                 .font(PenovaFont.monoScript)
                 .foregroundStyle(PenovaColor.snow)
                 .frame(maxWidth: .infinity, alignment: .trailing)
+
+        case .actBreak:
+            Text((element.text.isEmpty ? "END OF ACT" : element.text).uppercased())
+                .font(PenovaFont.monoScript)
+                .foregroundStyle(PenovaColor.snow)
+                .underline()
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }

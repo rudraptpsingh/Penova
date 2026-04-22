@@ -12,11 +12,22 @@ import SwiftData
 
 struct HomeScreen: View {
     @Environment(\.modelContext) private var context
+    @EnvironmentObject private var router: AppRouter
     @Query(sort: \Project.updatedAt, order: .reverse)
     private var allProjects: [Project]
+    @Query private var allScenes: [ScriptScene]
 
     private var projects: [Project] {
         allProjects.filter { $0.status == .active }
+    }
+
+    /// Last scene the user opened in this or a previous session. Looked up
+    /// against all scenes by id — nil if none recorded or the scene was
+    /// deleted since, in which case the resume card is hidden entirely.
+    private var resumeScene: ScriptScene? {
+        guard let id = UserDefaults.standard.string(forKey: "penova.lastOpenedSceneID"),
+              !id.isEmpty else { return nil }
+        return allScenes.first(where: { $0.id == id })
     }
 
     @State private var showNewProject = false
@@ -31,6 +42,9 @@ struct HomeScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: PenovaSpace.l) {
                     header
+                    if let scene = resumeScene {
+                        resumeCard(for: scene)
+                    }
                     PenovaSectionHeader(title: Copy.home.activeProjectsLabel)
                     if projects.isEmpty {
                         EmptyState(
@@ -93,6 +107,36 @@ struct HomeScreen: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
+    }
+
+    private func resumeCard(for scene: ScriptScene) -> some View {
+        Button {
+            router.pendingSceneID = scene.id
+        } label: {
+            HStack(alignment: .center, spacing: PenovaSpace.m) {
+                PenovaIconView(.clock, size: 18, color: PenovaColor.amber)
+                VStack(alignment: .leading, spacing: PenovaSpace.xs) {
+                    Text("Resume")
+                        .font(PenovaFont.labelCaps)
+                        .tracking(PenovaTracking.labelCaps)
+                        .foregroundStyle(PenovaColor.snow3)
+                    Text(scene.heading)
+                        .font(PenovaFont.monoScript)
+                        .foregroundStyle(PenovaColor.snow)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                Spacer(minLength: 0)
+                PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                    .rotationEffect(.degrees(180))
+            }
+            .padding(PenovaSpace.m)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(PenovaColor.ink2)
+            .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Resume \(scene.heading)")
     }
 
     private var header: some View {
