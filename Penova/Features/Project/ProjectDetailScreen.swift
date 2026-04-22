@@ -12,11 +12,16 @@ import SwiftData
 
 struct ProjectDetailScreen: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     @Bindable var project: Project
 
     @State private var showNewEpisode = false
     @State private var exportFile: ExportFile?
     @State private var exportError: String?
+    @State private var showEdit = false
+    @State private var showDeleteConfirm = false
+    @State private var pendingEpisodeEdit: Episode?
+    @State private var pendingEpisodeDelete: Episode?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -40,6 +45,10 @@ struct ProjectDetailScreen: View {
                                     EpisodeRow(episode: ep)
                                 }
                                 .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button("Edit") { pendingEpisodeEdit = ep }
+                                    Button("Delete", role: .destructive) { pendingEpisodeDelete = ep }
+                                }
                             }
                         }
                     }
@@ -70,6 +79,18 @@ struct ProjectDetailScreen: View {
                         PenovaIconView(.export, size: 18, color: PenovaColor.snow)
                     }
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button { showEdit = true } label: {
+                            Label("Edit project", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) { showDeleteConfirm = true } label: {
+                            Label("Delete project", systemImage: "trash")
+                        }
+                    } label: {
+                        PenovaIconView(.more, size: 18, color: PenovaColor.snow)
+                    }
+                }
             }
 
             if !project.activeEpisodesOrdered.isEmpty {
@@ -82,10 +103,38 @@ struct ProjectDetailScreen: View {
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showEdit) {
+            NewProjectSheet(editing: project)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $pendingEpisodeEdit) { ep in
+            NewEpisodeSheet(project: project, editing: ep)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
         .sheet(item: $exportFile) { file in
             ExportShareSheet(file: file)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
+        }
+        .alert("Delete \(project.title)?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) { deleteProject() }
+        } message: {
+            Text("This removes the project and all its episodes, scenes, and characters. This can't be undone.")
+        }
+        .alert(
+            "Delete episode?",
+            isPresented: Binding(
+                get: { pendingEpisodeDelete != nil },
+                set: { if !$0 { pendingEpisodeDelete = nil } }
+            )
+        ) {
+            Button("Cancel", role: .cancel) { pendingEpisodeDelete = nil }
+            Button("Delete", role: .destructive) { deletePendingEpisode() }
+        } message: {
+            Text("This removes “\(pendingEpisodeDelete?.title ?? "")” and all its scenes.")
         }
         .alert("Export failed",
                isPresented: Binding(
@@ -96,6 +145,20 @@ struct ProjectDetailScreen: View {
         } message: {
             Text(exportError ?? "")
         }
+    }
+
+    private func deleteProject() {
+        context.delete(project)
+        try? context.save()
+        dismiss()
+    }
+
+    private func deletePendingEpisode() {
+        guard let ep = pendingEpisodeDelete else { return }
+        context.delete(ep)
+        project.updatedAt = .now
+        try? context.save()
+        pendingEpisodeDelete = nil
     }
 
     private func exportPDF() {

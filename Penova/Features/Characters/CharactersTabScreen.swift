@@ -17,6 +17,8 @@ struct CharactersTabScreen: View {
 
     @State private var search: String = ""
     @State private var showNewCharacter = false
+    @State private var editing: ScriptCharacter?
+    @State private var pendingDelete: ScriptCharacter?
 
     private var activeProjects: [Project] {
         projects.filter { $0.status == .active }
@@ -61,6 +63,10 @@ struct CharactersTabScreen: View {
                                             CharacterCard(character: ch)
                                         }
                                         .buttonStyle(.plain)
+                                        .contextMenu {
+                                            Button("Edit") { editing = ch }
+                                            Button("Delete", role: .destructive) { pendingDelete = ch }
+                                        }
                                     }
                                 }
                             }
@@ -87,5 +93,29 @@ struct CharactersTabScreen: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
+        .sheet(item: $editing) { ch in
+            NewCharacterSheet(projects: activeProjects, editing: ch)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .alert(
+            "Delete character?",
+            isPresented: Binding(
+                get: { pendingDelete != nil },
+                set: { if !$0 { pendingDelete = nil } }
+            )
+        ) {
+            Button("Cancel", role: .cancel) { pendingDelete = nil }
+            Button("Delete", role: .destructive) { confirmDelete() }
+        } message: {
+            Text("Removes “\(pendingDelete?.name ?? "")” from the project. Names already in dialogue stay put.")
+        }
+    }
+
+    private func confirmDelete() {
+        guard let ch = pendingDelete else { return }
+        context.delete(ch)
+        try? context.save()
+        pendingDelete = nil
     }
 }

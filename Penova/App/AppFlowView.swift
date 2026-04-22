@@ -40,6 +40,11 @@ struct AppFlowView: View {
             }
         }
         .onAppear {
+            if ScreenshotMode.isActive {
+                didFinishOnboarding = true
+                stage = .main
+                return
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                 withAnimation(.easeInOut(duration: 0.35)) {
                     stage = didFinishOnboarding ? .main : .onboarding

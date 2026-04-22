@@ -27,6 +27,7 @@
 		7D643FFF30255530742EAE0F /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275123948266F141979EEDD0 /* Components.swift */; };
 		7DDC9BB371CA9CB4E3AEC8DD /* PaywallSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAA9B28656B88F63BBAA4DB /* PaywallSheet.swift */; };
 		867DB5CA26F4FAE13A078F07 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F944A2B63518E0B22F3C06 /* DesignTokens.swift */; };
+		86E5E00F795CD2967D14DDA0 /* SessionPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFD9D9E14428E256DFA8441 /* SessionPersistenceTests.swift */; };
 		88F6DF7D512568D43C137C61 /* Inter-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */; };
 		8AF45CF5D8A835ABF579E109 /* RobotoMono-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */; };
 		922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */; };
@@ -35,6 +36,7 @@
 		9B0DD11A70F2C5340D94C2DB /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E6CC3E7EAD85F7B429F31 /* Inter-Medium.ttf */; };
 		A59363BB5C3DE4F3BD51E4A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53F0831EB94C9C9471297ABF /* Assets.xcassets */; };
 		A5E29C51C287C972F469FC6B /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */; };
+		A6E6D549D31EC32D0F1C3B40 /* ScreenshotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF3C6C14728D73932A79E0E /* ScreenshotMode.swift */; };
 		AB1B1DB6D66A34370C194C98 /* SceneDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */; };
 		AEB6496287E2AB90F38BA9D4 /* CharactersTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */; };
 		AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */; };
@@ -43,8 +45,10 @@
 		BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */; };
 		CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */; };
 		D43068233BC7C0D981FC490B /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */; };
+		D5B6C1D6E07B42A741EB79F5 /* SwiftDataCRUDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */; };
 		D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */; };
 		DF778C848CC79E275A935009 /* RobotoMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 370B8E31B601FA355C655840 /* RobotoMono-Medium.ttf */; };
+		E25B5584856EFCF695FF9F4A /* PDFRenderSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */; };
 		E7B99A1BC466E0B30BBD0A79 /* FreemiumLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05218C1511F1F4A3F14DFAB6 /* FreemiumLimits.swift */; };
 		EC0FE37E44AEC0C693E9E9EA /* PenovaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */; };
 		EF10AD4FB1EB99795AA890C9 /* ExportShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C174318333423CB299A2A6C /* ExportShareSheet.swift */; };
@@ -54,12 +58,23 @@
 		FEA45B391C76DB181CB67EE4 /* NewProjectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3C8F5058C8FA7E2297ACB61E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49DA52B5E2104ACC6DAE449F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4346D55D19BD2F63304DED35;
+			remoteInfo = Penova;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCharacterSheet.swift; sourceTree = "<group>"; };
 		02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScreen.swift; sourceTree = "<group>"; };
 		02F944A2B63518E0B22F3C06 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		05218C1511F1F4A3F14DFAB6 /* FreemiumLimits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreemiumLimits.swift; sourceTree = "<group>"; };
 		0C174318333423CB299A2A6C /* ExportShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportShareSheet.swift; sourceTree = "<group>"; };
+		0DFD9D9E14428E256DFA8441 /* SessionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceTests.swift; sourceTree = "<group>"; };
 		100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenesTabScreen.swift; sourceTree = "<group>"; };
 		172CACD48B8CA9B61E3EFE75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		19DF2517AFDDEB06C87C528E /* LimitReachedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitReachedSheet.swift; sourceTree = "<group>"; };
@@ -79,6 +94,7 @@
 		5FD3EFDD08147034632786F2 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDetailScreen.swift; sourceTree = "<group>"; };
 		74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailScreen.swift; sourceTree = "<group>"; };
+		763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataCRUDTests.swift; sourceTree = "<group>"; };
 		77473BD2458260CD0DC78303 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
 		7D2FEED76686D936CF9C7623 /* SceneElementEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneElementEditor.swift; sourceTree = "<group>"; };
 		7F0F4B0239CF6D189E9D7190 /* ElementTypeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementTypeSheet.swift; sourceTree = "<group>"; };
@@ -94,11 +110,14 @@
 		A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
 		AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFlowView.swift; sourceTree = "<group>"; };
 		CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		CDF3C6C14728D73932A79E0E /* ScreenshotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotMode.swift; sourceTree = "<group>"; };
 		D0C16A6B0183760ACD3CD49D /* PlayfairDisplay-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "PlayfairDisplay-OFL.txt"; sourceTree = "<group>"; };
 		D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RobotoMono-OFL.txt"; sourceTree = "<group>"; };
 		D7F666DB32F59BFC32A6D905 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProjectSheet.swift; sourceTree = "<group>"; };
+		DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PenovaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFRenderSmokeTests.swift; sourceTree = "<group>"; };
 		E84EA7836B350608A4B2B035 /* Penova.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Penova.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailScreen.swift; sourceTree = "<group>"; };
 		FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
@@ -112,6 +131,16 @@
 				3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */,
 			);
 			path = Scripts;
+			sourceTree = "<group>";
+		};
+		2EFDCE078CCDECE3E4F83B3B /* PenovaTests */ = {
+			isa = PBXGroup;
+			children = (
+				E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */,
+				0DFD9D9E14428E256DFA8441 /* SessionPersistenceTests.swift */,
+				763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */,
+			);
+			path = PenovaTests;
 			sourceTree = "<group>";
 		};
 		32454888D7F0917B1E76FAC2 /* QuickCapture */ = {
@@ -176,7 +205,6 @@
 				05218C1511F1F4A3F14DFAB6 /* FreemiumLimits.swift */,
 				5FD3EFDD08147034632786F2 /* Icons.swift */,
 				D7F666DB32F59BFC32A6D905 /* Models.swift */,
-				8544091BE2B4C39624260894 /* screens */,
 			);
 			path = PenovaSpec;
 			sourceTree = "<group>";
@@ -195,15 +223,9 @@
 			isa = PBXGroup;
 			children = (
 				E84EA7836B350608A4B2B035 /* Penova.app */,
+				DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		8544091BE2B4C39624260894 /* screens */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = screens;
 			sourceTree = "<group>";
 		};
 		877B1EA535C8525FB0A01B3E /* Episode */ = {
@@ -257,6 +279,7 @@
 			children = (
 				AF65C8DC1B0372E714FC35AC /* Penova */,
 				641242B5A83F5F7924A5CAC1 /* PenovaSpec */,
+				2EFDCE078CCDECE3E4F83B3B /* PenovaTests */,
 				7659BBC34F303C07322E11DC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -306,6 +329,7 @@
 				8C0A7A64681635BBE97E67C6 /* Penova.entitlements */,
 				3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */,
 				27D9B7F2F7A18A3156660103 /* RootView.swift */,
+				CDF3C6C14728D73932A79E0E /* ScreenshotMode.swift */,
 				77473BD2458260CD0DC78303 /* SeedData.swift */,
 			);
 			path = App;
@@ -331,6 +355,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		27C74FFA1B5191C73F444DBE /* PenovaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D6F69544E0C4AFA54AFCF6E /* Build configuration list for PBXNativeTarget "PenovaTests" */;
+			buildPhases = (
+				408BEAB7C69882310A060858 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4074EA34C28E16F43DDB4C0A /* PBXTargetDependency */,
+			);
+			name = PenovaTests;
+			packageProductDependencies = (
+			);
+			productName = PenovaTests;
+			productReference = DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4346D55D19BD2F63304DED35 /* Penova */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8774DC3BE088BD6C86514B8E /* Build configuration list for PBXNativeTarget "Penova" */;
@@ -379,6 +421,7 @@
 			projectRoot = "";
 			targets = (
 				4346D55D19BD2F63304DED35 /* Penova */,
+				27C74FFA1B5191C73F444DBE /* PenovaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -406,6 +449,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		408BEAB7C69882310A060858 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E25B5584856EFCF695FF9F4A /* PDFRenderSmokeTests.swift in Sources */,
+				86E5E00F795CD2967D14DDA0 /* SessionPersistenceTests.swift in Sources */,
+				D5B6C1D6E07B42A741EB79F5 /* SwiftDataCRUDTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D44FA31476161DA9A6F6A6AD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -437,6 +490,7 @@
 				AB1B1DB6D66A34370C194C98 /* SceneDetailScreen.swift in Sources */,
 				673C1493ADD68D3F8D2D3095 /* SceneElementEditor.swift in Sources */,
 				CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */,
+				A6E6D549D31EC32D0F1C3B40 /* ScreenshotMode.swift in Sources */,
 				0558212BAB6B626A87C40DCE /* ScriptPDFRenderer.swift in Sources */,
 				D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */,
 				4DC274E8363B8E0B21D539BA /* SeedData.swift in Sources */,
@@ -447,6 +501,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4074EA34C28E16F43DDB4C0A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4346D55D19BD2F63304DED35 /* Penova */;
+			targetProxy = 3C8F5058C8FA7E2297ACB61E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		050161D1FF7A7399DE83B24D /* Debug */ = {
@@ -512,7 +574,43 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		138AA27EC2547B6C5D48A9AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.tests;
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Penova.app/Penova";
+			};
+			name = Release;
+		};
+		43E21F0CCCE8F5C03ECE5D50 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Penova.app/Penova";
 			};
 			name = Debug;
 		};
@@ -572,7 +670,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.10;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -591,7 +689,6 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -603,7 +700,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
 				PRODUCT_NAME = Penova;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -622,7 +722,6 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -634,13 +733,25 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
 				PRODUCT_NAME = Penova;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2D6F69544E0C4AFA54AFCF6E /* Build configuration list for PBXNativeTarget "PenovaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43E21F0CCCE8F5C03ECE5D50 /* Debug */,
+				138AA27EC2547B6C5D48A9AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		8774DC3BE088BD6C86514B8E /* Build configuration list for PBXNativeTarget "Penova" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

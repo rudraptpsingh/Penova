@@ -11,7 +11,7 @@ settings:
     SWIFT_VERSION: "5.10"
     DEVELOPMENT_LANGUAGE: en
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    TARGETED_DEVICE_FAMILY: "1,2"
+    TARGETED_DEVICE_FAMILY: "1"
     ENABLE_PREVIEWS: YES
     SWIFT_EMIT_LOC_STRINGS: YES
 
@@ -43,7 +43,39 @@ targets:
         INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
         GENERATE_INFOPLIST_FILE: NO
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        TARGETED_DEVICE_FAMILY: "1"
+
+  PenovaTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: PenovaTests
+    dependencies:
+      - target: Penova
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rudrapratapsingh.penova.tests
+        GENERATE_INFOPLIST_FILE: YES
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+
+schemes:
+  Penova:
+    build:
+      targets:
+        Penova: all
+        PenovaTests: [test]
+    test:
+      targets:
+        - PenovaTests
+      gatherCoverageData: false
+    run:
+      config: Debug
+    archive:
+      config: Release
