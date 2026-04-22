@@ -93,23 +93,6 @@ public enum CharacterRole: String, Codable, CaseIterable {
     public var display: String { rawValue.capitalized }
 }
 
-// MARK: - Subscription (stored via UserDefaults, not SwiftData — single-row config)
-
-public struct Subscription: Codable, Equatable {
-    public enum Plan: String, Codable, CaseIterable { case free, pro }
-    public var plan: Plan
-    public var currentPeriodEnd: Date?
-    public var cancelAtPeriodEnd: Bool
-
-    public init(plan: Plan = .free, currentPeriodEnd: Date? = nil, cancelAtPeriodEnd: Bool = false) {
-        self.plan = plan
-        self.currentPeriodEnd = currentPeriodEnd
-        self.cancelAtPeriodEnd = cancelAtPeriodEnd
-    }
-
-    public static let freeDefault = Subscription(plan: .free)
-}
-
 // MARK: - Project
 
 @Model

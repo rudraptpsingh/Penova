@@ -13,15 +13,12 @@ import SwiftData
 struct NewProjectSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    @Query private var existingProjects: [Project]
-
     var editing: Project? = nil
 
     @State private var title: String = ""
     @State private var logline: String = ""
     @State private var selectedGenres: Set<Genre> = [.drama]
     @State private var contactBlock: String = ""
-    @State private var limitContext: LimitReachedContext?
 
     private var canSave: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty
@@ -101,17 +98,6 @@ struct NewProjectSheet: View {
             }
             .onAppear(perform: hydrate)
         }
-        .sheet(item: $limitContext) { ctx in
-            LimitReachedSheet(context: ctx)
-                .presentationDetents([.medium, .large])
-        }
-    }
-
-    /// Current plan from UserDefaults — freemium state is stored outside
-    /// SwiftData (single-row config). Fail-closed to .free.
-    private var currentPlan: Subscription.Plan {
-        let raw = UserDefaults.standard.string(forKey: "penova.subscription.plan") ?? ""
-        return Subscription.Plan(rawValue: raw) ?? .free
     }
 
     private func hydrate() {
@@ -132,15 +118,6 @@ struct NewProjectSheet: View {
 
     private func save() {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
-        // Freemium gate: only on *create*, and only when the user would end up
-        // with too many concurrently-active projects.
-        if editing == nil {
-            let check = FreemiumCheck(plan: currentPlan, projects: existingProjects)
-            if case let .denied(reason, limit) = check.canCreateProject() {
-                limitContext = LimitReachedContext(reason: reason, limit: limit)
-                return
-            }
-        }
         if let p = editing {
             p.title = trimmed
             p.logline = logline.trimmingCharacters(in: .whitespaces)
