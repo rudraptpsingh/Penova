@@ -116,6 +116,11 @@ public final class Project {
     public var trashedAt: Date?
     public var createdAt: Date
     public var updatedAt: Date
+    /// Optional contact block rendered on the title page bottom-left
+    /// (name, email, phone, agent). Newline-separated plain text.
+    /// Defaults to empty. Added in v1.1 — existing stores tolerate the
+    /// new optional-with-default property without a migration.
+    public var contactBlock: String = ""
 
     @Relationship(deleteRule: .cascade, inverse: \Episode.project)
     public var episodes: [Episode] = []
