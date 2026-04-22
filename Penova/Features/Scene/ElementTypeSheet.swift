@@ -13,7 +13,7 @@ struct ElementTypeSheet: View {
     let onPick: (SceneElementKind) -> Void
 
     private let kinds: [SceneElementKind] = [
-        .action, .character, .dialogue, .parenthetical, .transition, .heading
+        .action, .character, .dialogue, .parenthetical, .transition, .heading, .actBreak
     ]
 
     var body: some View {
@@ -76,6 +76,7 @@ struct ElementTypeSheet: View {
         case .dialogue:      return .dialogue
         case .parenthetical: return .parens
         case .transition:    return .transition
+        case .actBreak:      return .scenes
         }
     }
 
@@ -87,6 +88,7 @@ struct ElementTypeSheet: View {
         case .dialogue:      return "What they say."
         case .parenthetical: return "How they say it."
         case .transition:    return "CUT TO, FADE OUT."
+        case .actBreak:      return "END OF ACT ONE."
         }
     }
 }

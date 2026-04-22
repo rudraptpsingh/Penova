@@ -294,7 +294,42 @@ enum ScriptPDFRenderer {
 
         case .heading:
             break  // rendered via drawHeading at scene start only
+
+        case .actBreak:
+            // Centered, underlined, ALL CAPS — "END OF ACT ONE" convention.
+            // Writers type whatever label they want; we just style it.
+            if previousKind != nil { state.y += 2 * blank }
+            drawActBreak(text: element.text, ctx: ctx, state: &state)
+            state.y += blank
         }
+    }
+
+    private static func drawActBreak(
+        text: String,
+        ctx: UIGraphicsPDFRendererContext,
+        state: inout LayoutState
+    ) {
+        let label = text.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        paragraph.minimumLineHeight = lineHeight
+        paragraph.maximumLineHeight = lineHeight
+        let attributed = NSAttributedString(string: label, attributes: [
+            .font: bodyFont,
+            .foregroundColor: UIColor.black,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+            .paragraphStyle: paragraph
+        ])
+        let height = measure(attributed, width: BlockWidth.action)
+        if state.y + height > state.pageRect.height - Margins.bottom {
+            state.nextPage(ctx: ctx)
+        }
+        attributed.draw(
+            with: CGRect(x: Margins.left, y: state.y, width: BlockWidth.action, height: height),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            context: nil
+        )
+        state.y += height
     }
 
     /// Look back through the element chain to find the speaking CHARACTER

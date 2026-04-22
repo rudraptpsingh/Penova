@@ -382,5 +382,14 @@ public struct PenovaFAB: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact(weight: .light), trigger: tapCount)
+        .accessibilityLabel(a11yLabel)
+    }
+
+    private var a11yLabel: String {
+        switch icon {
+        case .plus:  return "Add"
+        case .voice: return "Quick capture"
+        default:     return "Action"
+        }
     }
 }

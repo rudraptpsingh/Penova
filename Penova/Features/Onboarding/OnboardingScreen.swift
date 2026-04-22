@@ -93,7 +93,7 @@ struct OnboardingScreen: View {
                 .font(PenovaFont.hero)
                 .foregroundStyle(PenovaColor.snow)
                 .multilineTextAlignment(.center)
-            Text("Sign in with Apple to back up your scripts across your devices. Or skip — everything you write stays on this phone.")
+            Text("Sign in to personalize the title page on your exports with your name and email. Or skip — everything you write stays on this phone either way.")
                 .font(PenovaFont.body)
                 .foregroundStyle(PenovaColor.snow3)
                 .multilineTextAlignment(.center)

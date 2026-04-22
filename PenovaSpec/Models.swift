@@ -79,7 +79,13 @@ public enum BeatType: String, Codable, CaseIterable {
 
 public enum SceneElementKind: String, Codable, CaseIterable {
     case heading, action, character, dialogue, parenthetical, transition
-    public var display: String { rawValue.capitalized }
+    case actBreak = "act-break"
+    public var display: String {
+        switch self {
+        case .actBreak: return "Act break"
+        default:        return rawValue.capitalized
+        }
+    }
 }
 
 public enum CharacterRole: String, Codable, CaseIterable {
