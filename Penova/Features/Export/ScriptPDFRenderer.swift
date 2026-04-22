@@ -173,10 +173,11 @@ enum ScriptPDFRenderer {
     }
 
     private enum Indent {
+        // Final Draft / industry standard column positions.
         static let action: CGFloat     = 108  // 1.5"
-        static let character: CGFloat  = 266  // 3.7"
+        static let character: CGFloat  = 252  // 3.5"
         static let dialogue: CGFloat   = 180  // 2.5"
-        static let parens: CGFloat     = 224  // 3.1"
+        static let parens: CGFloat     = 209  // 2.9"
     }
 
     private enum BlockWidth {
