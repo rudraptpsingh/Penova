@@ -22,6 +22,19 @@ struct CharacterDetailScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: PenovaSpace.l) {
                 headerBlock
+                if !character.projects.isEmpty {
+                    VStack(alignment: .leading, spacing: PenovaSpace.s) {
+                        Text("Projects")
+                            .font(PenovaFont.labelCaps)
+                            .tracking(PenovaTracking.labelCaps)
+                            .foregroundStyle(PenovaColor.snow3)
+                        FlowLayout(spacing: PenovaSpace.s) {
+                            ForEach(character.projects, id: \.id) { p in
+                                PenovaTag(text: p.title)
+                            }
+                        }
+                    }
+                }
                 if let age = character.ageText, !age.isEmpty {
                     field(label: "Age", value: age)
                 }
@@ -67,10 +80,8 @@ struct CharacterDetailScreen: View {
             }
         }
         .sheet(isPresented: $showEdit) {
-            if let project = character.project {
-                NewCharacterSheet(projects: [project], editing: character)
-                    .presentationDetents([.large])
-            }
+            NewCharacterSheet(projects: character.projects, editing: character)
+                .presentationDetents([.large])
         }
         .alert("Delete \(character.name)?", isPresented: $showDeleteConfirm) {
             Button("Cancel", role: .cancel) {}
