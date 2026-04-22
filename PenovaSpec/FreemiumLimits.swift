@@ -21,7 +21,8 @@ import Foundation
 // MARK: - Limits table
 
 public struct Limits {
-    public let maxProjects: Int                // .max = unlimited
+    public let maxProjects: Int                // .max = unlimited (lifetime)
+    public let maxActiveProjectsOnFree: Int    // concurrent non-archived projects
     public let maxScenesPerProject: Int
     public let exportFormats: Set<ExportFormat>
     public let characterProfiles: Bool
@@ -30,16 +31,20 @@ public struct Limits {
 }
 
 public enum ExportFormat: String, CaseIterable {
-    case pdf, fdx
+    case pdf, fdx, fountain
 }
 
 public enum FreemiumLimitsTable {
     public static func limits(for plan: Subscription.Plan) -> Limits {
         switch plan {
         case .free:
+            // 1.1 freemium model: one active project at a time on free,
+            // no scene cap (sanity ceiling at 500 per project). Finish a
+            // script, then either archive it or upgrade to start the next.
             return Limits(
-                maxProjects: 1,
-                maxScenesPerProject: 15,
+                maxProjects: .max,
+                maxActiveProjectsOnFree: 1,
+                maxScenesPerProject: 500,
                 exportFormats: [.pdf],
                 characterProfiles: true,
                 offlineEditing: true,
@@ -48,6 +53,7 @@ public enum FreemiumLimitsTable {
         case .pro:
             return Limits(
                 maxProjects: .max,
+                maxActiveProjectsOnFree: .max,
                 maxScenesPerProject: .max,
                 exportFormats: [.pdf, .fdx],
                 characterProfiles: true,
@@ -89,7 +95,14 @@ public struct FreemiumCheck {
     public var limits: Limits { FreemiumLimitsTable.limits(for: plan) }
 
     public func canCreateProject() -> FreemiumCheckResult {
-        if projects.filter({ $0.status == .active }).count >= limits.maxProjects {
+        // Free tier: at most one active (non-archived, non-trashed) project.
+        // Archiving a finished script lets the writer start another for free.
+        let activeCount = projects.filter({ $0.status == .active }).count
+        let activeCap = limits.maxActiveProjectsOnFree
+        if activeCount >= activeCap {
+            return .denied(reason: .maxProjects, limit: activeCap)
+        }
+        if activeCount >= limits.maxProjects {
             return .denied(reason: .maxProjects, limit: limits.maxProjects)
         }
         return .allowed

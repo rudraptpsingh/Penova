@@ -61,8 +61,12 @@ import Foundation
         #expect(EditorLogic.tabCycle(from: .parenthetical) == .transition)
     }
 
-    @Test func tabCycleTransitionWrapsToHeading() {
-        #expect(EditorLogic.tabCycle(from: .transition) == .heading)
+    @Test func tabCycleTransitionGoesToActBreak() {
+        #expect(EditorLogic.tabCycle(from: .transition) == .actBreak)
+    }
+
+    @Test func tabCycleActBreakWrapsToHeading() {
+        #expect(EditorLogic.tabCycle(from: .actBreak) == .heading)
     }
 
     @Test func tabCycleFullLoopReturnsHome() {

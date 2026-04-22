@@ -92,6 +92,11 @@ struct SceneDetailScreen: View {
                     .presentationDragIndicator(.visible)
             }
         }
+        .onAppear {
+            // Remember this scene as the "last opened" so Home can offer a
+            // resume card next launch. Keyed per the stream brief.
+            UserDefaults.standard.set(scene.id, forKey: "penova.lastOpenedSceneID")
+        }
         .alert("Delete scene?", isPresented: $showDeleteConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) { deleteScene() }
@@ -115,6 +120,7 @@ struct SceneDetailScreen: View {
                 PenovaIconView(.bookmark, size: 18,
                                color: scene.bookmarked ? PenovaColor.amber : PenovaColor.snow3)
             }
+            .accessibilityLabel(scene.bookmarked ? "Remove bookmark" : "Bookmark scene")
         }
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
@@ -127,6 +133,7 @@ struct SceneDetailScreen: View {
             } label: {
                 PenovaIconView(.more, size: 18, color: PenovaColor.snow)
             }
+            .accessibilityLabel("Scene actions")
         }
     }
 
@@ -215,6 +222,7 @@ struct SceneDetailScreen: View {
         case .dialogue:      return "DIAL"
         case .parenthetical: return "PAREN"
         case .transition:    return "TRANS"
+        case .actBreak:      return "ACT"
         }
     }
 
@@ -507,6 +515,7 @@ struct SceneElementInlineRow: View {
         case .dialogue:      return "Dialogue…"
         case .parenthetical: return "parenthetical"
         case .transition:    return "CUT TO:"
+        case .actBreak:      return "END OF ACT ONE"
         }
     }
 
@@ -518,6 +527,7 @@ struct SceneElementInlineRow: View {
         case .dialogue:      return "DIAL"
         case .parenthetical: return "PAREN"
         case .transition:    return "TRANS"
+        case .actBreak:      return "BREAK"
         }
     }
 

@@ -13,12 +13,15 @@ import SwiftData
 struct NewProjectSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Query private var existingProjects: [Project]
 
     var editing: Project? = nil
 
     @State private var title: String = ""
     @State private var logline: String = ""
     @State private var selectedGenres: Set<Genre> = [.drama]
+    @State private var contactBlock: String = ""
+    @State private var limitContext: LimitReachedContext?
 
     private var canSave: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty
@@ -54,6 +57,31 @@ struct NewProjectSheet: View {
                             }
                         }
                     }
+                    VStack(alignment: .leading, spacing: PenovaSpace.s) {
+                        Text("Contact (title page)")
+                            .font(PenovaFont.labelCaps)
+                            .tracking(PenovaTracking.labelCaps)
+                            .foregroundStyle(PenovaColor.snow3)
+                        ZStack(alignment: .topLeading) {
+                            if contactBlock.isEmpty {
+                                Text("name@email.com\n+1 555 0100\nAgent: ...")
+                                    .font(PenovaFont.body)
+                                    .foregroundStyle(PenovaColor.snow4)
+                                    .padding(.horizontal, PenovaSpace.m)
+                                    .padding(.vertical, PenovaSpace.s + 2)
+                                    .allowsHitTesting(false)
+                            }
+                            TextEditor(text: $contactBlock)
+                                .font(PenovaFont.body)
+                                .foregroundStyle(PenovaColor.snow)
+                                .scrollContentBackground(.hidden)
+                                .padding(.horizontal, PenovaSpace.s)
+                                .padding(.vertical, PenovaSpace.xs)
+                                .frame(minHeight: 96)
+                        }
+                        .background(PenovaColor.ink2)
+                        .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+                    }
                     PenovaButton(title: editing == nil ? "Create project" : "Save changes", variant: .primary) {
                         save()
                     }
@@ -73,6 +101,17 @@ struct NewProjectSheet: View {
             }
             .onAppear(perform: hydrate)
         }
+        .sheet(item: $limitContext) { ctx in
+            LimitReachedSheet(context: ctx)
+                .presentationDetents([.medium, .large])
+        }
+    }
+
+    /// Current plan from UserDefaults — freemium state is stored outside
+    /// SwiftData (single-row config). Fail-closed to .free.
+    private var currentPlan: Subscription.Plan {
+        let raw = UserDefaults.standard.string(forKey: "penova.subscription.plan") ?? ""
+        return Subscription.Plan(rawValue: raw) ?? .free
     }
 
     private func hydrate() {
@@ -80,6 +119,7 @@ struct NewProjectSheet: View {
         title = p.title
         logline = p.logline
         selectedGenres = Set(p.genre.isEmpty ? [.drama] : p.genre)
+        contactBlock = p.contactBlock
     }
 
     private func toggle(_ genre: Genre) {
@@ -92,10 +132,20 @@ struct NewProjectSheet: View {
 
     private func save() {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
+        // Freemium gate: only on *create*, and only when the user would end up
+        // with too many concurrently-active projects.
+        if editing == nil {
+            let check = FreemiumCheck(plan: currentPlan, projects: existingProjects)
+            if case let .denied(reason, limit) = check.canCreateProject() {
+                limitContext = LimitReachedContext(reason: reason, limit: limit)
+                return
+            }
+        }
         if let p = editing {
             p.title = trimmed
             p.logline = logline.trimmingCharacters(in: .whitespaces)
             p.genre = Array(selectedGenres)
+            p.contactBlock = contactBlock
             p.updatedAt = .now
         } else {
             let project = Project(
@@ -103,6 +153,7 @@ struct NewProjectSheet: View {
                 logline: logline.trimmingCharacters(in: .whitespaces),
                 genre: Array(selectedGenres)
             )
+            project.contactBlock = contactBlock
             context.insert(project)
 
             let pilot = Episode(title: "Pilot", order: 0)

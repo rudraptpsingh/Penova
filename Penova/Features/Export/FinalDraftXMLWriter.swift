@@ -77,6 +77,7 @@ enum FinalDraftXMLWriter {
         case .dialogue:      return "Dialogue"
         case .parenthetical: return "Parenthetical"
         case .transition:    return "Transition"
+        case .actBreak:      return "Action"
         }
     }
 
@@ -94,6 +95,8 @@ enum FinalDraftXMLWriter {
             return "(\(trimmed))"
         case .action, .dialogue:
             return el.text
+        case .actBreak:
+            return el.text.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         }
     }
 

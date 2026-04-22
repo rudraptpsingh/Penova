@@ -23,6 +23,7 @@ enum EditorLogic {
         case .dialogue:      return .action
         case .parenthetical: return .dialogue
         case .transition:    return .heading
+        case .actBreak:      return .heading
         }
     }
 
@@ -57,6 +58,8 @@ enum EditorLogic {
             return "(\(trimmed))"
         case .action, .dialogue:
             return text
+        case .actBreak:
+            return text.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         }
     }
 

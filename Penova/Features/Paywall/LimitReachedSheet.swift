@@ -20,8 +20,8 @@ struct LimitReachedContext: Identifiable {
 
     var title: String {
         switch reason {
-        case .maxProjects: return "One project is the free cap."
-        case .maxScenes:   return "15 scenes per project on free."
+        case .maxProjects: return "Finish your pilot first."
+        case .maxScenes:   return "You've written a lot."
         case .exportFdx:   return "FDX export is a Pro feature."
         case .settings:    return "Penova Pro."
         }
@@ -30,13 +30,13 @@ struct LimitReachedContext: Identifiable {
     var message: String {
         switch reason {
         case .maxProjects:
-            return "Upgrade to Pro to start as many stories as you like — all offline, all yours."
+            return "Free gives you one project at a time — enough room for a whole feature or pilot. Finish your pilot. Then Penova Pro unlocks the rest."
         case .maxScenes:
-            return "You've filled this project. Pro lifts the cap — unlimited scenes, unlimited episodes."
+            return "This project has hit the sanity ceiling. Pro removes it entirely — unlimited scenes, unlimited episodes."
         case .exportFdx:
             return "Hand a Final Draft file to your director. Pro unlocks FDX export."
         case .settings:
-            return "Unlock unlimited projects, unlimited scenes, and FDX export."
+            return "Unlock parallel projects and FDX export. One scene away from unlimited."
         }
     }
 

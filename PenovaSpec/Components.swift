@@ -215,15 +215,27 @@ public struct PenovaTextField: View {
 
 public struct ProjectCard: View {
     let project: Project
-    public init(project: Project) { self.project = project }
+    let pageCount: Int?
+    public init(project: Project, pageCount: Int? = nil) {
+        self.project = project
+        self.pageCount = pageCount
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.sm) {
-            HStack {
+            HStack(spacing: PenovaSpace.s) {
                 if let firstGenre = project.genre.first {
                     PenovaTag(text: firstGenre.display)
                 }
                 Spacer()
+                if let pages = pageCount, pages > 0 {
+                    Text("\(pages) pages")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow3)
+                    Text("·")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow4)
+                }
                 Text(Copy.scripts.episodesLabel(project.episodes.count))
                     .font(PenovaFont.bodySmall)
                     .foregroundStyle(PenovaColor.snow3)
@@ -382,5 +394,14 @@ public struct PenovaFAB: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact(weight: .light), trigger: tapCount)
+        .accessibilityLabel(a11yLabel)
+    }
+
+    private var a11yLabel: String {
+        switch icon {
+        case .plus:  return "Add"
+        case .voice: return "Quick capture"
+        default:     return "Action"
+        }
     }
 }

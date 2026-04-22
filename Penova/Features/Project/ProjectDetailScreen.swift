@@ -18,6 +18,7 @@ struct ProjectDetailScreen: View {
     @State private var showNewEpisode = false
     @State private var exportFile: ExportFile?
     @State private var exportError: String?
+    @State private var pageCount: Int = 0
     @State private var showEdit = false
     @State private var showDeleteConfirm = false
     @State private var pendingEpisodeEdit: Episode?
@@ -75,9 +76,15 @@ struct ProjectDetailScreen: View {
                         } label: {
                             Label("Export as FDX", systemImage: "doc.text")
                         }
+                        Button {
+                            exportFountain()
+                        } label: {
+                            Label("Export as Fountain (.fountain)", systemImage: "doc.plaintext")
+                        }
                     } label: {
                         PenovaIconView(.export, size: 18, color: PenovaColor.snow)
                     }
+                    .accessibilityLabel("Export project")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -90,6 +97,7 @@ struct ProjectDetailScreen: View {
                     } label: {
                         PenovaIconView(.more, size: 18, color: PenovaColor.snow)
                     }
+                    .accessibilityLabel("Project actions")
                 }
             }
 
@@ -179,6 +187,15 @@ struct ProjectDetailScreen: View {
         }
     }
 
+    private func exportFountain() {
+        do {
+            let url = try FountainExporter.write(project: project)
+            exportFile = ExportFile(url: url, format: .fountain)
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
+
     private var header: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.s) {
             if !project.genre.isEmpty {
@@ -204,7 +221,14 @@ struct ProjectDetailScreen: View {
             StatTile(value: project.episodes.count, label: "Episodes")
             StatTile(value: project.totalSceneCount, label: "Scenes")
             StatTile(value: project.characters.count, label: "Characters")
+            StatTile(value: pageCount, label: "Pages")
         }
+        .onAppear(perform: refreshPageCount)
+        .onChange(of: project.updatedAt) { _, _ in refreshPageCount() }
+    }
+
+    private func refreshPageCount() {
+        pageCount = ScriptPDFRenderer.measurePageCount(project: project)
     }
 }
 
