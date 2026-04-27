@@ -87,6 +87,11 @@ public enum Copy {
         public static let editedYesterday = "Edited yesterday"
         public static func editedDaysAgo(_ n: Int) -> String { "Edited \(n) days ago" }
         public static let notStarted      = "Not started"
+        // Onboarding existing material — accepts PDF, FDX, Fountain.
+        public static let importMenuLabel    = "Import script…"
+        public static let importEmptyState   = "Already have a script?"
+        public static let importEmptyCta     = "Import PDF, FDX, or Fountain"
+        public static let importMenuSubtitle = "PDF · FDX · Fountain"
     }
 
     // MARK: Editor
