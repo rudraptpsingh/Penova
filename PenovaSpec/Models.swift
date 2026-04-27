@@ -93,6 +93,25 @@ public enum CharacterRole: String, Codable, CaseIterable {
     public var display: String { rawValue.capitalized }
 }
 
+public enum FeatureRequestCategory: String, Codable, CaseIterable, Identifiable {
+    case editor, export, characters, search, general
+    public var id: String { rawValue }
+    public var display: String {
+        switch self {
+        case .editor:     return "Editor"
+        case .export:     return "Export & Share"
+        case .characters: return "Characters"
+        case .search:     return "Search"
+        case .general:    return "General"
+        }
+    }
+}
+
+public enum FeatureRequestStatus: String, Codable, CaseIterable {
+    case pending, planned, shipped
+    public var display: String { rawValue.capitalized }
+}
+
 // MARK: - Project
 
 @Model
@@ -289,6 +308,36 @@ public final class ScriptCharacter {
     public var lineCountFallback: Int { 0 }
 }
 
+// MARK: - FeatureRequest
+
+@Model
+public final class FeatureRequest {
+    @Attribute(.unique) public var id: ID
+    public var title: String
+    public var body: String
+    public var category: FeatureRequestCategory
+    public var status: FeatureRequestStatus
+    /// Upvote count stored locally; starts at 1 (the submitter implicitly votes).
+    public var upvotes: Int
+    public var createdAt: Date
+    public var updatedAt: Date
+
+    public init(
+        title: String,
+        body: String = "",
+        category: FeatureRequestCategory = .general
+    ) {
+        self.id = UUID().uuidString
+        self.title = title
+        self.body = body
+        self.category = category
+        self.status = .pending
+        self.upvotes = 1
+        self.createdAt = .now
+        self.updatedAt = .now
+    }
+}
+
 // MARK: - Schema accessor
 
 public enum PenovaSchema {
@@ -297,6 +346,7 @@ public enum PenovaSchema {
         Episode.self,
         ScriptScene.self,
         SceneElement.self,
-        ScriptCharacter.self
+        ScriptCharacter.self,
+        FeatureRequest.self
     ]
 }

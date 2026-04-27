@@ -204,6 +204,28 @@ public enum Copy {
         public static let trashedToast      = "Moved to Trash"
     }
 
+    // MARK: Feature Requests
+    public enum featureRequests {
+        public static let title         = "Feature requests"
+        public static let subtitle      = "Tell us what you'd like to see next."
+        public static let newTitle      = "New request"
+        public static let titleLabel    = "What would you like?"
+        public static let titlePlaceholder = "Short description"
+        public static let descriptionLabel = "Details (optional)"
+        public static let descriptionPlaceholder = "Describe how this would help your writing…"
+        public static let categoryLabel = "Category"
+        public static let submitButton  = "Submit request"
+        public static let feedbackLabel = "Feedback"
+        public static let upvoteLabel   = "Upvote"
+        public static let emptyTitle    = "No requests yet."
+        public static let emptyBody     = "Submit your first request to help shape what comes next."
+        public static let emptyCta      = "Add request"
+        public static let titleRequired = "A title is required — Tap to retry"
+        public static func requestCount(_ n: Int) -> String {
+            n == 1 ? "1 request" : "\(n) requests"
+        }
+    }
+
     // MARK: Errors
     public enum errors {
         public static let offlineBanner   = "You're offline. Penova is saving locally — will sync when you reconnect."

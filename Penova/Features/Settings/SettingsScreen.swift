@@ -14,6 +14,7 @@ import AVFoundation
 struct SettingsScreen: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Query private var featureRequests: [FeatureRequest]
 
     @State private var showDeleteAll = false
 
@@ -22,6 +23,7 @@ struct SettingsScreen: View {
             VStack(alignment: .leading, spacing: PenovaSpace.l) {
                 appearanceBlock
                 privacyBlock
+                feedbackBlock
                 aboutBlock
                 dangerBlock
             }
@@ -95,6 +97,34 @@ struct SettingsScreen: View {
         case .denied:   return "Denied"
         case .undetermined: return "Not requested"
         @unknown default: return "Unknown"
+        }
+    }
+
+    private var feedbackBlock: some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.s) {
+            Text(Copy.featureRequests.feedbackLabel)
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(PenovaColor.snow3)
+            NavigationLink(destination: FeatureRequestsScreen()) {
+                HStack {
+                    Text(Copy.featureRequests.title)
+                        .font(PenovaFont.body)
+                        .foregroundStyle(PenovaColor.snow)
+                    Spacer()
+                    if !featureRequests.isEmpty {
+                        Text(Copy.featureRequests.requestCount(featureRequests.count))
+                            .font(PenovaFont.bodySmall)
+                            .foregroundStyle(PenovaColor.snow3)
+                    }
+                    PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                        .rotationEffect(.degrees(180))
+                }
+                .padding(PenovaSpace.m)
+                .background(PenovaColor.ink2)
+                .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+            }
+            .buttonStyle(.plain)
         }
     }
 
