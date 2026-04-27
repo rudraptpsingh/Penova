@@ -70,6 +70,14 @@
 		FEAA000000000000000000A1 /* HabitScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B1 /* HabitScreen.swift */; };
 		FEAA000000000000000000A2 /* HabitTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B2 /* HabitTracker.swift */; };
 		FEAA000000000000000000A4 /* HabitTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B4 /* HabitTrackerTests.swift */; };
+		FEBB000000000000000000A1 /* PDFLineSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B1 /* PDFLineSource.swift */; };
+		FEBB000000000000000000A2 /* PDFKitLineSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B2 /* PDFKitLineSource.swift */; };
+		FEBB000000000000000000A3 /* PDFScreenplayParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B3 /* PDFScreenplayParser.swift */; };
+		FEBB000000000000000000A4 /* FDXReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B4 /* FDXReader.swift */; };
+		FEBB000000000000000000A5 /* ScreenplayImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B5 /* ScreenplayImporter.swift */; };
+		FEBB000000000000000000A6 /* PDFScreenplayParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */; };
+		FEBB000000000000000000A7 /* FDXReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B7 /* FDXReaderTests.swift */; };
+		FEBB000000000000000000A8 /* PDFRoundTripImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +158,14 @@
 		FEAA000000000000000000B1 /* HabitScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitScreen.swift; sourceTree = "<group>"; };
 		FEAA000000000000000000B2 /* HabitTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitTracker.swift; sourceTree = "<group>"; };
 		FEAA000000000000000000B4 /* HabitTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitTrackerTests.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B1 /* PDFLineSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLineSource.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B2 /* PDFKitLineSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitLineSource.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B3 /* PDFScreenplayParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParser.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B4 /* FDXReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDXReader.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B5 /* ScreenplayImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenplayImporter.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParserTests.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B7 /* FDXReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDXReaderTests.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFRoundTripImportTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -165,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				B759711443F2E63064750D1E /* EditorLogicTests.swift */,
+				FEBB000000000000000000B7 /* FDXReaderTests.swift */,
 				01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */,
 				5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */,
 				C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */,
@@ -172,6 +189,8 @@
 				FEAA000000000000000000B4 /* HabitTrackerTests.swift */,
 				E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */,
 				E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */,
+				FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */,
+				FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */,
 				1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */,
 				5C74CF473DAD618D971CC56E /* ScenePDFContentTests.swift */,
 				AE7B232CCCE173DCAFA5D0C6 /* SearchAndCharacterReportTests.swift */,
@@ -354,8 +373,13 @@
 		DBF84439CC8E4D61FC8A8386 /* Import */ = {
 			isa = PBXGroup;
 			children = (
+				FEBB000000000000000000B4 /* FDXReader.swift */,
 				5FF2D48D683C1E3C0124F948 /* FountainImportPicker.swift */,
 				751CB664AE7C442930E4CF1E /* FountainParser.swift */,
+				FEBB000000000000000000B2 /* PDFKitLineSource.swift */,
+				FEBB000000000000000000B1 /* PDFLineSource.swift */,
+				FEBB000000000000000000B3 /* PDFScreenplayParser.swift */,
+				FEBB000000000000000000B5 /* ScreenplayImporter.swift */,
 			);
 			path = Import;
 			sourceTree = "<group>";
@@ -512,6 +536,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */,
+				FEBB000000000000000000A7 /* FDXReaderTests.swift in Sources */,
 				A242B55E8EFA2B83319160F0 /* FinalDraftXMLWriterDeepTests.swift in Sources */,
 				F51ED583A2CCBC90CD9D2BD8 /* FinalDraftXMLWriterTests.swift in Sources */,
 				7B81B947626453E7EFD8A9EF /* FountainParserTests.swift in Sources */,
@@ -519,6 +544,8 @@
 				FEAA000000000000000000A4 /* HabitTrackerTests.swift in Sources */,
 				60353FCE2B1B2736F4A0327E /* MeasurePageCountTests.swift in Sources */,
 				E25B5584856EFCF695FF9F4A /* PDFRenderSmokeTests.swift in Sources */,
+				FEBB000000000000000000A8 /* PDFRoundTripImportTests.swift in Sources */,
+				FEBB000000000000000000A6 /* PDFScreenplayParserTests.swift in Sources */,
 				34C7BD445A5450DFFFAC0F1D /* SceneHeadingParserTests.swift in Sources */,
 				7EF3CE1DE43D0695BF4B4E61 /* ScenePDFContentTests.swift in Sources */,
 				9F8CC214502FCE62ED6B0F4D /* SearchAndCharacterReportTests.swift in Sources */,
@@ -541,6 +568,7 @@
 				284884FFE3AD913EBC5470DD /* EditorLogic.swift in Sources */,
 				98C4412427DA93BEA7000304 /* EpisodeDetailScreen.swift in Sources */,
 				EF10AD4FB1EB99795AA890C9 /* ExportShareSheet.swift in Sources */,
+				FEBB000000000000000000A4 /* FDXReader.swift in Sources */,
 				6DC007852CF55E8E8331A675 /* FinalDraftXMLWriter.swift in Sources */,
 				F7A2A61B747C72927BC704E9 /* FountainExporter.swift in Sources */,
 				0AE426C3671EECCAD7FBD2CF /* FountainImportPicker.swift in Sources */,
@@ -556,6 +584,9 @@
 				FEA45B391C76DB181CB67EE4 /* NewProjectSheet.swift in Sources */,
 				922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */,
 				AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */,
+				FEBB000000000000000000A2 /* PDFKitLineSource.swift in Sources */,
+				FEBB000000000000000000A1 /* PDFLineSource.swift in Sources */,
+				FEBB000000000000000000A3 /* PDFScreenplayParser.swift in Sources */,
 				EC0FE37E44AEC0C693E9E9EA /* PenovaApp.swift in Sources */,
 				6DAF2A5656E5286EA2CE1DEA /* ProjectDetailScreen.swift in Sources */,
 				0B22BADB791826FE15738A6C /* RootView.swift in Sources */,
@@ -563,6 +594,7 @@
 				CB65D7D98B9E6753BF99F52C /* SceneHeadingParser.swift in Sources */,
 				CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */,
 				A6E6D549D31EC32D0F1C3B40 /* ScreenshotMode.swift in Sources */,
+				FEBB000000000000000000A5 /* ScreenplayImporter.swift in Sources */,
 				0558212BAB6B626A87C40DCE /* ScriptPDFRenderer.swift in Sources */,
 				D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */,
 				4DC274E8363B8E0B21D539BA /* SeedData.swift in Sources */,

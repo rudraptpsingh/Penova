@@ -174,22 +174,7 @@ struct ScriptsTabScreen: View {
 
     private func handleFountainImport(url: URL) {
         do {
-            // Scoped access: security-scoped URLs are required for document
-            // picker results on iOS.
-            let scoped = url.startAccessingSecurityScopedResource()
-            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-
-            let data = try Data(contentsOf: url)
-            guard let text = String(data: data, encoding: .utf8)
-                ?? String(data: data, encoding: .isoLatin1) else {
-                importError = "Could not read file as text."
-                return
-            }
-            let doc = FountainParser.parse(text)
-            let name = url.deletingPathExtension().lastPathComponent
-            let title = name.isEmpty ? "Untitled" : name
-            _ = FountainImporter.makeProject(title: title, from: doc, context: context)
-            try context.save()
+            _ = try ScreenplayImporter.importFile(at: url, into: context)
         } catch {
             importError = error.localizedDescription
         }
