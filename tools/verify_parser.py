@@ -102,8 +102,8 @@ SCENE_HEADING_PREFIXES = (
 
 PAGE_NUMBER_RE = re.compile(r"^[0-9]{1,4}\.?$")
 ROMAN_RE = re.compile(r"^[ivxlcdm]{1,5}\.?$", re.IGNORECASE)
-SCENE_NUMBER_PREFIX_RE = re.compile(r"^[A-Z]?[0-9]{1,4}[A-Z]?\s{2,}")
-SCENE_NUMBER_SUFFIX_RE = re.compile(r"\s{2,}[A-Z]?[0-9]{1,4}[A-Z]?$")
+SCENE_NUMBER_PREFIX_RE = re.compile(r"^[A-Z]?[0-9]{1,4}[A-Z]?\s+")
+SCENE_NUMBER_SUFFIX_RE = re.compile(r"\s+[A-Z]?[0-9]{1,4}[A-Z]?$")
 CUE_SUFFIX_RE = re.compile(r"\s*\([^)]*\)\s*$")
 CHROME_TOKEN_RE = re.compile(r"^[A-Z0-9 .,/\-:]+$")
 
@@ -226,6 +226,41 @@ def infer_columns(lines: List[Line]) -> Columns:
     return cols
 
 
+def validate_columns(cols: Columns, lines: List[Line]) -> Columns:
+    """Demote a labelled column whose content doesn't match the label.
+    Mirrors PDFScreenplayParser.validateColumns(_:against:)."""
+    tol = 6.0
+
+    if cols.parenthetical is not None:
+        sample = [l for l in lines if abs(l.x - cols.parenthetical) <= tol]
+        if sample:
+            paren_starts = sum(1 for l in sample
+                               if l.text.strip().startswith("(")
+                               and l.text.strip().endswith(")"))
+            if paren_starts / len(sample) < 0.5:
+                # If the demoted column had more lines than the inferred
+                # dialogue column, it was the real dialogue (Big Fish).
+                dlg_count = 0
+                if cols.dialogue is not None:
+                    dlg_count = sum(1 for l in lines if abs(l.x - cols.dialogue) <= tol)
+                if len(sample) > dlg_count or cols.dialogue is None:
+                    cols.dialogue = cols.parenthetical
+                cols.parenthetical = None
+
+    if cols.character is not None:
+        sample = [l for l in lines if abs(l.x - cols.character) <= tol]
+        if sample:
+            cue_shaped = sum(1 for l in sample
+                             if is_uppercase_letters(l.text.strip())
+                             and 2 <= len(l.text.strip()) <= 32
+                             and "." not in l.text.strip()
+                             and "," not in l.text.strip())
+            if cue_shaped / len(sample) < 0.4:
+                cols.character = None
+
+    return cols
+
+
 def classify(line: Line, cols: Columns) -> str:
     t = line.text.strip()
     is_caps = is_uppercase_letters(t)
@@ -275,17 +310,32 @@ def parse_title_page(page0: List[Line]) -> Optional[dict]:
     if fields:
         return fields
     sorted_lines = sorted(page0, key=lambda l: -l.y_top)
-    topish = [l.text.strip() for l in sorted_lines[:8] if l.text.strip()]
+    topish = [l.text.strip() for l in sorted_lines[:12] if l.text.strip()]
     if not topish:
         return None
     fields["title"] = topish[0]
-    for raw in topish[1:]:
-        low = raw.lower()
-        if low.startswith("by ") or low.startswith("written by"):
-            cleaned = re.sub(r"^(?:by|written by)\s+", "", raw, flags=re.IGNORECASE).strip()
+
+    i = 1
+    while i < len(topish):
+        line = topish[i]
+        low = line.lower()
+        # Standalone label ("written by"). The author's name is the
+        # next non-empty line.
+        if low == "by" or low == "written by":
+            if i + 1 < len(topish):
+                fields["author"] = topish[i + 1]
+                i += 2
+                continue
+            i += 1
+            continue
+        # Inline form ("by John August" / "Written by John August").
+        if low.startswith("by ") or low.startswith("written by "):
+            cleaned = re.sub(r"^(?:written\s+by|by)\s+", "", line, flags=re.IGNORECASE).strip()
             if cleaned:
                 fields["author"] = cleaned
-                break
+            i += 1
+            continue
+        i += 1
     return fields
 
 
@@ -316,6 +366,7 @@ def parse(lines_per_page: List[List[Line]]) -> Tuple[ParsedDocument, Diagnostics
     diag.body_line_count = len(body)
 
     cols = infer_columns(body)
+    cols = validate_columns(cols, body)
     diag.action_x = cols.action
     diag.dialogue_x = cols.dialogue
     diag.parenthetical_x = cols.parenthetical
@@ -339,7 +390,7 @@ def parse(lines_per_page: List[List[Line]]) -> Tuple[ParsedDocument, Diagnostics
             flush_action()
             if current is not None:
                 doc.scenes.append(current)
-            current = Scene(text, [])
+            current = Scene(strip_scene_number(text), [])
         elif kind == "action":
             pending_action.append(text)
         elif kind == "character":
@@ -376,46 +427,66 @@ def parse(lines_per_page: List[List[Line]]) -> Tuple[ParsedDocument, Diagnostics
 
 def extract_lines(pdf_path: str) -> List[List[Line]]:
     """Run pdftotext -bbox-layout to get a pseudo-HTML with per-word
-    bounding boxes, then group into lines per page."""
+    bounding boxes, then group into lines per page. Words sharing a
+    yMin within 3pt are merged into a single line — pdftotext sometimes
+    splits visually-same-line content (e.g. "INT. WILL'S BEDROOM" gets
+    cut at the period) into separate <line> records, which would
+    otherwise break scene-heading detection on real Hollywood scripts."""
     if shutil.which("pdftotext") is None:
         raise RuntimeError("pdftotext not installed")
     proc = subprocess.run(
         ["pdftotext", "-bbox-layout", pdf_path, "-"],
         capture_output=True, text=True, check=True,
     )
-    # Normalise self-closing / namespace shenanigans.
     xml_text = proc.stdout
-    # pdftotext emits XHTML; strip the namespace.
     xml_text = re.sub(r'\sxmlns="[^"]+"', "", xml_text, count=1)
     root = ET.fromstring(xml_text)
     pages: List[List[Line]] = []
     for page_idx, page in enumerate(root.iter("page")):
-        page_w = float(page.attrib.get("width", "612"))
         page_h = float(page.attrib.get("height", "792"))
+        # First pass: collect every (text, x, yMin) word fragment.
+        fragments: List[tuple] = []  # (yMin, xMin, text)
+        for word in page.iter("word"):
+            txt = (word.text or "").strip()
+            if not txt:
+                continue
+            try:
+                y_min = float(word.attrib["yMin"])
+                x_min = float(word.attrib["xMin"])
+            except (KeyError, ValueError):
+                continue
+            fragments.append((y_min, x_min, txt))
+        if not fragments:
+            pages.append([])
+            continue
+        fragments.sort(key=lambda f: (f[0], f[1]))
+
+        # Second pass: bucket by yMin within ±3pt tolerance.
         page_lines: List[Line] = []
-        for flow in page.iter("flow"):
-            for block in flow.iter("block"):
-                for line in block.iter("line"):
-                    word_iter = list(line.iter("word"))
-                    if not word_iter:
-                        continue
-                    text = " ".join((w.text or "").strip() for w in word_iter
-                                    if (w.text or "").strip())
-                    if not text:
-                        continue
-                    x = min(float(w.attrib["xMin"]) for w in word_iter)
-                    y_min = min(float(w.attrib["yMin"]) for w in word_iter)
-                    y_max = max(float(w.attrib["yMax"]) for w in word_iter)
-                    # pdftotext -bbox-layout uses origin top-left, so
-                    # convert to PDF space (origin bottom-left): the
-                    # "top" of the line in PDF user space is
-                    # page_h - y_min.
-                    y_top = page_h - y_min
-                    # We compute height implicitly via y_min/y_max
-                    # bookkeeping in classifier? No — just use y_top.
-                    _ = y_max
-                    page_lines.append(Line(text, x, y_top, page_h, page_idx))
-        # Sort top-to-bottom (largest y first).
+        cur_y: Optional[float] = None
+        cur_min_x: Optional[float] = None
+        cur_words: List[str] = []
+        TOL = 3.0
+        for y_min, x_min, txt in fragments:
+            if cur_y is None or abs(y_min - cur_y) > TOL:
+                if cur_words and cur_y is not None and cur_min_x is not None:
+                    page_lines.append(Line(
+                        " ".join(cur_words), cur_min_x,
+                        page_h - cur_y, page_h, page_idx
+                    ))
+                cur_y = y_min
+                cur_min_x = x_min
+                cur_words = [txt]
+            else:
+                cur_words.append(txt)
+                if x_min < (cur_min_x or x_min):
+                    cur_min_x = x_min
+        if cur_words and cur_y is not None and cur_min_x is not None:
+            page_lines.append(Line(
+                " ".join(cur_words), cur_min_x,
+                page_h - cur_y, page_h, page_idx
+            ))
+
         page_lines.sort(key=lambda l: -l.y_top)
         pages.append(page_lines)
     return pages
@@ -497,9 +568,12 @@ def generate_industry_sample(out_path: str) -> None:
 def generate_final_draft_style(out_path: str) -> None:
     """Multi-page Final Draft-style PDF with full chrome:
        - page numbers top-right
-       - scene numbers in both margins
+       - scene numbers in both margins (which share y with the heading
+         and get merged into the heading line by mergeSameYLines —
+         exercising stripSceneNumberPrefix's single-space tolerance)
        - MORE / CONT'D continuation markers across page breaks
        - multi-paragraph action
+       - enough dialogue to form a robust column for the inferrer
     """
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import letter
@@ -594,6 +668,24 @@ def generate_final_draft_style(out_path: str) -> None:
     blank()
     line("RAVI", 266)
     line("The last time what happened?", 180)
+    blank()
+    line("MEENA", 266)
+    line("(reading her notebook)", 223)
+    line("Twelve years, four months, three days.", 180)
+    blank()
+    line("RAVI", 266)
+    line("That's exactly the answer of someone", 180)
+    line("who has been counting.", 180)
+    blank()
+    line("MEENA", 266)
+    line("My brother was on that train.", 180)
+    blank()
+    line("RAVI", 266)
+    line("(softly)", 223)
+    line("Then we should probably compare notes.", 180)
+    blank()
+    line("MEENA", 266)
+    line("Quickly.", 180)
     blank()
     line("FADE OUT.", 432)
 

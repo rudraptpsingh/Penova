@@ -386,4 +386,160 @@ private enum F {
         let cue = r.document.scenes.first?.elements.first { $0.kind == .character }
         #expect(cue?.text == "ALICE")
     }
+
+    // MARK: - Stacked cue suffixes (regression: real Hollywood scripts)
+
+    @Test func stripsStackedCueSuffixes() {
+        // RAVI (V.O.) (CONT'D) — common after a page break in
+        // continuous V.O. dialogue. Both suffixes must come off.
+        #expect(PDFScreenplayParser.stripCueSuffix("RAVI (V.O.) (CONT'D)") == "RAVI")
+        #expect(PDFScreenplayParser.stripCueSuffix("ALICE (O.S.) (CONT'D)") == "ALICE")
+        #expect(PDFScreenplayParser.stripCueSuffix("BOB (CONT'D)") == "BOB")
+        #expect(PDFScreenplayParser.stripCueSuffix("BOB") == "BOB")
+    }
+
+    // MARK: - Same-y line merging (regression: pdftotext / Big Fish)
+
+    @Test func mergeSameYLinesGluesSplitSceneHeading() {
+        // PDF text extractors sometimes split "INT. WILL'S BEDROOM"
+        // into two lines at the period. The merge pass glues them
+        // back together when their y-tops are within tolerance.
+        let split = [
+            PDFLine(text: "INT.",                          x: 108, yTop: 700, pageHeight: 792, pageIndex: 0),
+            PDFLine(text: "WILL'S BEDROOM - NIGHT (1973)", x: 150, yTop: 700, pageHeight: 792, pageIndex: 0),
+            PDFLine(text: "Action below.",                 x: 108, yTop: 670, pageHeight: 792, pageIndex: 0),
+        ]
+        let merged = PDFScreenplayParser.mergeSameYLines(split)
+        #expect(merged.count == 2)
+        #expect(merged.first?.text == "INT. WILL'S BEDROOM - NIGHT (1973)")
+        #expect(merged.first?.x == 108)
+    }
+
+    @Test func mergeSameYLinesLeavesDifferentYsAlone() {
+        let stacked = [
+            PDFLine(text: "Top",    x: 108, yTop: 700, pageHeight: 792, pageIndex: 0),
+            PDFLine(text: "Middle", x: 108, yTop: 670, pageHeight: 792, pageIndex: 0),
+            PDFLine(text: "Bottom", x: 108, yTop: 640, pageHeight: 792, pageIndex: 0),
+        ]
+        let merged = PDFScreenplayParser.mergeSameYLines(stacked)
+        #expect(merged.count == 3)
+        #expect(merged.map(\.text) == ["Top", "Middle", "Bottom"])
+    }
+
+    // MARK: - Column validation (regression: Big Fish parenthetical mislabel)
+
+    @Test func validateColumnsDemotesFakeParenthetical() {
+        // Build a sample where the inferred "parenthetical" column has
+        // mostly real dialogue text, not paren-wrapped lines. The
+        // validator should demote it and (because it has more lines)
+        // promote it to be the dialogue column.
+        var samples: [PDFLine] = []
+        // 20 dialogue lines at the "parenthetical" column (174).
+        for i in 0..<20 {
+            samples.append(F.line("Dialogue line \(i).", x: 174, yFromTop: CGFloat(100 + i * 14)))
+        }
+        // 5 lines at the originally-labelled dialogue column (150).
+        for i in 0..<5 {
+            samples.append(F.line("Other \(i).", x: 150, yFromTop: CGFloat(400 + i * 14)))
+        }
+        // No real parentheticals at 174 — only one decoy line.
+        samples.append(F.line("(decoy)", x: 174, yFromTop: 600))
+
+        let initial = PDFScreenplayParser.Columns(
+            action: 108, character: nil, parenthetical: 174,
+            dialogue: 150, transition: nil
+        )
+        let validated = PDFScreenplayParser.validateColumns(initial, against: samples)
+        #expect(validated.parenthetical == nil)
+        // The 174 column had 21 lines vs 5 at 150, so it WAS the real
+        // dialogue and should have been promoted.
+        #expect(validated.dialogue == 174)
+    }
+
+    @Test func validateColumnsKeepsRealParenthetical() {
+        // The "parenthetical" column genuinely contains parens-wrapped
+        // text — should not be demoted.
+        var samples: [PDFLine] = []
+        for i in 0..<10 {
+            samples.append(F.line("(beat)",  x: 223, yFromTop: CGFloat(100 + i * 14)))
+        }
+        for i in 0..<10 {
+            samples.append(F.line("Dialogue \(i).", x: 180, yFromTop: CGFloat(300 + i * 14)))
+        }
+        let initial = PDFScreenplayParser.Columns(
+            action: 108, character: nil, parenthetical: 223,
+            dialogue: 180, transition: nil
+        )
+        let validated = PDFScreenplayParser.validateColumns(initial, against: samples)
+        #expect(validated.parenthetical == 223)
+        #expect(validated.dialogue == 180)
+    }
+
+    @Test func validateColumnsDemotesFakeCharacterColumn() {
+        // The "character" column has mostly long lowercase prose — it
+        // isn't really character cues. Demote it.
+        var samples: [PDFLine] = []
+        for i in 0..<10 {
+            samples.append(F.line(
+                "the quick brown fox jumps \(i)", x: 266, yFromTop: CGFloat(100 + i * 14)
+            ))
+        }
+        let initial = PDFScreenplayParser.Columns(
+            action: 108, character: 266, parenthetical: nil,
+            dialogue: 180, transition: nil
+        )
+        let validated = PDFScreenplayParser.validateColumns(initial, against: samples)
+        #expect(validated.character == nil)
+    }
+
+    // MARK: - Standalone-author label (regression: Brick & Steel / Big Fish)
+
+    @Test func standaloneWrittenByLabelGrabsNextLine() {
+        // Title page rendered as three centered lines:
+        //   TITLE
+        //   written by
+        //   John August
+        // "written by" alone shouldn't BECOME the author — the next
+        // line should.
+        let p0 = [
+            F.line("BIG FISH",      x: 240, yFromTop: 200, page: 0),
+            F.line("written by",    x: 240, yFromTop: 240, page: 0),
+            F.line("John August",   x: 240, yFromTop: 280, page: 0),
+        ]
+        let p1 = F.laidOut([
+            ("INT. ROOM - DAY", F.action),
+            ("Action.",         F.action),
+        ], page: 1)
+        let r = PDFScreenplayParser.parse(MockLineSource(pages: [p0, p1]))
+        #expect(r.diagnostics.hadTitlePage)
+        #expect(r.document.titlePage["title"] == "BIG FISH")
+        #expect(r.document.titlePage["author"] == "John August")
+    }
+
+    @Test func standaloneByLabelGrabsNextLine() {
+        let p0 = [
+            F.line("THE LAST TRAIN", x: 240, yFromTop: 200, page: 0),
+            F.line("by",             x: 240, yFromTop: 240, page: 0),
+            F.line("Penova Test",    x: 240, yFromTop: 280, page: 0),
+        ]
+        let p1 = F.laidOut([
+            ("INT. ROOM - DAY", F.action),
+            ("Action.",         F.action),
+        ], page: 1)
+        let r = PDFScreenplayParser.parse(MockLineSource(pages: [p0, p1]))
+        #expect(r.document.titlePage["author"] == "Penova Test")
+    }
+
+    @Test func inlineByPrefixStillWorks() {
+        let p0 = [
+            F.line("THE LAST TRAIN",         x: 240, yFromTop: 200, page: 0),
+            F.line("by Penova Test",         x: 240, yFromTop: 240, page: 0),
+        ]
+        let p1 = F.laidOut([
+            ("INT. ROOM - DAY", F.action),
+            ("Action.",         F.action),
+        ], page: 1)
+        let r = PDFScreenplayParser.parse(MockLineSource(pages: [p0, p1]))
+        #expect(r.document.titlePage["author"] == "Penova Test")
+    }
 }
