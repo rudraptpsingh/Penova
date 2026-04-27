@@ -218,37 +218,36 @@ public enum Copy {
         public static let welcomeToPro      = "Welcome to Pro"
     }
 
-    // MARK: Feature Requests
-    public enum featureRequests {
-        public static let title              = "Suggest a feature"
-        public static let settingsRow        = "Suggest a feature"
-        public static let settingsRowSubtitle = "Tell us what's missing"
-        public static let intro              = "Penova is built feature by feature. Tell us what would help your writing — and +1 the ideas you want most."
-        public static let tabTop             = "Top"
-        public static let tabRecent          = "Recent"
-        public static let tabMine            = "Mine"
-        public static let newRequestCta      = "New request"
-        public static let detailLabel        = "Details"
-        public static let categoryLabel      = "Area"
-        public static let voteCta            = "+1"
-        public static let votedCta           = "+1'd"
-        public static let maintainerLabel    = "From the team"
-        public static let editCta            = "Edit"
-        public static let deleteCta          = "Delete request"
-        public static let deletePrompt       = "Delete this request?"
-        public static let deleteBody         = "It will be removed from your device. If others +1'd the same idea, theirs are unaffected."
-        public static let titleField         = "What do you want?"
-        public static let titlePlaceholder   = "e.g. Index cards on iPad"
-        public static let detailField        = "Why it matters (optional)"
-        public static let detailPlaceholder  = "How would you use it? What problem does it solve?"
-        public static let submitCta          = "Submit request"
-        public static let saveChangesCta     = "Save changes"
-        public static let emptyTitle         = "No requests yet."
-        public static let emptyBody          = "Be the first. Tell us what would make Penova better for the way you write."
-        public static let emptyMineTitle     = "Nothing from you yet."
-        public static let emptyMineBody      = "Open a request and we'll list it here so you can edit or remove it later."
-        public static func voteCountLabel(_ n: Int) -> String {
-            n == 1 ? "1 vote" : "\(n) votes"
+    // MARK: Habit
+    public enum habit {
+        public static let title           = "Writing habit"
+        public static let settingsRow     = "Writing habit"
+        public static let settingsRowSubtitle = "Streak, daily goal, last 49 days"
+        public static let todayLabel      = "Today"
+        public static let goalLabel       = "Daily goal"
+        public static let streakLabel     = "Streak"
+        public static let bestStreakLabel = "Best"
+        public static let lastFortyNine   = "Last 49 days"
+        public static let editGoalCta     = "Edit goal"
+        public static let goalSheetTitle  = "Daily goal"
+        public static let goalSheetBody   = "Words per day. The streak counts any day you cross this line."
+        public static let saveGoalCta     = "Save goal"
+        public static let resetCta        = "Reset history"
+        public static let resetPrompt     = "Reset writing history?"
+        public static let resetBody       = "Erases every recorded day. Your scripts are not touched."
+        public static let emptyTitle      = "Open a scene to start the streak."
+        public static let emptyBody       = "Penova counts the words you add each day. Hit your daily goal to keep the streak alive."
+        public static func wordsLabel(_ n: Int) -> String {
+            n == 1 ? "1 word" : "\(n) words"
+        }
+        public static func wordsOfGoal(words: Int, goal: Int) -> String {
+            "\(words) / \(goal)"
+        }
+        public static func streakDaysLabel(_ n: Int) -> String {
+            n == 1 ? "1 day" : "\(n) days"
+        }
+        public static func goalHitToday(_ hit: Bool) -> String {
+            hit ? "Goal hit" : "Keep going"
         }
     }
 

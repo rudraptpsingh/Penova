@@ -93,49 +93,6 @@ public enum CharacterRole: String, Codable, CaseIterable {
     public var display: String { rawValue.capitalized }
 }
 
-public enum FeatureRequestCategory: String, Codable, CaseIterable, Identifiable {
-    case editor          // writing surface, formatting, keyboard
-    case characters      // character profiles, relationships
-    case scenes          // scene list, board, beats
-    case exportFormat    // PDF, FDX, Fountain
-    case sync            // cloud sync, multi-device
-    case voice           // dictation, voice capture
-    case other
-    public var id: String { rawValue }
-    public var display: String {
-        switch self {
-        case .editor:       return "Editor"
-        case .characters:   return "Characters"
-        case .scenes:       return "Scenes"
-        case .exportFormat: return "Export"
-        case .sync:         return "Sync"
-        case .voice:        return "Voice"
-        case .other:        return "Other"
-        }
-    }
-}
-
-/// Lifecycle of a user-submitted feature request. The user can only create
-/// rows in `submitted`; the rest are reserved for the maintainer flipping a
-/// row's state when triaging the list (today via `SeedData` / a debug build
-/// menu, eventually via a backend).
-public enum FeatureRequestStatus: String, Codable, CaseIterable {
-    case submitted   // user just sent it
-    case underReview = "under-review"
-    case planned
-    case shipped
-    case declined
-    public var display: String {
-        switch self {
-        case .submitted:   return "Submitted"
-        case .underReview: return "Under review"
-        case .planned:     return "Planned"
-        case .shipped:     return "Shipped"
-        case .declined:    return "Declined"
-        }
-    }
-}
-
 // MARK: - Project
 
 @Model
@@ -332,104 +289,42 @@ public final class ScriptCharacter {
     public var lineCountFallback: Int { 0 }
 }
 
-// MARK: - FeatureRequest
+// MARK: - WritingDay
 //
-// User-submitted suggestions for things they'd like to see Penova do. The
-// app is offline-first and currently has no backend, so:
+// One row per calendar day on which the writer touched their script.
+// `dateKey` is the local "yyyy-MM-dd" so streak math is calendar-aware
+// and timezone-stable (the user's calendar, not UTC). `wordCount` is
+// monotonic within a day — we never subtract on deletion, otherwise
+// the streak would punish revision.
 //
-//   - A request lives only on the device that wrote it. Voting is local —
-//     `voteCount` is bumped/decremented as the user toggles their +1.
-//   - `submittedByThisDevice` is the toggle. If true, this device can edit
-//     or delete the row; if false, the row is read-only on this device.
-//     (A future backend sync will reconcile vote counts across devices and
-//     attach a stable owner id.)
-//
-// Status transitions are intentionally not validated by code — the
-// maintainer flips them. The UI treats `.submitted`/`.underReview` as
-// "live", `.planned` as "queued", `.shipped`/`.declined` as terminal.
+// Lookups are by `dateKey` and rows are unique on it.
 
 @Model
-public final class FeatureRequest {
-    @Attribute(.unique) public var id: ID
-    public var title: String
-    public var detail: String
-    public var category: FeatureRequestCategory
-    public var status: FeatureRequestStatus
-    /// Local +1 count. Always >= 1 (the author auto-votes for their own).
-    public var voteCount: Int
-    /// Whether the local user has +1'd this row. Persisted so toggling
-    /// across launches is consistent without a backend account.
-    public var hasVoted: Bool
-    /// True if this device is the one that submitted the request. Drives
-    /// "edit" / "delete" affordances on the detail screen.
-    public var submittedByThisDevice: Bool
-    public var createdAt: Date
-    public var updatedAt: Date
-    /// Optional maintainer reply. Shown under the description on the
-    /// detail screen. Empty string means "no reply yet".
-    public var maintainerNote: String
+public final class WritingDay {
+    @Attribute(.unique) public var dateKey: String
+    public var date: Date
+    public var wordCount: Int
+    public var sceneEditCount: Int
+    public var lastWriteAt: Date
 
-    public init(
-        title: String,
-        detail: String = "",
-        category: FeatureRequestCategory = .other,
-        status: FeatureRequestStatus = .submitted,
-        submittedByThisDevice: Bool = true
-    ) {
-        self.id = UUID().uuidString
-        self.title = title
-        self.detail = detail
-        self.category = category
-        self.status = status
-        self.voteCount = submittedByThisDevice ? 1 : 0
-        self.hasVoted = submittedByThisDevice
-        self.submittedByThisDevice = submittedByThisDevice
-        self.createdAt = .now
-        self.updatedAt = .now
-        self.maintainerNote = ""
-    }
-
-    /// Toggle the local +1. Author votes (already counted at creation) can
-    /// also be revoked — that's a feature, not a bug: if the user changed
-    /// their mind they can pull their own +1 back to 0.
-    public func toggleVote() {
-        if hasVoted {
-            hasVoted = false
-            voteCount = max(0, voteCount - 1)
-        } else {
-            hasVoted = true
-            voteCount += 1
-        }
-        updatedAt = .now
-    }
-
-    /// Sorting key for the "Top" tab: status weight first (live > planned >
-    /// shipped > declined), then votes desc, then recency desc. Returned
-    /// as a tuple so callers can use it with `sorted(by:)`.
-    public var rankTuple: (Int, Int, Date) {
-        let statusWeight: Int
-        switch status {
-        case .submitted, .underReview: statusWeight = 0
-        case .planned:                 statusWeight = 1
-        case .shipped:                 statusWeight = 2
-        case .declined:                statusWeight = 3
-        }
-        // Sort ascending on status (live first), descending on votes &
-        // recency. We invert votes/recency by negating in the comparison.
-        return (statusWeight, voteCount, createdAt)
+    public init(dateKey: String, date: Date) {
+        self.dateKey = dateKey
+        self.date = date
+        self.wordCount = 0
+        self.sceneEditCount = 0
+        self.lastWriteAt = date
     }
 }
 
-public extension Sequence where Element == FeatureRequest {
-    /// "Top" ordering: live first, then by votes desc, then recency desc.
-    func rankedTop() -> [FeatureRequest] {
-        sorted { lhs, rhs in
-            let (ls, lv, lc) = lhs.rankTuple
-            let (rs, rv, rc) = rhs.rankTuple
-            if ls != rs { return ls < rs }
-            if lv != rv { return lv > rv }
-            return lc > rc
-        }
+public extension WritingDay {
+    /// Stable yyyy-MM-dd key for the writer's local calendar. Used as the
+    /// unique primary key and as the bucket id for snapshot diffs.
+    static func dayKey(for date: Date, calendar: Calendar = .current) -> String {
+        let comps = calendar.dateComponents([.year, .month, .day], from: date)
+        let y = comps.year  ?? 0
+        let m = comps.month ?? 0
+        let d = comps.day   ?? 0
+        return String(format: "%04d-%02d-%02d", y, m, d)
     }
 }
 
@@ -442,6 +337,6 @@ public enum PenovaSchema {
         ScriptScene.self,
         SceneElement.self,
         ScriptCharacter.self,
-        FeatureRequest.self
+        WritingDay.self
     ]
 }

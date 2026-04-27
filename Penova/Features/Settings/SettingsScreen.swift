@@ -22,7 +22,7 @@ struct SettingsScreen: View {
             VStack(alignment: .leading, spacing: PenovaSpace.l) {
                 appearanceBlock
                 privacyBlock
-                feedbackBlock
+                habitBlock
                 aboutBlock
                 dangerBlock
             }
@@ -99,22 +99,22 @@ struct SettingsScreen: View {
         }
     }
 
-    private var feedbackBlock: some View {
+    private var habitBlock: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.s) {
-            Text("Feedback")
+            Text("Writing")
                 .font(PenovaFont.labelCaps)
                 .tracking(PenovaTracking.labelCaps)
                 .foregroundStyle(PenovaColor.snow3)
             NavigationLink {
-                FeatureRequestsScreen()
+                HabitScreen()
             } label: {
                 HStack(spacing: PenovaSpace.m) {
-                    PenovaIconView(.bookmark, size: 18, color: PenovaColor.amber)
+                    PenovaIconView(.progress, size: 18, color: PenovaColor.amber)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(Copy.featureRequests.settingsRow)
+                        Text(Copy.habit.settingsRow)
                             .font(PenovaFont.body)
                             .foregroundStyle(PenovaColor.snow)
-                        Text(Copy.featureRequests.settingsRowSubtitle)
+                        Text(Copy.habit.settingsRowSubtitle)
                             .font(PenovaFont.bodySmall)
                             .foregroundStyle(PenovaColor.snow3)
                     }
@@ -127,7 +127,7 @@ struct SettingsScreen: View {
                 .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Copy.featureRequests.settingsRow)
+            .accessibilityLabel(Copy.habit.settingsRow)
         }
     }
 
@@ -174,8 +174,9 @@ struct SettingsScreen: View {
         try? context.delete(model: Episode.self)
         try? context.delete(model: ScriptCharacter.self)
         try? context.delete(model: Project.self)
-        try? context.delete(model: FeatureRequest.self)
+        try? context.delete(model: WritingDay.self)
         try? context.save()
         UserDefaults.standard.removeObject(forKey: "penova.didSeedDemo.v2")
+        HabitTracker.clearAllSnapshots()
     }
 }
