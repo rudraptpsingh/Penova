@@ -78,6 +78,7 @@
 		FEBB000000000000000000A6 /* PDFScreenplayParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */; };
 		FEBB000000000000000000A7 /* FDXReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B7 /* FDXReaderTests.swift */; };
 		FEBB000000000000000000A8 /* PDFRoundTripImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */; };
+		FEBB000000000000000000A9 /* RoundTripIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B9 /* RoundTripIntegrityTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -166,6 +167,7 @@
 		FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParserTests.swift; sourceTree = "<group>"; };
 		FEBB000000000000000000B7 /* FDXReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDXReaderTests.swift; sourceTree = "<group>"; };
 		FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFRoundTripImportTests.swift; sourceTree = "<group>"; };
+		FEBB000000000000000000B9 /* RoundTripIntegrityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundTripIntegrityTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -191,6 +193,7 @@
 				E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */,
 				FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */,
 				FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */,
+				FEBB000000000000000000B9 /* RoundTripIntegrityTests.swift */,
 				1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */,
 				5C74CF473DAD618D971CC56E /* ScenePDFContentTests.swift */,
 				AE7B232CCCE173DCAFA5D0C6 /* SearchAndCharacterReportTests.swift */,
@@ -546,6 +549,7 @@
 				E25B5584856EFCF695FF9F4A /* PDFRenderSmokeTests.swift in Sources */,
 				FEBB000000000000000000A8 /* PDFRoundTripImportTests.swift in Sources */,
 				FEBB000000000000000000A6 /* PDFScreenplayParserTests.swift in Sources */,
+				FEBB000000000000000000A9 /* RoundTripIntegrityTests.swift in Sources */,
 				34C7BD445A5450DFFFAC0F1D /* SceneHeadingParserTests.swift in Sources */,
 				7EF3CE1DE43D0695BF4B4E61 /* ScenePDFContentTests.swift in Sources */,
 				9F8CC214502FCE62ED6B0F4D /* SearchAndCharacterReportTests.swift in Sources */,

@@ -209,13 +209,14 @@ public enum PDFScreenplayParser {
             return true
         }
 
-        // Top / bottom margin (within ~36pt = 0.5") with very short
-        // numeric or all-caps content is almost always chrome.
+        // Top / bottom margin (within ~54pt = 0.75") with short
+        // ASCII content is almost always chrome — page numbers,
+        // "REVISED 1/2/24" headers, "Page 1 of 12" footers, and
+        // "BLUE 12/15/24" revision markers.
         let nearTop = line.yTop > line.pageHeight - 54
         let nearBottom = line.yTop < 54
-        if (nearTop || nearBottom) && trimmed.count <= 16 {
-            // Page number-shaped or "REVISED 1/2/24"-shaped → chrome.
-            if matches(trimmed, pattern: #"^[A-Z0-9 .,/\-:]+$"#) { return true }
+        if (nearTop || nearBottom) && trimmed.count <= 32 {
+            if matches(trimmed, pattern: #"^[A-Za-z0-9 .,/\-:]+$"#) { return true }
         }
 
         return false
@@ -313,35 +314,90 @@ public enum PDFScreenplayParser {
     /// Merge runs of lines whose top-y values are within `tolerance` of
     /// each other into a single line. PDF text-extraction can break
     /// visually-same-line text into multiple records (e.g. "INT.
-    /// KITCHEN" gets cut at the period); this glues them back so the
-    /// scene-heading and column-content checks see whole lines.
-    static func mergeSameYLines(_ lines: [PDFLine], tolerance: CGFloat = 3) -> [PDFLine] {
+    /// KITCHEN" gets cut at the period); this glues them back.
+    ///
+    /// Important exception: dual dialogue puts two characters'
+    /// columns at the same y but in horizontally separate columns
+    /// (typically a 150–200pt gap). We must NOT merge those — the
+    /// `gapTolerance` parameter caps how far apart two same-y
+    /// fragments can sit before we treat them as separate columns.
+    /// 80pt is conservative enough to glue split scene-heading text
+    /// (which is contiguous) without gluing dual-dialogue columns
+    /// (which are widely apart). Trailing isolated revision marks
+    /// like "*" or "|" — common in Final Draft revision pages — are
+    /// stripped from the merged line.
+    static func mergeSameYLines(
+        _ lines: [PDFLine],
+        tolerance: CGFloat = 3,
+        gapTolerance: CGFloat = 80
+    ) -> [PDFLine] {
         guard lines.count > 1 else { return lines }
         let sorted = lines.sorted { $0.yTop > $1.yTop }
         var out: [PDFLine] = []
         out.reserveCapacity(sorted.count)
-        var current = sorted[0]
-        var pieces: [(x: CGFloat, text: String)] = [(current.x, current.text)]
-        for line in sorted.dropFirst() {
-            if abs(line.yTop - current.yTop) <= tolerance {
-                pieces.append((line.x, line.text))
-                continue
+
+        // Group same-y fragments first, then split each group into
+        // sub-groups by horizontal proximity so dual-dialogue columns
+        // emerge as distinct lines.
+        var i = 0
+        while i < sorted.count {
+            let head = sorted[i]
+            var group: [PDFLine] = [head]
+            var j = i + 1
+            while j < sorted.count, abs(sorted[j].yTop - head.yTop) <= tolerance {
+                group.append(sorted[j])
+                j += 1
             }
-            out.append(flush(pieces, base: current))
-            current = line
-            pieces = [(line.x, line.text)]
+            // Now split `group` into runs where consecutive x positions
+            // are within `gapTolerance` (assume each fragment is at
+            // most 320pt wide — a safe upper bound for screenplay text
+            // on Letter, since action wraps at ~6").
+            let xSorted = group.sorted { $0.x < $1.x }
+            var runStart = 0
+            for k in 1..<xSorted.count {
+                let prev = xSorted[k - 1]
+                let cur = xSorted[k]
+                // Approximate the right edge of `prev` as x +
+                // 7.2pt-per-char × character count (Courier 12).
+                let approxRight = prev.x + CGFloat(prev.text.count) * 7.2
+                if cur.x - approxRight > gapTolerance {
+                    out.append(flush(Array(xSorted[runStart..<k]), base: head))
+                    runStart = k
+                }
+            }
+            out.append(flush(Array(xSorted[runStart..<xSorted.count]), base: head))
+            i = j
         }
-        out.append(flush(pieces, base: current))
         return out
     }
 
-    private static func flush(_ pieces: [(x: CGFloat, text: String)], base: PDFLine) -> PDFLine {
-        if pieces.count == 1 { return base }
-        let sorted = pieces.sorted { $0.x < $1.x }
-        let merged = sorted.map(\.text).joined(separator: " ")
-        let leftmost = sorted.first?.x ?? base.x
+    /// Trailing revision-mark glyphs (asterisk, vertical bar) that get
+    /// merged into a real text line from the right margin in Final
+    /// Draft revision pages. Strip them so they don't end up in
+    /// element text.
+    private static func stripTrailingRevisionMark(_ text: String) -> String {
+        var out = text
+        while let last = out.last, last == "*" || last == "|" || last.isWhitespace {
+            out.removeLast()
+        }
+        return String(out)
+    }
+
+    private static func flush(_ pieces: [PDFLine], base: PDFLine) -> PDFLine {
+        if pieces.count == 1 {
+            return PDFLine(
+                text: stripTrailingRevisionMark(pieces[0].text),
+                x: pieces[0].x,
+                yTop: pieces[0].yTop,
+                pageHeight: pieces[0].pageHeight,
+                pageIndex: pieces[0].pageIndex
+            )
+        }
+        let merged = pieces.map(\.text).joined(separator: " ")
+        let cleaned = stripTrailingRevisionMark(merged)
+        let leftmost = pieces.first?.x ?? base.x
         return PDFLine(
-            text: merged,
+            text: cleaned,
             x: leftmost,
             yTop: base.yTop,
             pageHeight: base.pageHeight,

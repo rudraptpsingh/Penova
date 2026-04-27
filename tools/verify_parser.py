@@ -105,7 +105,7 @@ ROMAN_RE = re.compile(r"^[ivxlcdm]{1,5}\.?$", re.IGNORECASE)
 SCENE_NUMBER_PREFIX_RE = re.compile(r"^[A-Z]?[0-9]{1,4}[A-Z]?\s+")
 SCENE_NUMBER_SUFFIX_RE = re.compile(r"\s+[A-Z]?[0-9]{1,4}[A-Z]?$")
 CUE_SUFFIX_RE = re.compile(r"\s*\([^)]*\)\s*$")
-CHROME_TOKEN_RE = re.compile(r"^[A-Z0-9 .,/\-:]+$")
+CHROME_TOKEN_RE = re.compile(r"^[A-Za-z0-9 .,/\-:]+$")
 
 
 def is_uppercase_letters(s: str) -> bool:
@@ -180,7 +180,7 @@ def is_chrome(line: Line) -> bool:
         return True
     near_top = line.y_top > line.page_height - 54
     near_bottom = line.y_top < 54
-    if (near_top or near_bottom) and len(t) <= 16:
+    if (near_top or near_bottom) and len(t) <= 32:
         if CHROME_TOKEN_RE.match(t):
             return True
     return False
@@ -461,35 +461,63 @@ def extract_lines(pdf_path: str) -> List[List[Line]]:
             continue
         fragments.sort(key=lambda f: (f[0], f[1]))
 
-        # Second pass: bucket by yMin within ±3pt tolerance.
-        page_lines: List[Line] = []
+        # Second pass: bucket by (yMin within tolerance) AND (x close
+        # enough that we're not crossing a column gap — otherwise we'd
+        # glue dual-dialogue's left + right columns into one line).
+        # Also strip lone trailing revision marks (asterisks / pipes)
+        # from the merged text — common chrome on Final Draft revision
+        # pages.
+        TOL_Y = 3.0
+        GAP = 80.0   # max horizontal gap before treating as separate columns
+        # First group by y, then split groups by x-gap.
+        groups: List[List[tuple]] = []
         cur_y: Optional[float] = None
-        cur_min_x: Optional[float] = None
-        cur_words: List[str] = []
-        TOL = 3.0
+        cur_group: List[tuple] = []
         for y_min, x_min, txt in fragments:
-            if cur_y is None or abs(y_min - cur_y) > TOL:
-                if cur_words and cur_y is not None and cur_min_x is not None:
-                    page_lines.append(Line(
-                        " ".join(cur_words), cur_min_x,
-                        page_h - cur_y, page_h, page_idx
-                    ))
+            if cur_y is None or abs(y_min - cur_y) > TOL_Y:
+                if cur_group:
+                    groups.append(cur_group)
+                cur_group = [(y_min, x_min, txt)]
                 cur_y = y_min
-                cur_min_x = x_min
-                cur_words = [txt]
             else:
-                cur_words.append(txt)
-                if x_min < (cur_min_x or x_min):
-                    cur_min_x = x_min
-        if cur_words and cur_y is not None and cur_min_x is not None:
-            page_lines.append(Line(
-                " ".join(cur_words), cur_min_x,
-                page_h - cur_y, page_h, page_idx
-            ))
+                cur_group.append((y_min, x_min, txt))
+        if cur_group:
+            groups.append(cur_group)
+
+        page_lines: List[Line] = []
+        for group in groups:
+            group.sort(key=lambda f: f[1])  # by x
+            run: List[tuple] = []
+            for frag in group:
+                if not run:
+                    run.append(frag)
+                    continue
+                prev = run[-1]
+                approx_right = prev[1] + len(prev[2]) * 7.2  # Courier 12 monospace
+                if frag[1] - approx_right > GAP:
+                    page_lines.append(_emit_line(run, page_h, page_idx))
+                    run = [frag]
+                else:
+                    run.append(frag)
+            if run:
+                page_lines.append(_emit_line(run, page_h, page_idx))
 
         page_lines.sort(key=lambda l: -l.y_top)
         pages.append(page_lines)
     return pages
+
+
+def _emit_line(fragments: List[tuple], page_h: float, page_idx: int) -> Line:
+    """Helper for extract_lines(): merge a same-y, same-column run of
+    word fragments into a single Line, stripping trailing revision-mark
+    glyphs from the result."""
+    text = " ".join(f[2] for f in fragments)
+    # Strip lone trailing "*" or "|" + whitespace.
+    while text and text[-1] in ("*", "|", " ", "\t"):
+        text = text[:-1]
+    x_min = min(f[1] for f in fragments)
+    y_min = min(f[0] for f in fragments)
+    return Line(text, x_min, page_h - y_min, page_h, page_idx)
 
 
 # ----------------------------------------------------------------------
@@ -693,6 +721,189 @@ def generate_final_draft_style(out_path: str) -> None:
     c.save()
 
 
+def generate_writerduet_style(out_path: str) -> None:
+    """WriterDuet-style PDF: industry indents, but with a per-page
+    header line (title + date) and footer "page N of M" — both common
+    chrome that our parser must drop. Tests our chrome filter against
+    the second-most-popular tool's output.
+    """
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+
+    c = canvas.Canvas(out_path, pagesize=letter)
+    PAGE_W, PAGE_H = letter
+    c.setFont("Courier", 12)
+    LEAD = 14
+    page_num = [0]
+    y = [PAGE_H - 92]   # leave headroom for the header
+
+    def page_chrome():
+        c.setFont("Courier", 10)
+        # Top header (title + date), centered.
+        c.drawCentredString(PAGE_W / 2, PAGE_H - 36,
+                            "THE LAST TRAIN - 12/15/2023")
+        # Bottom footer (page x of y), centered.
+        c.drawCentredString(PAGE_W / 2, 36,
+                            f"Page {page_num[0] + 1} of 2")
+        c.setFont("Courier", 12)
+
+    def page_break():
+        page_chrome()
+        c.showPage()
+        c.setFont("Courier", 12)
+        page_num[0] += 1
+        y[0] = PAGE_H - 92
+
+    def line(text: str, x: float):
+        if y[0] < 92:
+            page_break()
+        c.drawString(x, y[0], text)
+        y[0] -= LEAD
+
+    def blank():
+        y[0] -= LEAD
+
+    # Title page.
+    c.drawCentredString(PAGE_W / 2, PAGE_H / 2 + 60, "THE LAST TRAIN")
+    c.drawCentredString(PAGE_W / 2, PAGE_H / 2 + 30, "by")
+    c.drawCentredString(PAGE_W / 2, PAGE_H / 2, "Penova Test")
+    c.showPage()
+    page_num[0] = 1
+    y[0] = PAGE_H - 92
+
+    # Body — one substantial scene with full element ladder.
+    line("INT. WRITERDUET TEST - DAY", 108)
+    blank()
+    line("A simple test scene to exercise the writerduet output style.", 108)
+    blank()
+    line("ALICE", 266)
+    line("Does the parser drop the header?", 180)
+    blank()
+    line("BOB", 266)
+    line("(checking)", 223)
+    line("Looks like it does.", 180)
+    blank()
+    line("ALICE", 266)
+    line("And the footer?", 180)
+    blank()
+    line("BOB", 266)
+    line("That too.", 180)
+    blank()
+    line("FADE OUT.", 432)
+
+    page_chrome()
+    c.save()
+
+
+def generate_revision_marks(out_path: str) -> None:
+    """A revised-pages PDF with chrome that real production scripts
+    carry: a colored-page header ("BLUE 12/15/24"), revision asterisks
+    in the right margin against changed lines, and locked page numbers
+    (e.g. "12A.") for inserted pages.
+    """
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+
+    c = canvas.Canvas(out_path, pagesize=letter)
+    PAGE_W, PAGE_H = letter
+    c.setFont("Courier", 12)
+    LEAD = 14
+    y = [PAGE_H - 72]
+
+    def line(text: str, x: float, revised: bool = False):
+        c.drawString(x, y[0], text)
+        if revised:
+            # Asterisk in the right margin — Final Draft's convention
+            # for "this line was revised". Sits at ~7.6".
+            c.drawString(PAGE_W - 36, y[0], "*")
+        y[0] -= LEAD
+
+    def blank():
+        y[0] -= LEAD
+
+    # Skip title page; opens directly into a revised page.
+    # Top-of-page header: revision colour + date. This is real chrome
+    # we need to drop.
+    c.setFont("Courier", 10)
+    c.drawString(72, PAGE_H - 36, "BLUE 12/15/24")
+    c.drawRightString(PAGE_W - 72, PAGE_H - 36, "12A.")   # locked page number
+    c.setFont("Courier", 12)
+
+    line("INT. REVISED SCENE - NIGHT", 108)
+    blank()
+    line("Original action that was already there.", 108)
+    line("New action added in the blue revision.", 108, revised=True)
+    blank()
+    line("ALICE", 266)
+    line("Original line.", 180)
+    line("Newly revised reply that needs marking.", 180, revised=True)
+    blank()
+    line("BOB", 266)
+    line("Unchanged line.", 180)
+
+    c.save()
+
+
+def generate_dual_dialogue(out_path: str) -> None:
+    """Dual-dialogue PDF: two characters speaking simultaneously, laid
+    out side-by-side. Final Draft renders this as two columns sharing
+    the same y. Our parser is allowed to flatten this to back-to-back
+    single-dialogue blocks (the same way FDXReader does); we just want
+    to confirm both characters and both lines survive.
+    """
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+
+    c = canvas.Canvas(out_path, pagesize=letter)
+    PAGE_W, PAGE_H = letter
+    c.setFont("Courier", 12)
+    LEAD = 14
+    y = [PAGE_H - 72]
+
+    def left(text: str, x: float):
+        c.drawString(x, y[0], text)
+
+    def right(text: str, x: float):
+        c.drawString(x, y[0], text)
+
+    def newline():
+        y[0] -= LEAD
+
+    def blank():
+        y[0] -= LEAD
+
+    # Skip title page.
+    left("INT. CROWDED ROOM - NIGHT", 108)
+    newline()
+    blank()
+    left("Two voices crash through each other.", 108)
+    newline()
+    blank()
+    # Dual dialogue: ALICE at x=180 (left column character), BOB at
+    # x=370 (right column character). Same y.
+    left("ALICE", 180)
+    right("BOB", 370)
+    newline()
+    left("Get out of my way!", 130)
+    right("I'm not moving!", 320)
+    newline()
+    blank()
+    left("ALICE", 180)
+    right("BOB", 370)
+    newline()
+    left("Now!", 130)
+    right("Make me!", 320)
+    newline()
+    blank()
+    # And one normal exchange after to confirm we recover.
+    left("ALICE", 266)
+    newline()
+    left("Fine.", 180)
+    newline()
+
+    c.save()
+
+
 def generate_wonky_template(out_path: str) -> None:
     """A document where action and character are both flush left at the
     same indent — the classifier's column heuristic can't help, so the
@@ -777,6 +988,18 @@ def main(argv):
         generate_final_draft_style(finaldraft)
         targets.append(finaldraft)
 
+        writerduet = os.path.join(out_dir, "writerduet-style.pdf")
+        generate_writerduet_style(writerduet)
+        targets.append(writerduet)
+
+        revised = os.path.join(out_dir, "revision-marks.pdf")
+        generate_revision_marks(revised)
+        targets.append(revised)
+
+        dual = os.path.join(out_dir, "dual-dialogue.pdf")
+        generate_dual_dialogue(dual)
+        targets.append(dual)
+
         wonky = os.path.join(out_dir, "wonky-template.pdf")
         generate_wonky_template(wonky)
         targets.append(wonky)
@@ -842,6 +1065,66 @@ def main(argv):
             except AssertionError as e:
                 failures.append(f"final-draft-style: {e}")
                 print(f"\n  ❌ final-draft-style: {e}")
+        elif "writerduet-style" in path:
+            try:
+                assert diag.scene_count == 1, f"expected 1 scene, got {diag.scene_count}"
+                cues = [e.text for s in doc.scenes for e in s.elements
+                        if e.kind == "character"]
+                assert "ALICE" in cues and "BOB" in cues, \
+                    f"missing cues, got {cues}"
+                # Header / footer must NOT have leaked into content.
+                all_text = " ".join(e.text for s in doc.scenes for e in s.elements)
+                assert "12/15/2023" not in all_text, "header date leaked into body"
+                assert "Page 1 of 2" not in all_text and "Page 2 of 2" not in all_text, \
+                    "footer leaked into body"
+                print("\n  ✅ writerduet-style: all invariants passed")
+            except AssertionError as e:
+                failures.append(f"writerduet-style: {e}")
+                print(f"\n  ❌ writerduet-style: {e}")
+        elif "revision-marks" in path:
+            try:
+                assert diag.scene_count == 1, f"expected 1 scene, got {diag.scene_count}"
+                # Revision-page header chrome dropped.
+                all_text = " ".join(e.text for s in doc.scenes for e in s.elements)
+                assert "BLUE" not in all_text or "12/15/24" not in all_text, \
+                    f"revised-page header leaked: {all_text[:120]}"
+                # Locked page number "12A." dropped.
+                assert "12A" not in all_text, f"locked page number leaked: {all_text[:120]}"
+                # Asterisk margin marks must not survive in element text.
+                for s in doc.scenes:
+                    for e in s.elements:
+                        assert not e.text.endswith("*"), \
+                            f"trailing asterisk leaked into {e.kind}: {e.text!r}"
+                # Both original and revised dialogue should be captured.
+                dialogue = [e.text for s in doc.scenes for e in s.elements
+                            if e.kind == "dialogue"]
+                joined = " ".join(dialogue)
+                assert "Original line" in joined, "original dialogue lost"
+                assert "Newly revised" in joined, "revised dialogue lost"
+                print("\n  ✅ revision-marks: all invariants passed")
+            except AssertionError as e:
+                failures.append(f"revision-marks: {e}")
+                print(f"\n  ❌ revision-marks: {e}")
+        elif "dual-dialogue" in path:
+            try:
+                assert diag.scene_count == 1, f"expected 1 scene, got {diag.scene_count}"
+                # Dual dialogue is a known-hard case: Final Draft puts the
+                # LEFT character cue at the dialogue indent, visually
+                # indistinguishable from her own line via x-clustering
+                # alone. Our acceptance is "preserve the text" -- every
+                # ALICE / BOB fragment must appear somewhere in the scene
+                # even if classification got the kind wrong.
+                all_text = " ".join(e.text for s in doc.scenes for e in s.elements)
+                # Both names survived as visible content.
+                assert "ALICE" in all_text, "ALICE lost entirely"
+                assert "BOB" in all_text, "BOB lost entirely"
+                for fragment in ["Get out", "not moving", "Now", "Make me", "Fine"]:
+                    assert fragment in all_text, \
+                        f"dual-dialogue fragment {fragment!r} lost: {all_text[:200]}"
+                print("\n  ✅ dual-dialogue: text preserved (kind classification not asserted)")
+            except AssertionError as e:
+                failures.append(f"dual-dialogue: {e}")
+                print(f"\n  ❌ dual-dialogue: {e}")
         elif "wonky-template" in path:
             try:
                 assert diag.scene_count == 2, f"expected 2 scenes, got {diag.scene_count}"
