@@ -67,6 +67,10 @@
 		F7A2A61B747C72927BC704E9 /* FountainExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5C1FB0523638BB0CBC44D /* FountainExporter.swift */; };
 		FD2F533A3237E7A629520350 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 949E0C9EEA7AA70FB8A69256 /* SplashScreen.swift */; };
 		FEA45B391C76DB181CB67EE4 /* NewProjectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */; };
+		FEAA000000000000000000A1 /* FeatureRequestsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B1 /* FeatureRequestsScreen.swift */; };
+		FEAA000000000000000000A2 /* FeatureRequestDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B2 /* FeatureRequestDetailScreen.swift */; };
+		FEAA000000000000000000A3 /* NewFeatureRequestSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B3 /* NewFeatureRequestSheet.swift */; };
+		FEAA000000000000000000A4 /* FeatureRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAA000000000000000000B4 /* FeatureRequestTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -144,6 +148,10 @@
 		EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailScreen.swift; sourceTree = "<group>"; };
 		FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
 		FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEpisodeSheet.swift; sourceTree = "<group>"; };
+		FEAA000000000000000000B1 /* FeatureRequestsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestsScreen.swift; sourceTree = "<group>"; };
+		FEAA000000000000000000B2 /* FeatureRequestDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestDetailScreen.swift; sourceTree = "<group>"; };
+		FEAA000000000000000000B3 /* NewFeatureRequestSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeatureRequestSheet.swift; sourceTree = "<group>"; };
+		FEAA000000000000000000B4 /* FeatureRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -159,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				B759711443F2E63064750D1E /* EditorLogicTests.swift */,
+				FEAA000000000000000000B4 /* FeatureRequestTests.swift */,
 				01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */,
 				5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */,
 				C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */,
@@ -291,6 +300,7 @@
 				E82EB8D49DE76E044DA506E3 /* Characters */,
 				877B1EA535C8525FB0A01B3E /* Episode */,
 				5B7A06C19E7DF05C4B001ADF /* Export */,
+				FEAA000000000000000000C1 /* FeatureRequests */,
 				CE35D1E1E5804C9FBCF84F99 /* Gallery */,
 				C8ADE7973F3270223EC9A896 /* Home */,
 				DBF84439CC8E4D61FC8A8386 /* Import */,
@@ -391,6 +401,16 @@
 				FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */,
 			);
 			path = Fonts;
+			sourceTree = "<group>";
+		};
+		FEAA000000000000000000C1 /* FeatureRequests */ = {
+			isa = PBXGroup;
+			children = (
+				FEAA000000000000000000B2 /* FeatureRequestDetailScreen.swift */,
+				FEAA000000000000000000B1 /* FeatureRequestsScreen.swift */,
+				FEAA000000000000000000B3 /* NewFeatureRequestSheet.swift */,
+			);
+			path = FeatureRequests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -495,6 +515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */,
+				FEAA000000000000000000A4 /* FeatureRequestTests.swift in Sources */,
 				A242B55E8EFA2B83319160F0 /* FinalDraftXMLWriterDeepTests.swift in Sources */,
 				F51ED583A2CCBC90CD9D2BD8 /* FinalDraftXMLWriterTests.swift in Sources */,
 				7B81B947626453E7EFD8A9EF /* FountainParserTests.swift in Sources */,
@@ -523,6 +544,8 @@
 				284884FFE3AD913EBC5470DD /* EditorLogic.swift in Sources */,
 				98C4412427DA93BEA7000304 /* EpisodeDetailScreen.swift in Sources */,
 				EF10AD4FB1EB99795AA890C9 /* ExportShareSheet.swift in Sources */,
+				FEAA000000000000000000A2 /* FeatureRequestDetailScreen.swift in Sources */,
+				FEAA000000000000000000A1 /* FeatureRequestsScreen.swift in Sources */,
 				6DC007852CF55E8E8331A675 /* FinalDraftXMLWriter.swift in Sources */,
 				F7A2A61B747C72927BC704E9 /* FountainExporter.swift in Sources */,
 				0AE426C3671EECCAD7FBD2CF /* FountainImportPicker.swift in Sources */,
@@ -533,6 +556,7 @@
 				6E21DD5369614FCF0D68FE9D /* Models.swift in Sources */,
 				960B361F049C22AC5F8905BB /* NewCharacterSheet.swift in Sources */,
 				69E1F46CB2DBE5B025D50B30 /* NewEpisodeSheet.swift in Sources */,
+				FEAA000000000000000000A3 /* NewFeatureRequestSheet.swift in Sources */,
 				FEA45B391C76DB181CB67EE4 /* NewProjectSheet.swift in Sources */,
 				922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */,
 				AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */,

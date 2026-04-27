@@ -22,6 +22,7 @@ struct SettingsScreen: View {
             VStack(alignment: .leading, spacing: PenovaSpace.l) {
                 appearanceBlock
                 privacyBlock
+                feedbackBlock
                 aboutBlock
                 dangerBlock
             }
@@ -98,6 +99,38 @@ struct SettingsScreen: View {
         }
     }
 
+    private var feedbackBlock: some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.s) {
+            Text("Feedback")
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(PenovaColor.snow3)
+            NavigationLink {
+                FeatureRequestsScreen()
+            } label: {
+                HStack(spacing: PenovaSpace.m) {
+                    PenovaIconView(.bookmark, size: 18, color: PenovaColor.amber)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(Copy.featureRequests.settingsRow)
+                            .font(PenovaFont.body)
+                            .foregroundStyle(PenovaColor.snow)
+                        Text(Copy.featureRequests.settingsRowSubtitle)
+                            .font(PenovaFont.bodySmall)
+                            .foregroundStyle(PenovaColor.snow3)
+                    }
+                    Spacer()
+                    PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                        .rotationEffect(.degrees(180))
+                }
+                .padding(PenovaSpace.m)
+                .background(PenovaColor.ink2)
+                .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Copy.featureRequests.settingsRow)
+        }
+    }
+
     private var aboutBlock: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.s) {
             Text("About")
@@ -141,6 +174,7 @@ struct SettingsScreen: View {
         try? context.delete(model: Episode.self)
         try? context.delete(model: ScriptCharacter.self)
         try? context.delete(model: Project.self)
+        try? context.delete(model: FeatureRequest.self)
         try? context.save()
         UserDefaults.standard.removeObject(forKey: "penova.didSeedDemo.v2")
     }
