@@ -22,9 +22,7 @@ import AuthenticationServices
 struct OnboardingScreen: View {
     let onFinish: () -> Void
 
-    @AppStorage("penova.auth.userId") private var appleUserId: String = ""
-    @AppStorage("penova.auth.fullName") private var fullName: String = ""
-    @AppStorage("penova.auth.email") private var email: String = ""
+    @EnvironmentObject private var auth: AuthSession
 
     @State private var page: Int = 0
     @State private var authError: String?
@@ -160,15 +158,9 @@ struct OnboardingScreen: View {
 
     private func handleAppleResult(_ result: Result<ASAuthorization, Error>) {
         switch result {
-        case .success(let auth):
-            if let credential = auth.credential as? ASAuthorizationAppleIDCredential {
-                appleUserId = credential.user
-                if let n = credential.fullName {
-                    let formatter = PersonNameComponentsFormatter()
-                    let formatted = formatter.string(from: n)
-                    if !formatted.isEmpty { fullName = formatted }
-                }
-                if let e = credential.email, !e.isEmpty { email = e }
+        case .success(let authorization):
+            if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
+                auth.saveCredential(credential)
             }
             onFinish()
         case .failure(let error):

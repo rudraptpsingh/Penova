@@ -79,6 +79,10 @@
 		FEBB000000000000000000A7 /* FDXReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B7 /* FDXReaderTests.swift */; };
 		FEBB000000000000000000A8 /* PDFRoundTripImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */; };
 		FEBB000000000000000000A9 /* RoundTripIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBB000000000000000000B9 /* RoundTripIntegrityTests.swift */; };
+		FECC000000000000000000A1 /* AuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FECC000000000000000000B1 /* AuthSession.swift */; };
+		FECC000000000000000000A2 /* RevisionsListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = FECC000000000000000000B2 /* RevisionsListScreen.swift */; };
+		FECC000000000000000000A3 /* AuthSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FECC000000000000000000B3 /* AuthSessionTests.swift */; };
+		FECC000000000000000000A4 /* RevisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FECC000000000000000000B4 /* RevisionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,6 +172,10 @@
 		FEBB000000000000000000B7 /* FDXReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDXReaderTests.swift; sourceTree = "<group>"; };
 		FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFRoundTripImportTests.swift; sourceTree = "<group>"; };
 		FEBB000000000000000000B9 /* RoundTripIntegrityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundTripIntegrityTests.swift; sourceTree = "<group>"; };
+		FECC000000000000000000B1 /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
+		FECC000000000000000000B2 /* RevisionsListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionsListScreen.swift; sourceTree = "<group>"; };
+		FECC000000000000000000B3 /* AuthSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionTests.swift; sourceTree = "<group>"; };
+		FECC000000000000000000B4 /* RevisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -182,6 +190,7 @@
 		2EFDCE078CCDECE3E4F83B3B /* PenovaTests */ = {
 			isa = PBXGroup;
 			children = (
+				FECC000000000000000000B3 /* AuthSessionTests.swift */,
 				B759711443F2E63064750D1E /* EditorLogicTests.swift */,
 				FEBB000000000000000000B7 /* FDXReaderTests.swift */,
 				01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */,
@@ -193,6 +202,7 @@
 				E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */,
 				FEBB000000000000000000B8 /* PDFRoundTripImportTests.swift */,
 				FEBB000000000000000000B6 /* PDFScreenplayParserTests.swift */,
+				FECC000000000000000000B4 /* RevisionTests.swift */,
 				FEBB000000000000000000B9 /* RoundTripIntegrityTests.swift */,
 				1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */,
 				5C74CF473DAD618D971CC56E /* ScenePDFContentTests.swift */,
@@ -327,6 +337,7 @@
 				3AC9FD385B55E5482B65356A /* Onboarding */,
 				73BBEF8A56BF78600D42DE56 /* Project */,
 				32454888D7F0917B1E76FAC2 /* QuickCapture */,
+				FECC000000000000000000C1 /* Revisions */,
 				C411B8A7C76277562D9CAB7B /* Scene */,
 				5CA80157693DFD89968EB7D3 /* Scenes */,
 				01D2EFC534D0C046FA80E61F /* Scripts */,
@@ -401,6 +412,7 @@
 			isa = PBXGroup;
 			children = (
 				AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */,
+				FECC000000000000000000B1 /* AuthSession.swift */,
 				172CACD48B8CA9B61E3EFE75 /* Info.plist */,
 				8C0A7A64681635BBE97E67C6 /* Penova.entitlements */,
 				3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */,
@@ -426,6 +438,14 @@
 				FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */,
 			);
 			path = Fonts;
+			sourceTree = "<group>";
+		};
+		FECC000000000000000000C1 /* Revisions */ = {
+			isa = PBXGroup;
+			children = (
+				FECC000000000000000000B2 /* RevisionsListScreen.swift */,
+			);
+			path = Revisions;
 			sourceTree = "<group>";
 		};
 		FEAA000000000000000000C1 /* Habit */ = {
@@ -538,6 +558,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FECC000000000000000000A3 /* AuthSessionTests.swift in Sources */,
 				32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */,
 				FEBB000000000000000000A7 /* FDXReaderTests.swift in Sources */,
 				A242B55E8EFA2B83319160F0 /* FinalDraftXMLWriterDeepTests.swift in Sources */,
@@ -549,6 +570,7 @@
 				E25B5584856EFCF695FF9F4A /* PDFRenderSmokeTests.swift in Sources */,
 				FEBB000000000000000000A8 /* PDFRoundTripImportTests.swift in Sources */,
 				FEBB000000000000000000A6 /* PDFScreenplayParserTests.swift in Sources */,
+				FECC000000000000000000A4 /* RevisionTests.swift in Sources */,
 				FEBB000000000000000000A9 /* RoundTripIntegrityTests.swift in Sources */,
 				34C7BD445A5450DFFFAC0F1D /* SceneHeadingParserTests.swift in Sources */,
 				7EF3CE1DE43D0695BF4B4E61 /* ScenePDFContentTests.swift in Sources */,
@@ -563,6 +585,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				05CB5087FA61CF1AA1279F4C /* AppFlowView.swift in Sources */,
+				FECC000000000000000000A1 /* AuthSession.swift in Sources */,
+				FECC000000000000000000A2 /* RevisionsListScreen.swift in Sources */,
 				65AC2666F3FB5D7A6BFDE537 /* CharacterDetailScreen.swift in Sources */,
 				AEB6496287E2AB90F38BA9D4 /* CharactersTabScreen.swift in Sources */,
 				7D643FFF30255530742EAE0F /* Components.swift in Sources */,

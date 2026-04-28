@@ -14,12 +14,15 @@ import AVFoundation
 struct SettingsScreen: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var auth: AuthSession
 
     @State private var showDeleteAll = false
+    @State private var showSignOutConfirm = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: PenovaSpace.l) {
+                accountBlock
                 appearanceBlock
                 privacyBlock
                 habitBlock
@@ -36,6 +39,82 @@ struct SettingsScreen: View {
             Button("Delete everything", role: .destructive) { deleteAll() }
         } message: {
             Text("This erases every project, episode, scene, element, and character. There is no undo.")
+        }
+        .alert("Sign out?", isPresented: $showSignOutConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Sign out", role: .destructive) { auth.signOut() }
+        } message: {
+            Text("Your scripts stay on this device. Signing back in restores your name and email on new exports.")
+        }
+    }
+
+    private var accountBlock: some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.s) {
+            Text("Account")
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(PenovaColor.snow3)
+            VStack(alignment: .leading, spacing: PenovaSpace.s) {
+                if auth.isSignedIn {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(auth.displayName)
+                                .font(PenovaFont.bodyLarge)
+                                .foregroundStyle(PenovaColor.snow)
+                            if !auth.email.isEmpty {
+                                Text(auth.email)
+                                    .font(PenovaFont.bodySmall)
+                                    .foregroundStyle(PenovaColor.snow3)
+                            }
+                            Text("Signed in with Apple")
+                                .font(PenovaFont.labelCaps)
+                                .tracking(PenovaTracking.labelCaps)
+                                .foregroundStyle(PenovaColor.jade)
+                        }
+                        Spacer()
+                    }
+                    .padding(PenovaSpace.m)
+                    .background(PenovaColor.ink2)
+                    .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+                    PenovaButton(
+                        title: "Sign out",
+                        variant: .ghost,
+                        size: .compact
+                    ) {
+                        showSignOutConfirm = true
+                    }
+                } else if auth.status == .revoked {
+                    HStack {
+                        Text("Apple sign-in was revoked. Tap to sign in again.")
+                            .font(PenovaFont.bodySmall)
+                            .foregroundStyle(PenovaColor.ember)
+                            .multilineTextAlignment(.leading)
+                        Spacer()
+                    }
+                    .padding(PenovaSpace.m)
+                    .background(PenovaColor.ember.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: PenovaRadius.md)
+                            .stroke(PenovaColor.ember.opacity(0.3), lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+                } else {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Anonymous")
+                                .font(PenovaFont.bodyLarge)
+                                .foregroundStyle(PenovaColor.snow)
+                            Text("Sign in with Apple to attach your name to exports and revisions.")
+                                .font(PenovaFont.bodySmall)
+                                .foregroundStyle(PenovaColor.snow3)
+                        }
+                        Spacer()
+                    }
+                    .padding(PenovaSpace.m)
+                    .background(PenovaColor.ink2)
+                    .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+                }
+            }
         }
     }
 
@@ -169,6 +248,7 @@ struct SettingsScreen: View {
     }
 
     private func deleteAll() {
+        try? context.delete(model: Revision.self)
         try? context.delete(model: SceneElement.self)
         try? context.delete(model: ScriptScene.self)
         try? context.delete(model: Episode.self)

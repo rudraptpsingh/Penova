@@ -122,6 +122,11 @@ public final class Project {
     @Relationship(inverse: \ScriptCharacter.projects)
     public var characters: [ScriptCharacter] = []
 
+    // Per-project revision history. Cascading delete: revisions outside
+    // their parent project are meaningless.
+    @Relationship(deleteRule: .cascade, inverse: \Revision.project)
+    public var revisions: [Revision] = []
+
     public init(
         title: String,
         logline: String = "",
@@ -144,6 +149,10 @@ public final class Project {
 
     public var totalSceneCount: Int {
         episodes.reduce(0) { $0 + $1.scenes.count }
+    }
+
+    public var revisionsByDate: [Revision] {
+        revisions.sorted { $0.createdAt > $1.createdAt }
     }
 }
 
@@ -328,6 +337,58 @@ public extension WritingDay {
     }
 }
 
+// MARK: - Revision
+//
+// A point-in-time snapshot of a Project's content, captured by the
+// writer when they decide a draft is worth preserving. Each revision
+// stores:
+//
+//   - A label like "First draft" or "Blue revision" so the writer can
+//     find it later.
+//   - An optional note describing what changed.
+//   - The author's name, snapshotted from the AuthSession at save
+//     time. Lets a project that travels across sign-ins still show
+//     who wrote each revision.
+//   - The full project content as a Fountain string. Plain text is
+//     compact, diff-able, and re-importable through FountainParser
+//     if a future "restore this revision" feature ships.
+//   - Word count + scene count at save, denormalised onto the row so
+//     the list view can render without loading the whole snapshot.
+//
+// Cascade: deleting a Project deletes all its revisions. A revision
+// without a project is meaningless, so the cascade is correct.
+
+@Model
+public final class Revision {
+    @Attribute(.unique) public var id: ID
+    public var project: Project?
+    public var label: String
+    public var note: String
+    public var fountainSnapshot: String
+    public var authorName: String
+    public var sceneCountAtSave: Int
+    public var wordCountAtSave: Int
+    public var createdAt: Date
+
+    public init(
+        label: String,
+        note: String = "",
+        fountainSnapshot: String,
+        authorName: String,
+        sceneCountAtSave: Int,
+        wordCountAtSave: Int
+    ) {
+        self.id = UUID().uuidString
+        self.label = label
+        self.note = note
+        self.fountainSnapshot = fountainSnapshot
+        self.authorName = authorName
+        self.sceneCountAtSave = sceneCountAtSave
+        self.wordCountAtSave = wordCountAtSave
+        self.createdAt = .now
+    }
+}
+
 // MARK: - Schema accessor
 
 public enum PenovaSchema {
@@ -337,6 +398,7 @@ public enum PenovaSchema {
         ScriptScene.self,
         SceneElement.self,
         ScriptCharacter.self,
-        WritingDay.self
+        WritingDay.self,
+        Revision.self
     ]
 }
