@@ -145,6 +145,18 @@ public enum Copy {
         public static let subtitle      = "A beat, a line, a thought. Polish later."
         public static let saveButton    = "Save to Scripts"
         public static let discardPrompt = "Discard this capture?"
+        public static let listening     = "Listening…"
+        public static let tapToStart    = "Tap the mic to start."
+        public static let permissionDenied =
+            "Microphone or speech access denied. Enable in Settings to dictate."
+        public static let localeLabel   = "Language"
+        public static let onDeviceLabel = "Offline only"
+        public static let onDeviceHint  = "Transcribe on-device. No audio leaves your phone."
+        public static let onDeviceUnavailable =
+            "On-device recognition isn't available for this language."
+        public static let clearCta      = "Clear"
+        public static let saveCta       = "Save"
+        public static let closeCta      = "Close"
     }
 
     // MARK: Settings
