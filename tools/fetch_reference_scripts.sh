@@ -35,22 +35,46 @@ curl -fsSL --max-time 60 \
   "https://codeload.github.com/vilcans/screenplain/tar.gz/master" \
   -o "$WORK/sp.tgz"
 
-echo "→ extracting reference screenplays…"
+echo "→ extracting reference screenplays + fountain edge cases…"
 tar -xzf "$WORK/sp.tgz" -C "$WORK" \
   screenplain-master/examples/Big-Fish.pdf \
   screenplain-master/examples/Big-Fish.fdx \
+  screenplain-master/examples/Big-Fish.fountain \
   screenplain-master/examples/Brick-and-Steel.pdf \
   screenplain-master/examples/Brick-and-Steel.fdx \
+  screenplain-master/examples/Brick-and-Steel.fountain \
   screenplain-master/examples/The-Last-Birthday-Card.pdf \
-  screenplain-master/examples/The-Last-Birthday-Card.fdx
+  screenplain-master/examples/The-Last-Birthday-Card.fdx \
+  screenplain-master/examples/The-Last-Birthday-Card.fountain \
+  screenplain-master/tests/files/dialogue.fountain \
+  screenplain-master/tests/files/dual-dialogue.fountain \
+  screenplain-master/tests/files/forced-action.fountain \
+  screenplain-master/tests/files/forced-transition.fountain \
+  screenplain-master/tests/files/indentation.fountain \
+  screenplain-master/tests/files/notes.fountain \
+  screenplain-master/tests/files/page-break.fountain \
+  screenplain-master/tests/files/parenthetical.fountain \
+  screenplain-master/tests/files/scene-numbers.fountain \
+  screenplain-master/tests/files/sections.fountain \
+  screenplain-master/tests/files/title-page.fountain \
+  screenplain-master/tests/files/utf-8-bom.fountain
 
 cp "$WORK/screenplain-master/examples/"*.pdf "$DEST/"
 cp "$WORK/screenplain-master/examples/"*.fdx "$DEST/"
+cp "$WORK/screenplain-master/examples/"*.fountain "$DEST/"
+mkdir -p "$DEST/fountain-edge-cases"
+cp "$WORK/screenplain-master/tests/files/"*.fountain "$DEST/fountain-edge-cases/"
 
 echo "✓ Wrote:"
-ls -1 "$DEST"/*.pdf "$DEST"/*.fdx 2>/dev/null | sed 's|^|  |'
+ls -1 "$DEST"/*.pdf "$DEST"/*.fdx "$DEST"/*.fountain 2>/dev/null | sed 's|^|  |'
+ls -1 "$DEST"/fountain-edge-cases/*.fountain 2>/dev/null | sed 's|^|  edge-case: |'
 
 echo
 echo "These files are .gitignored — they will not be committed."
-echo "Run python3 tools/verify_parser.py to validate, or run the Xcode"
-echo "test suite to exercise PDFRoundTripImportTests.realFixturesParseCleanly."
+echo
+echo "Validate with the Swift test suite:"
+echo "  xcodebuild test -scheme Penova -destination 'platform=iOS Simulator,name=iPhone 17'"
+echo
+echo "Or with host-side cross-checks (no simulator needed):"
+echo "  python3 tools/verify_with_pdfplumber.py            # PDF + FDX"
+echo "  bash tools/run_verify_fountain.sh                  # Fountain via Swift CLI"
