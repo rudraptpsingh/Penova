@@ -74,11 +74,12 @@ The code ships the product; this copy ships the listing.
 
 Take on a 6.7" iPhone simulator (e.g. iPhone 17 Pro), portrait:
 1. Splash + tagline.
-2. Home — "Your stories await writing." with the seeded project card.
+2. Home — greeting + writing-streak card + seeded project card.
 3. Scene detail — industry-formatted screenplay ladder.
-4. Quick Capture voice sheet (mid-dictation).
-5. Settings screen.
-6. Export menu with PDF-ready share sheet.
+4. Scripts tab — empty state showing the "Already have a script? PDF · FDX · Fountain" import card.
+5. Quick Capture voice sheet (mid-dictation).
+6. Habit dashboard — today's words, streak, 49-day heatmap.
+7. Export menu with PDF / FDX / Fountain options surfaced.
 
 Also export one 6.9" set (iPad Pro 12.9") for the iPad listing — the layout
 works portrait as-is because we allow iPad rotation in project.yml.
@@ -91,6 +92,11 @@ works portrait as-is because we allow iPad rotation in project.yml.
 > recognition permissions are used only when the user explicitly taps the
 > microphone icon for "Quick Capture" — no background recording.
 >
+> Onboarding for existing scripts: tap Scripts tab → top-right `+` →
+> "Import script…" (or use the empty-state card). The picker accepts
+> `.pdf`, `.fdx`, `.fountain`, `.txt`, `.md`. Parser is on-device only;
+> nothing is uploaded.
+>
 > Demo data is seeded on first launch (a sample 2-episode screenplay) so
 > the reviewer can exercise every screen without authoring new content.
 
@@ -99,9 +105,38 @@ works portrait as-is because we allow iPad rotation in project.yml.
 - Watch crash reports in Xcode Organizer.
 - Bump `CURRENT_PROJECT_VERSION` + tag the commit for each TestFlight
   upload.
-- Paid-features milestone (StoreKit 2, FDX export, cloud sync) is tracked
-  in [STUBS.md](STUBS.md) — every deferred piece of work is a `// STUB:`
-  comment in code.
+- Remaining post-1.0 polish (voice waveform, real Apple SiA backend
+  exchange) is tracked in [STUBS.md](STUBS.md) — every deferred piece
+  of work is a `// STUB:` comment in code.
+
+## 9. Pre-submission readiness audit (run before each Archive)
+
+| Check | Where to verify | Expected |
+|---|---|---|
+| `MARKETING_VERSION` | `project.yml` | matches App Store Connect version |
+| `CURRENT_PROJECT_VERSION` | `project.yml` | bumped from previous TestFlight upload |
+| `ITSAppUsesNonExemptEncryption` | `Info.plist` | `false` (skips export-compliance wizard) |
+| `NSMicrophoneUsageDescription` + `NSSpeechRecognitionUsageDescription` | `Info.plist` | non-empty, user-facing |
+| `PrivacyInfo.xcprivacy` reasons | `Penova/Resources/PrivacyInfo.xcprivacy` | covers UserDefaults (CA92.1), file timestamp (C617.1), disk space (E174.1), boot time (35F9.1) |
+| Sign in with Apple | `Penova.entitlements` | `com.apple.developer.applesignin` capability set |
+| App Icon | `AppIcon.appiconset` | single 1024×1024 PNG present |
+| No active `// STUB:` comments | `grep -rn "STUB:" Penova PenovaSpec` | only the two known-deferred entries in `STUBS.md` |
+| All Swift files in pbxproj | `find ... -name "*.swift" \| wc -l` vs `grep -c "sourcecode.swift" project.pbxproj` | counts match |
+| Tests pass | `xcodebuild test` | green; the import + round-trip suite must be green before any TestFlight upload |
+| Demo data seeds on fresh install | delete app, reinstall | the "Last Train" sample screenplay is present |
+
+## 10. Feature inventory at 1.0
+
+| Surface | Capability |
+|---|---|
+| Editor | Continuous SwiftUI editor, type chips, autosave, undo, scene/character autocomplete |
+| Onboarding existing material | PDF + FDX + Fountain import via `ScreenplayImporter`. Picker accepts `.pdf` / `.fdx` / `.fountain` / `.txt` / `.md`. Parser is on-device, no network. |
+| Export | PDF (industry-format Courier 12, WGA indents), FDX (Final Draft 8+ XML, with title page), Fountain (round-tripped through `FountainExporter`) |
+| Writing habit | Daily-word goal (`HabitTracker`), streak + best, 7×7 heatmap, auto-recorded from editor save path |
+| Quick capture | On-device speech recognition + save-to-scene |
+| Search | Global cross-project search (`GlobalSearchView`) |
+| Characters | Many-to-many `Project ↔ ScriptCharacter`, character report with line counts |
+| Privacy | No tracking, no data collection, no network calls. SwiftData store local-only. |
 
 ## Regenerating the Xcode project
 
