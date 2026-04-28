@@ -87,6 +87,11 @@ public enum Copy {
         public static let editedYesterday = "Edited yesterday"
         public static func editedDaysAgo(_ n: Int) -> String { "Edited \(n) days ago" }
         public static let notStarted      = "Not started"
+        // Onboarding existing material — accepts PDF, FDX, Fountain.
+        public static let importMenuLabel    = "Import script…"
+        public static let importEmptyState   = "Already have a script?"
+        public static let importEmptyCta     = "Import PDF, FDX, or Fountain"
+        public static let importMenuSubtitle = "PDF · FDX · Fountain"
     }
 
     // MARK: Editor
@@ -140,6 +145,18 @@ public enum Copy {
         public static let subtitle      = "A beat, a line, a thought. Polish later."
         public static let saveButton    = "Save to Scripts"
         public static let discardPrompt = "Discard this capture?"
+        public static let listening     = "Listening…"
+        public static let tapToStart    = "Tap the mic to start."
+        public static let permissionDenied =
+            "Microphone or speech access denied. Enable in Settings to dictate."
+        public static let localeLabel   = "Language"
+        public static let onDeviceLabel = "Offline only"
+        public static let onDeviceHint  = "Transcribe on-device. No audio leaves your phone."
+        public static let onDeviceUnavailable =
+            "On-device recognition isn't available for this language."
+        public static let clearCta      = "Clear"
+        public static let saveCta       = "Save"
+        public static let closeCta      = "Close"
     }
 
     // MARK: Settings
@@ -216,6 +233,39 @@ public enum Copy {
         public static let purchaseFailed    = "Purchase failed — try again"
         public static let restoreFailed     = "Couldn't restore purchases"
         public static let welcomeToPro      = "Welcome to Pro"
+    }
+
+    // MARK: Habit
+    public enum habit {
+        public static let title           = "Writing habit"
+        public static let settingsRow     = "Writing habit"
+        public static let settingsRowSubtitle = "Streak, daily goal, last 49 days"
+        public static let todayLabel      = "Today"
+        public static let goalLabel       = "Daily goal"
+        public static let streakLabel     = "Streak"
+        public static let bestStreakLabel = "Best"
+        public static let lastFortyNine   = "Last 49 days"
+        public static let editGoalCta     = "Edit goal"
+        public static let goalSheetTitle  = "Daily goal"
+        public static let goalSheetBody   = "Words per day. The streak counts any day you cross this line."
+        public static let saveGoalCta     = "Save goal"
+        public static let resetCta        = "Reset history"
+        public static let resetPrompt     = "Reset writing history?"
+        public static let resetBody       = "Erases every recorded day. Your scripts are not touched."
+        public static let emptyTitle      = "Open a scene to start the streak."
+        public static let emptyBody       = "Penova counts the words you add each day. Hit your daily goal to keep the streak alive."
+        public static func wordsLabel(_ n: Int) -> String {
+            n == 1 ? "1 word" : "\(n) words"
+        }
+        public static func wordsOfGoal(words: Int, goal: Int) -> String {
+            "\(words) / \(goal)"
+        }
+        public static func streakDaysLabel(_ n: Int) -> String {
+            n == 1 ? "1 day" : "\(n) days"
+        }
+        public static func goalHitToday(_ hit: Bool) -> String {
+            hit ? "Goal hit" : "Keep going"
+        }
     }
 
     // MARK: Empty States

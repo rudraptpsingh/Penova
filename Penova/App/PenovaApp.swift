@@ -13,6 +13,7 @@ import UIKit
 @main
 struct PenovaApp: App {
     let container: ModelContainer
+    @StateObject private var auth = AuthSession()
 
     init() {
         // One-time sanity check: warn (in debug) if our custom fonts weren't
@@ -38,6 +39,14 @@ struct PenovaApp: App {
             AppFlowView()
                 .preferredColorScheme(.dark)
                 .tint(PenovaColor.amber)
+                .environmentObject(auth)
+                .task {
+                    // Cold-launch credential check: if the user revoked
+                    // Penova in iOS Settings → Apple ID, we drop the
+                    // stale local credential so they're surfaced as
+                    // anonymous on the next sign-in prompt.
+                    await auth.verifyCurrentCredential()
+                }
         }
         .modelContainer(container)
     }

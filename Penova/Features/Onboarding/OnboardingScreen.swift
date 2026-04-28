@@ -2,13 +2,18 @@
 //  OnboardingScreen.swift
 //  Penova
 //
-//  S02/S03 — Two pager cards plus a Sign in with Apple stage. "Skip"
+//  Two onboarding pager cards plus a Sign in with Apple stage. "Skip"
 //  finishes onboarding as an anonymous user; real Apple sign-in stores
-//  a user id + full name + email for Settings to surface later.
+//  the user id + full name + email locally so Settings can surface the
+//  user's name without a network round-trip.
 //
-// STUB: OnboardingScreen — real Sign in with Apple backend exchange (nonce, server
-//       verification, account linking) lands with the subscription work. For now
-//       credentials are stored in UserDefaults on device only. See STUBS.md.
+//  Architecture note: Penova is offline-first by design. There is no
+//  Penova server, so there's nothing to exchange the Apple nonce
+//  *with*. Apple's authorization completes on-device — the credential
+//  bundle that lands in UserDefaults is the production artefact, not a
+//  placeholder. If a future cloud-sync milestone introduces a backend,
+//  add nonce verification then; the current behaviour is intentional
+//  for an offline-only app.
 //
 
 import SwiftUI
@@ -17,9 +22,7 @@ import AuthenticationServices
 struct OnboardingScreen: View {
     let onFinish: () -> Void
 
-    @AppStorage("penova.auth.userId") private var appleUserId: String = ""
-    @AppStorage("penova.auth.fullName") private var fullName: String = ""
-    @AppStorage("penova.auth.email") private var email: String = ""
+    @EnvironmentObject private var auth: AuthSession
 
     @State private var page: Int = 0
     @State private var authError: String?
@@ -155,15 +158,9 @@ struct OnboardingScreen: View {
 
     private func handleAppleResult(_ result: Result<ASAuthorization, Error>) {
         switch result {
-        case .success(let auth):
-            if let credential = auth.credential as? ASAuthorizationAppleIDCredential {
-                appleUserId = credential.user
-                if let n = credential.fullName {
-                    let formatter = PersonNameComponentsFormatter()
-                    let formatted = formatter.string(from: n)
-                    if !formatted.isEmpty { fullName = formatted }
-                }
-                if let e = credential.email, !e.isEmpty { email = e }
+        case .success(let authorization):
+            if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
+                auth.saveCredential(credential)
             }
             onFinish()
         case .failure(let error):
