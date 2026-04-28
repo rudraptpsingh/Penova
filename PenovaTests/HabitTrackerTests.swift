@@ -188,7 +188,7 @@ private func appendWords(_ s: ScriptScene, text: String, in ctx: ModelContext) {
         // Yesterday and the day before: hit. Today: 0.
         let yesterday = cal.date(byAdding: .day, value: -1, to: today)!
         let twoDaysAgo = cal.date(byAdding: .day, value: -2, to: today)!
-        let rows = [
+        let rows: [WritingDay] = [
             { let r = WritingDay(dateKey: WritingDay.dayKey(for: yesterday, calendar: cal), date: yesterday); r.wordCount = goal; return r }(),
             { let r = WritingDay(dateKey: WritingDay.dayKey(for: twoDaysAgo, calendar: cal), date: twoDaysAgo); r.wordCount = goal; return r }()
         ]

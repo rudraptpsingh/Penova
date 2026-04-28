@@ -57,6 +57,7 @@ public enum FDXReader {
         // Active <Paragraph> state.
         private var paragraphType: String?
         private var paragraphText: String = ""
+        private var inParagraph = false
 
         // Active <TitlePage>/<Paragraph> state — same paragraph machinery
         // but accumulating into titlePage instead of scene elements.
@@ -76,6 +77,7 @@ public enum FDXReader {
             case "Paragraph":
                 paragraphType = attributeDict["Type"]
                 paragraphText = ""
+                inParagraph = true
             case "Text", "DynamicLabel":
                 // Reset accumulator? No — we append in `foundCharacters`,
                 // which the parser delivers across <Text> child elements.
@@ -86,7 +88,7 @@ public enum FDXReader {
         }
 
         func parser(_ parser: XMLParser, foundCharacters string: String) {
-            if paragraphType != nil {
+            if inParagraph {
                 paragraphText += string
             }
         }
@@ -101,6 +103,7 @@ public enum FDXReader {
                 let type = paragraphType ?? "Action"
                 paragraphType = nil
                 paragraphText = ""
+                inParagraph = false
 
                 if inTitlePage {
                     if !text.isEmpty { titlePageBuffer.append(text) }

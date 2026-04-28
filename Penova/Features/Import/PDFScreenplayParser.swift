@@ -167,7 +167,8 @@ public enum PDFScreenplayParser {
                 if var last = currentScene?.elements.last, last.kind == .dialogue {
                     last.text = (last.text + " " + line.text.trimmingCharacters(in: .whitespaces))
                         .trimmingCharacters(in: .whitespacesAndNewlines)
-                    currentScene?.elements[currentScene!.elements.count - 1] = last
+                    let lastIndex = (currentScene?.elements.count ?? 1) - 1
+                    currentScene?.elements[lastIndex] = last
                 } else {
                     currentScene?.elements.append(.init(kind: .dialogue,
                                                         text: line.text.trimmingCharacters(in: .whitespaces)))
@@ -501,6 +502,22 @@ public enum PDFScreenplayParser {
             cols.action = buckets[0]
             cols.dialogue = buckets[1]
         }
+        // Single-bucket scripts: snap to the nearest industry-standard
+        // role by absolute position, so a tiny excerpt that contains
+        // only dialogue lines doesn't get those misnamed as action.
+        if buckets.count == 1 {
+            let x = buckets[0]
+            // Industry indents: action≈108, dialogue≈180, parenthetical≈223,
+            // character≈266, transition≈432. Pick the closest by midpoint.
+            cols = Columns()
+            switch x {
+            case ..<145:                 cols.action = x
+            case 145..<205:              cols.dialogue = x
+            case 205..<245:              cols.parenthetical = x
+            case 245..<320:              cols.character = x
+            default:                     cols.transition = x
+            }
+        }
         return cols
     }
 
@@ -560,6 +577,16 @@ public enum PDFScreenplayParser {
            text.count >= 2, text.count <= 32,
            !text.contains("."), !text.contains(",") {
             return .character
+        }
+        // 8. Positional fallback for unknown-dialogue cases: if the
+        // dialogue column wasn't inferred (small/noisy document) but
+        // the line sits clearly to the right of the action column and
+        // isn't at the character/transition position, treat it as
+        // dialogue. Otherwise default to action.
+        if columns.dialogue == nil,
+           let actX = columns.action,
+           line.x >= actX + 30 {
+            return .dialogue
         }
         return .action
     }
