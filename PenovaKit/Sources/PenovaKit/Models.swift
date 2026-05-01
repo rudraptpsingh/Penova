@@ -115,6 +115,27 @@ public final class Project {
     /// new optional-with-default property without a migration.
     public var contactBlock: String = ""
 
+    /// True once the writer has locked the script for production. The
+    /// renderer freezes scene + page numbers off `lockedSceneNumbers`
+    /// while this is set; toggling it back to false clears the
+    /// snapshot. Added in v1.2 — existing stores tolerate the new
+    /// default-false property without a migration.
+    public var locked: Bool = false
+
+    /// Timestamp of the most recent lock event. Surfaced in the UI
+    /// as "Locked on Jan 12, 2026" and used to seed the FDX writer's
+    /// `<HeaderAndFooter>` lock-date metadata in a future PR.
+    public var lockedAt: Date?
+
+    /// Frozen scene-number assignment captured at lock time. Keyed
+    /// by `ScriptScene.id` so reordering scenes after lock doesn't
+    /// renumber them — matches the Final Draft / WGA convention. New
+    /// scenes inserted after lock are NOT in this map; the renderer
+    /// numbers them off their predecessor (A-numbering will land in
+    /// a follow-up). Stored as `[String: Int]` so SwiftData treats
+    /// it as a Codable attribute.
+    public var lockedSceneNumbers: [String: Int]?
+
     @Relationship(deleteRule: .cascade, inverse: \Episode.project)
     public var episodes: [Episode] = []
 
@@ -157,6 +178,51 @@ public final class Project {
 
     public var revisionsByDate: [Revision] {
         revisions.sorted { $0.createdAt > $1.createdAt }
+    }
+
+    // MARK: - Page locking
+
+    /// Snapshot the current scene-number assignment and flip the lock
+    /// flag. After this, scene numbers are frozen — reordering or
+    /// deleting scenes does not renumber the survivors. Idempotent:
+    /// re-locking refreshes the snapshot.
+    public func lock(now: Date = .now) {
+        var map: [String: Int] = [:]
+        let resetPerEpisode = activeEpisodesOrdered.count > 1
+        var n = 1
+        for episode in activeEpisodesOrdered {
+            if resetPerEpisode { n = 1 }
+            for scene in episode.scenesOrdered {
+                map[scene.id] = n
+                n += 1
+            }
+        }
+        lockedSceneNumbers = map
+        locked = true
+        lockedAt = now
+        updatedAt = now
+    }
+
+    /// Release the lock. Scene numbering reverts to live 1-based
+    /// order — useful when the writer is still iterating on a draft
+    /// they accidentally locked.
+    public func unlock(now: Date = .now) {
+        locked = false
+        lockedAt = nil
+        lockedSceneNumbers = nil
+        updatedAt = now
+    }
+
+    /// Resolve a scene's render-time number. Returns the locked
+    /// number if the project is locked AND the scene has one in the
+    /// snapshot; otherwise returns `liveNumber` so newly-inserted
+    /// scenes still get a number (will be replaced by A-numbering
+    /// in a future PR).
+    public func renderSceneNumber(for scene: ScriptScene, live liveNumber: Int) -> Int {
+        if locked, let map = lockedSceneNumbers, let n = map[scene.id] {
+            return n
+        }
+        return liveNumber
     }
 }
 

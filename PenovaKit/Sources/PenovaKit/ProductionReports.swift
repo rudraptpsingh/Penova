@@ -55,6 +55,10 @@ public enum ProductionReports {
                 n = (rows.last?.sceneNumber ?? 0) + 1
             }
             for scene in episode.scenesOrdered {
+                // Mirror the renderer: when the project is locked,
+                // emit the frozen scene number from the snapshot;
+                // otherwise use the live 1-based counter.
+                let renderNumber = project.renderSceneNumber(for: scene, live: n)
                 let dialogueWords = scene.elementsOrdered
                     .filter { $0.kind == .dialogue }
                     .reduce(0) { $0 + wordCount(of: $1.text) }
@@ -67,7 +71,7 @@ public enum ProductionReports {
                 rows.append(SceneRow(
                     episodeOrder: episode.order,
                     episodeTitle: episode.title,
-                    sceneNumber: n,
+                    sceneNumber: renderNumber,
                     sceneOrder: scene.order,
                     intExt: scene.location.rawValue,
                     location: scene.locationName,
