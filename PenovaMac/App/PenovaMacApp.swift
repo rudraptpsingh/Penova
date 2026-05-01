@@ -199,6 +199,28 @@ struct PenovaMacApp: App {
             // (Highland, Fade In, OmniFocus, Things) puts it.
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updater)
+                Divider()
+                Button("Send Feedback…") {
+                    PenovaMacFeedback.sendFeedback()
+                }
+            }
+
+            // Help menu — Apple's convention puts feedback under Help
+            // for users who didn't think to look in the app menu. We
+            // provide both paths (Bear/Tot pattern).
+            CommandGroup(replacing: .help) {
+                Button("Penova Help") {
+                    if let url = URL(string: "https://penova.pages.dev/support") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .keyboardShortcut("?", modifiers: [.command])
+
+                Divider()
+
+                Button("Send Feedback to Penova…") {
+                    PenovaMacFeedback.sendFeedback()
+                }
             }
 
             // Replace the default New… command with one that produces a Project,
@@ -263,6 +285,13 @@ struct PenovaMacApp: App {
                 Button("Unlock Script…") {
                     NotificationCenter.default.post(name: .penovaUnlockScript, object: nil)
                 }
+
+                Divider()
+
+                Button("Start New Revision…") {
+                    NotificationCenter.default.post(name: .penovaStartNewRevision, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: [.command, .option])
             }
         }
     }
@@ -274,6 +303,7 @@ extension Notification.Name {
     static let penovaShowReports          = Notification.Name("penova.showReports")
     static let penovaLockScript           = Notification.Name("penova.lockScript")
     static let penovaUnlockScript         = Notification.Name("penova.unlockScript")
+    static let penovaStartNewRevision     = Notification.Name("penova.startNewRevision")
     static let penovaDeleteFocusedElement = Notification.Name("penova.deleteFocusedElement")
     static let penovaInsertLineAbove      = Notification.Name("penova.insertLineAbove")
     static let penovaInsertLineBelow      = Notification.Name("penova.insertLineBelow")

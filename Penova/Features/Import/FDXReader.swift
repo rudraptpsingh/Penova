@@ -64,6 +64,14 @@ public enum FDXReader {
         // but accumulating into titlePage instead of scene elements.
         private var inTitlePage = false
         private var titlePageBuffer: [String] = []
+        // <HeaderAndFooter> sub-context: title-block lines flow into
+        // header (centered) and contact/footer lines into footer (left).
+        // Tracking the section lets us route accumulated paragraphs into
+        // the right title-page key without inferring from text alone.
+        private var inHeader = false
+        private var inFooter = false
+        private var headerLines: [String] = []
+        private var footerLines: [String] = []
 
         // MARK: parser callbacks
 
@@ -75,6 +83,10 @@ public enum FDXReader {
             switch elementName {
             case "TitlePage":
                 inTitlePage = true
+            case "Header":
+                inHeader = true
+            case "Footer":
+                inFooter = true
             case "Paragraph":
                 paragraphType = attributeDict["Type"]
                 paragraphText = ""
@@ -107,7 +119,15 @@ public enum FDXReader {
                 inParagraph = false
 
                 if inTitlePage {
-                    if !text.isEmpty { titlePageBuffer.append(text) }
+                    if !text.isEmpty {
+                        if inHeader {
+                            headerLines.append(text)
+                        } else if inFooter {
+                            footerLines.append(text)
+                        } else {
+                            titlePageBuffer.append(text)
+                        }
+                    }
                     return
                 }
                 if text.isEmpty { return }
@@ -132,12 +152,17 @@ public enum FDXReader {
                         FountainParser.ParsedElement(kind: kind, text: text)
                     )
                 }
+            case "Header":
+                inHeader = false
+            case "Footer":
+                inFooter = false
             case "TitlePage":
                 inTitlePage = false
                 // Heuristic mapping: each "Key: Value" buffered line goes
                 // into titlePage; lines without a colon (centered title
                 // text) fall back to "title" / "author" / "extra".
                 applyTitlePage()
+                applyHeaderFooter()
             default:
                 break
             }
@@ -167,6 +192,32 @@ public enum FDXReader {
                 }
             }
             titlePageBuffer.removeAll()
+        }
+
+        /// Map a Final Draft `<HeaderAndFooter>` block's accumulated
+        /// header lines onto title/credit/author/source, and footer
+        /// lines onto contact. Header convention (matching what
+        /// FinalDraftXMLWriter emits): line 0 is title, line 1 is the
+        /// credit ("Written by"), line 2 is author, the rest are
+        /// source. Footer is straight-through to contact.
+        private func applyHeaderFooter() {
+            if !headerLines.isEmpty {
+                if titlePage["title"] == nil { titlePage["title"] = headerLines[0] }
+                if headerLines.count > 1, titlePage["credit"] == nil {
+                    titlePage["credit"] = headerLines[1]
+                }
+                if headerLines.count > 2, titlePage["author"] == nil {
+                    titlePage["author"] = headerLines[2]
+                }
+                if headerLines.count > 3, titlePage["source"] == nil {
+                    titlePage["source"] = headerLines.dropFirst(3).joined(separator: "\n")
+                }
+            }
+            if !footerLines.isEmpty, titlePage["contact"] == nil {
+                titlePage["contact"] = footerLines.joined(separator: "\n")
+            }
+            headerLines.removeAll()
+            footerLines.removeAll()
         }
 
         private func mapKind(_ type: String) -> SceneElementKind {

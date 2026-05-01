@@ -33,10 +33,16 @@ import SwiftData
     // MARK: - Sequence pinned
 
     @Test func wgaColorSequencePinned() {
-        // ALL CASES order must match WGA convention exactly.
+        // ALL CASES order must match WGA / Final Draft / Movie Magic
+        // Screenwriter convention exactly. After Cherry the rotation
+        // continues through Tan, Ivory, then "Double White / Double
+        // Blue / …" to Double Cherry before wrapping back to White.
         let expected: [RevisionColor] = [
             .white, .blue, .pink, .yellow, .green,
-            .goldenrod, .buff, .salmon, .cherry
+            .goldenrod, .buff, .salmon, .cherry,
+            .tan, .ivory,
+            .doubleWhite, .doubleBlue, .doublePink, .doubleYellow, .doubleGreen,
+            .doubleGoldenrod, .doubleBuff, .doubleSalmon, .doubleCherry
         ]
         #expect(RevisionColor.allCases == expected,
                 "WGA revision color order changed — productions reference these names")
@@ -50,13 +56,20 @@ import SwiftData
         #expect(observed == RevisionColor.allCases)
     }
 
-    @Test func nextWrapsCherryBackToWhite() {
-        #expect(RevisionColor.cherry.next == .white)
+    @Test func nextWrapsAfterDoubleCherryBackToWhite() {
+        // Cherry → Tan (no longer wraps to White; the cycle is extended).
+        #expect(RevisionColor.cherry.next == .tan)
+        #expect(RevisionColor.tan.next == .ivory)
+        #expect(RevisionColor.ivory.next == .doubleWhite)
+        // The full cycle now wraps after doubleCherry.
+        #expect(RevisionColor.doubleCherry.next == .white)
     }
 
     @Test func displayLabelIsCapitalised() {
         #expect(RevisionColor.white.display == "White")
         #expect(RevisionColor.goldenrod.display == "Goldenrod")
+        #expect(RevisionColor.doubleBlue.display == "Double Blue")
+        #expect(RevisionColor.doubleCherry.display == "Double Cherry")
     }
 
     // MARK: - Project helpers
@@ -110,10 +123,11 @@ import SwiftData
         #expect(p.nextRevisionRoundNumber() == 4)
     }
 
-    @Test func roundNumberAlwaysIncreasesAfterCherryWrap() throws {
-        // After 9 revisions (white → cherry), color wraps but round
-        // number keeps climbing. So revision 10 should be white +
-        // round 10.
+    @Test func roundNumberAlwaysIncreasesAfterFullCycleWrap() throws {
+        // After a full color cycle (white → … → doubleCherry), color
+        // wraps back to white but round number keeps climbing. So the
+        // revision after a full cycle of N revisions should be white +
+        // round N+1.
         let container = try makeContainer()
         let ctx = container.mainContext
         let p = Project(title: "Long"); ctx.insert(p)
@@ -126,8 +140,9 @@ import SwiftData
             p.revisions.append(r); ctx.insert(r)
         }
         try ctx.save()
-        #expect(p.nextRevisionColor() == .white, "color wraps after cherry")
-        #expect(p.nextRevisionRoundNumber() == 10, "round keeps climbing")
+        #expect(p.nextRevisionColor() == .white, "color wraps after full cycle")
+        #expect(p.nextRevisionRoundNumber() == allColors.count + 1,
+                "round keeps climbing")
     }
 
     // MARK: - Persistence
@@ -174,14 +189,41 @@ import SwiftData
         }
     }
 
-    @Test func marginRGBValuesAreDistinct() {
-        // Sanity: each color must have a unique RGB triple. Otherwise
-        // a writer staring at "blue" pages could mistake them for
-        // "pink" pages because they look identical on screen.
-        let triples = Set(RevisionColor.allCases.map { c in
+    @Test func marginRGBValuesAreDistinctAcrossFirstCycle() {
+        // The first 11 cases (white → ivory) must each have a unique
+        // RGB triple — otherwise a writer staring at "blue" pages
+        // could mistake them for "pink" pages because they look
+        // identical on screen. The "double" series intentionally
+        // re-uses the original paper color (Final Draft convention),
+        // so we check uniqueness only across the FIRST cycle.
+        let firstCycle: [RevisionColor] = [
+            .white, .blue, .pink, .yellow, .green,
+            .goldenrod, .buff, .salmon, .cherry, .tan, .ivory
+        ]
+        let triples = Set(firstCycle.map { c in
             "\(c.marginRGB.r)|\(c.marginRGB.g)|\(c.marginRGB.b)"
         })
-        #expect(triples.count == RevisionColor.allCases.count,
+        #expect(triples.count == firstCycle.count,
                 "two colors share an RGB triple — adjust marginRGB")
+    }
+
+    @Test func doubleColorsReuseOriginalRGB() {
+        // Convention: "Double <Color>" pages are the same paper stock
+        // as the original. The qualifier just disambiguates which pass
+        // the production is on — the marginRGB must match.
+        #expect(RevisionColor.doubleWhite.marginRGB == RevisionColor.white.marginRGB)
+        #expect(RevisionColor.doubleBlue.marginRGB == RevisionColor.blue.marginRGB)
+        #expect(RevisionColor.doubleCherry.marginRGB == RevisionColor.cherry.marginRGB)
+    }
+
+    @Test func marginRGBNonZeroForAllCases() {
+        // Every case must have at least one non-zero component (i.e.
+        // not pure black) so the stripe is actually visible against
+        // the page background.
+        for c in RevisionColor.allCases {
+            let rgb = c.marginRGB
+            #expect(rgb.r > 0 || rgb.g > 0 || rgb.b > 0,
+                    "marginRGB is pure black for \(c.display)")
+        }
     }
 }

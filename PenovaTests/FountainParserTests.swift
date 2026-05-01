@@ -275,6 +275,43 @@ import SwiftData
         #expect(parsed.scenes[0].heading.contains("CAFE"))
     }
 
+    // MARK: - Title page round-trip via exporter
+
+    @Test func titlePageRoundTripsThroughFountain() throws {
+        UserDefaults.standard.removeObject(forKey: "penova.auth.fullName")
+        let container = try makeContainer()
+        let ctx = container.mainContext
+        let p = Project(title: "Round Trip Original Title")
+        p.titlePage = TitlePage(
+            title: "Round Trip Original Title",
+            credit: "Written by",
+            author: "Jane Writer",
+            source: "Based on the novel by R.K.",
+            draftDate: "1 May 2026",
+            draftStage: "",
+            contact: "jane@example.com\n+1 555 0100",
+            copyright: "",
+            notes: ""
+        )
+        ctx.insert(p)
+        let ep = Episode(title: "Pilot", order: 0)
+        ep.project = p; p.episodes.append(ep); ctx.insert(ep)
+        let s = ScriptScene(locationName: "Roof", location: .exterior, time: .night, order: 0)
+        s.episode = ep; ep.scenes.append(s); ctx.insert(s)
+        try ctx.save()
+
+        let fountain = FountainExporter.export(project: p)
+        let parsed = FountainParser.parse(fountain)
+        let tp = parsed.titlePageStruct
+        #expect(tp.title == "Round Trip Original Title")
+        #expect(tp.credit == "Written by")
+        #expect(tp.author == "Jane Writer")
+        #expect(tp.source == "Based on the novel by R.K.")
+        #expect(tp.draftDate == "1 May 2026")
+        // Contact joins continuation lines with newlines.
+        #expect(tp.contact == "jane@example.com\n+1 555 0100")
+    }
+
     @Test func roundTripDialogueWithSpecialCharsPreserved() throws {
         let container = try makeContainer()
         let ctx = container.mainContext

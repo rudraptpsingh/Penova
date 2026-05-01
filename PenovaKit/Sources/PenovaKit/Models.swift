@@ -93,6 +93,67 @@ public enum CharacterRole: String, Codable, CaseIterable {
     public var display: String { rawValue.capitalized }
 }
 
+// MARK: - TitlePage (value type)
+
+/// Structured WGA-format title page. Stored as a Codable struct on
+/// `Project.titlePageData` — SwiftData treats Codable values as plain
+/// attributes, so adding/removing fields here doesn't require a manual
+/// migration. Defaults match the spec for the "Written by" credit so a
+/// freshly-hydrated project from a v1.0 store renders sensibly.
+public struct TitlePage: Codable, Equatable, Sendable {
+    public var title: String
+    /// "Written by", "Story by", "Adapted by", "Original story by" …
+    public var credit: String
+    public var author: String
+    /// "Based on the novel ..." — empty string means absent.
+    public var source: String
+    /// Free-form display string ("1 May 2026"). Empty = absent
+    /// (omitted on spec scripts per WGA convention).
+    public var draftDate: String
+    /// "Production Draft" / "Pink Revision" / "" (omit on specs).
+    public var draftStage: String
+    /// Multi-line plain text for the bottom-left contact block.
+    public var contact: String
+    /// "© 2026 Author Name"
+    public var copyright: String
+    /// Free-form notes the writer wants on the title page.
+    public var notes: String
+
+    public init(
+        title: String = "",
+        credit: String = "Written by",
+        author: String = "",
+        source: String = "",
+        draftDate: String = "",
+        draftStage: String = "",
+        contact: String = "",
+        copyright: String = "",
+        notes: String = ""
+    ) {
+        self.title = title
+        self.credit = credit
+        self.author = author
+        self.source = source
+        self.draftDate = draftDate
+        self.draftStage = draftStage
+        self.contact = contact
+        self.copyright = copyright
+        self.notes = notes
+    }
+}
+
+/// One row in the title-page revision-history stack. Computed from
+/// `Project.revisions` — not persisted independently.
+public struct RevisionEntry: Equatable, Sendable {
+    public var label: String   // "BLUE REVISION", "PRODUCTION DRAFT"
+    public var date: Date
+
+    public init(label: String, date: Date) {
+        self.label = label
+        self.date = date
+    }
+}
+
 // MARK: - Project
 
 @Model
@@ -136,6 +197,13 @@ public final class Project {
     /// it as a Codable attribute.
     public var lockedSceneNumbers: [String: Int]?
 
+    /// Structured title page (added in v1.1). Optional with no default
+    /// — existing v1.0 stores hydrate via the `titlePage` computed
+    /// accessor lazily on first read, then persist on next setter
+    /// call. SwiftData treats Codable optionals as a free migration;
+    /// no MigrationPlan needed.
+    public var titlePageData: TitlePage?
+
     @Relationship(deleteRule: .cascade, inverse: \Episode.project)
     public var episodes: [Episode] = []
 
@@ -178,6 +246,52 @@ public final class Project {
 
     public var revisionsByDate: [Revision] {
         revisions.sorted { $0.createdAt > $1.createdAt }
+    }
+
+    /// The revision currently being authored. Returns the most-recent
+    /// revision (which is the one new edits get stamped against). Nil
+    /// if the project has no revisions yet.
+    public var activeRevision: Revision? {
+        revisions.sorted { $0.createdAt > $1.createdAt }.first
+    }
+
+    // MARK: - Title page accessor
+
+    /// Structured title-page accessor. Lazily hydrates from the legacy
+    /// `title` + `contactBlock` columns when `titlePageData` is nil so
+    /// projects from v1.0 stores keep rendering correctly without an
+    /// explicit migration. The setter writes the new value back to
+    /// `titlePageData` AND keeps the legacy fields in sync so any
+    /// renderer/exporter still reading `project.title` /
+    /// `project.contactBlock` sees the latest values.
+    public var titlePage: TitlePage {
+        get {
+            if let stored = titlePageData { return stored }
+            return TitlePage(
+                title: title,
+                credit: "Written by",
+                contact: contactBlock
+            )
+        }
+        set {
+            titlePageData = newValue
+            title = newValue.title
+            contactBlock = newValue.contact
+        }
+    }
+
+    /// Cumulative revision-history list for the title page footer.
+    /// Returns the revisions in chronological (oldest→newest) order
+    /// with their label and date. Used for production drafts only —
+    /// the renderer suppresses this block when the project isn't
+    /// production-locked.
+    public var revisionHistoryEntries: [RevisionEntry] {
+        revisions
+            .sorted { $0.createdAt < $1.createdAt }
+            .map { rev in
+                let label = "\(rev.color.display.uppercased()) REVISION"
+                return RevisionEntry(label: label, date: rev.createdAt)
+            }
     }
 
     // MARK: - Page locking
@@ -336,6 +450,13 @@ public final class SceneElement {
     public var order: Int
     /// Name of the speaking character (for dialogue/parenthetical blocks).
     public var characterName: String?
+    /// ID of the revision during which this element was last edited or
+    /// inserted. nil = pre-revision content (the "white" original).
+    /// Stored as the Revision.id rawValue so SwiftData treats it as a
+    /// plain attribute. Drives the "starred line" mark in the right
+    /// margin of revision PDF pages. Defaults to nil for backwards
+    /// compatibility with v1.0 stores.
+    public var lastRevisedRevisionID: String?
 
     public init(kind: SceneElementKind, text: String, order: Int, characterName: String? = nil) {
         self.id = UUID().uuidString
@@ -450,18 +571,38 @@ public extension WritingDay {
 
 /// WGA-standard revision color sequence. White is the original
 /// shooting draft; each subsequent revision steps to the next color.
-/// After Cherry, productions either restart at White (often called
-/// "second white") or use double pages — Penova restarts the cycle,
-/// matching Final Draft's default.
+/// After Cherry the industry continues with Tan, Ivory, then
+/// "Double White / Double Blue / …" — the same paper-stock colors
+/// re-walked with a "Double" qualifier to disambiguate. Penova
+/// follows the canonical Final Draft / Movie Magic Screenwriter
+/// rotation through `doubleCherry`, then wraps back to White.
 public enum RevisionColor: String, Codable, CaseIterable, Sendable {
     case white, blue, pink, yellow, green, goldenrod, buff, salmon, cherry
+    case tan, ivory
+    case doubleWhite, doubleBlue, doublePink, doubleYellow, doubleGreen
+    case doubleGoldenrod, doubleBuff, doubleSalmon, doubleCherry
 
-    /// Display label used in the UI ("White", "Blue", …).
-    public var display: String { rawValue.capitalized }
+    /// Display label used in the UI ("White", "Double Blue", …).
+    public var display: String {
+        switch self {
+        case .doubleWhite:     return "Double White"
+        case .doubleBlue:      return "Double Blue"
+        case .doublePink:      return "Double Pink"
+        case .doubleYellow:    return "Double Yellow"
+        case .doubleGreen:     return "Double Green"
+        case .doubleGoldenrod: return "Double Goldenrod"
+        case .doubleBuff:      return "Double Buff"
+        case .doubleSalmon:    return "Double Salmon"
+        case .doubleCherry:    return "Double Cherry"
+        default:               return rawValue.capitalized
+        }
+    }
 
     /// Approximate paper-stock RGB used by the renderer for the
     /// page-color stripe in the right margin. Tuned to be readable
-    /// on the dark UI but recognisable as the WGA stock color.
+    /// on the dark UI but recognisable as the WGA stock color. The
+    /// "Double" pages reuse the original color — convention is the
+    /// same paper stock; the qualifier just marks the second pass.
     public var marginRGB: (r: Double, g: Double, b: Double) {
         switch self {
         case .white:     return (0.97, 0.97, 0.97)
@@ -473,10 +614,21 @@ public enum RevisionColor: String, Codable, CaseIterable, Sendable {
         case .buff:      return (0.96, 0.93, 0.78)
         case .salmon:    return (1.00, 0.69, 0.62)
         case .cherry:    return (0.95, 0.43, 0.43)
+        case .tan:       return (0.84, 0.78, 0.62)
+        case .ivory:     return (0.99, 0.96, 0.85)
+        case .doubleWhite:     return (0.97, 0.97, 0.97)
+        case .doubleBlue:      return (0.62, 0.78, 0.95)
+        case .doublePink:      return (1.00, 0.76, 0.85)
+        case .doubleYellow:    return (1.00, 0.96, 0.55)
+        case .doubleGreen:     return (0.66, 0.93, 0.69)
+        case .doubleGoldenrod: return (0.95, 0.79, 0.42)
+        case .doubleBuff:      return (0.96, 0.93, 0.78)
+        case .doubleSalmon:    return (1.00, 0.69, 0.62)
+        case .doubleCherry:    return (0.95, 0.43, 0.43)
         }
     }
 
-    /// Step to the next color, wrapping after Cherry to White.
+    /// Step to the next color, wrapping after `doubleCherry` back to White.
     public var next: RevisionColor {
         let all = RevisionColor.allCases
         let idx = all.firstIndex(of: self) ?? 0

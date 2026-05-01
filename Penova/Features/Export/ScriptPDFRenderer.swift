@@ -200,6 +200,7 @@ enum ScriptPDFRenderer {
 
     private static func drawTitlePage(project: Project, state: inout LayoutState) {
         if case .draw(let ctx) = state.mode { ctx.beginPage() } else { return }
+        let tp = project.titlePage
         // Title centred at ~1/3 down the page.
         let centerX: CGFloat = 0
         let pageWidth = state.pageRect.width
@@ -210,36 +211,93 @@ enum ScriptPDFRenderer {
             .foregroundColor: UIColor.black,
             .paragraphStyle: centered()
         ]
-        let title = NSAttributedString(string: project.title.uppercased(), attributes: titleAttrs)
+        let title = NSAttributedString(string: tp.title.uppercased(), attributes: titleAttrs)
         title.draw(with: CGRect(x: centerX, y: titleY, width: pageWidth, height: lineHeight + 4),
                    options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
-        let by = NSAttributedString(string: "Written by", attributes: titleAttrs)
+        let creditText = tp.credit.isEmpty ? "Written by" : tp.credit
+        let by = NSAttributedString(string: creditText, attributes: titleAttrs)
         by.draw(with: CGRect(x: centerX, y: titleY + 4 * lineHeight, width: pageWidth, height: lineHeight + 4),
                 options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
-        let author = NSAttributedString(string: authorName(), attributes: titleAttrs)
+        let author = NSAttributedString(string: authorName(project: project), attributes: titleAttrs)
         author.draw(with: CGRect(x: centerX, y: titleY + 6 * lineHeight, width: pageWidth, height: lineHeight + 4),
                     options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
+        // Optional source ("Based on …"), italic-style on a separate
+        // row below the byline. Centered across the page.
+        let source = tp.source.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !source.isEmpty {
+            let src = NSAttributedString(string: source, attributes: titleAttrs)
+            src.draw(with: CGRect(x: centerX,
+                                  y: titleY + 9 * lineHeight,
+                                  width: pageWidth, height: lineHeight + 4),
+                     options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        }
+
         // Optional contact block, bottom-left, 1" from left & bottom.
         // Only rendered when the project has one set — no hardcoded fallback.
-        let contact = project.contactBlock.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !contact.isEmpty else { return }
-        let contactLines = contact.components(separatedBy: .newlines).count
-        let contactHeight = CGFloat(max(contactLines, 1)) * lineHeight + 4
-        let contactY = state.pageRect.height - Margins.bottom - contactHeight
-        let contactAttrs: [NSAttributedString.Key: Any] = [
-            .font: bodyFont,
-            .foregroundColor: UIColor.black
-        ]
-        let contactAttr = NSAttributedString(string: contact, attributes: contactAttrs)
-        contactAttr.draw(with: CGRect(x: Margins.left, y: contactY,
-                                      width: 260, height: contactHeight),
-                         options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        let contact = tp.contact.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !contact.isEmpty {
+            let contactLines = contact.components(separatedBy: .newlines).count
+            let contactHeight = CGFloat(max(contactLines, 1)) * lineHeight + 4
+            let contactY = state.pageRect.height - Margins.bottom - contactHeight
+            let contactAttrs: [NSAttributedString.Key: Any] = [
+                .font: bodyFont,
+                .foregroundColor: UIColor.black
+            ]
+            let contactAttr = NSAttributedString(string: contact, attributes: contactAttrs)
+            contactAttr.draw(with: CGRect(x: Margins.left, y: contactY,
+                                          width: 260, height: contactHeight),
+                             options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        }
+
+        // Production-draft footer (bottom-right): draft stage + date.
+        // Suppressed on spec scripts per WGA convention.
+        if project.locked {
+            let rightAttrs: [NSAttributedString.Key: Any] = [
+                .font: bodyFont,
+                .foregroundColor: UIColor.black,
+                .paragraphStyle: rightAligned()
+            ]
+            var footerY = state.pageRect.height - Margins.bottom - 2 * lineHeight - 4
+            let stage = tp.draftStage.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !stage.isEmpty {
+                NSAttributedString(string: stage, attributes: rightAttrs).draw(
+                    with: CGRect(x: pageWidth - Margins.right - 260, y: footerY,
+                                 width: 260, height: lineHeight + 4),
+                    options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+                footerY += lineHeight
+            }
+            let date = tp.draftDate.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !date.isEmpty {
+                NSAttributedString(string: date, attributes: rightAttrs).draw(
+                    with: CGRect(x: pageWidth - Margins.right - 260, y: footerY,
+                                 width: 260, height: lineHeight + 4),
+                    options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+            }
+        }
+
+        // Copyright bottom-center, smaller dim type.
+        let copyrightStr = tp.copyright.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !copyrightStr.isEmpty {
+            let cAttrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont(name: "Courier", size: 9) ?? UIFont.monospacedSystemFont(ofSize: 9, weight: .regular),
+                .foregroundColor: UIColor.black,
+                .paragraphStyle: centered()
+            ]
+            NSAttributedString(string: copyrightStr, attributes: cAttrs).draw(
+                with: CGRect(x: 0, y: state.pageRect.height - 48,
+                             width: pageWidth, height: lineHeight + 4),
+                options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        }
     }
 
-    private static func authorName() -> String {
+    private static func authorName(project: Project) -> String {
+        let tp = project.titlePage
+        if !tp.author.trimmingCharacters(in: .whitespaces).isEmpty {
+            return tp.author
+        }
         let stored = UserDefaults.standard.string(forKey: "penova.auth.fullName") ?? ""
         if !stored.trimmingCharacters(in: .whitespaces).isEmpty { return stored }
         return "The Writer"

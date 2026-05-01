@@ -10,6 +10,7 @@
 import SwiftUI
 import SwiftData
 import AVFoundation
+import UIKit
 import PenovaKit
 
 struct SettingsScreen: View {
@@ -19,6 +20,7 @@ struct SettingsScreen: View {
 
     @State private var showDeleteAll = false
     @State private var showSignOutConfirm = false
+    @State private var showCopyFeedbackFallback = false
 
     var body: some View {
         ScrollView {
@@ -217,19 +219,64 @@ struct SettingsScreen: View {
                 .font(PenovaFont.labelCaps)
                 .tracking(PenovaTracking.labelCaps)
                 .foregroundStyle(PenovaColor.snow3)
-            HStack {
-                Text("Version")
-                    .font(PenovaFont.body)
-                    .foregroundStyle(PenovaColor.snow)
-                Spacer()
-                Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0")
-                    .font(PenovaFont.monoScript)
-                    .foregroundStyle(PenovaColor.snow3)
+            VStack(spacing: 0) {
+                HStack {
+                    Text("Version")
+                        .font(PenovaFont.body)
+                        .foregroundStyle(PenovaColor.snow)
+                    Spacer()
+                    Text(FeedbackComposer.versionAndBuild())
+                        .font(PenovaFont.monoScript)
+                        .foregroundStyle(PenovaColor.snow3)
+                }
+                .padding(.vertical, PenovaSpace.xs)
+                Divider().overlay(PenovaColor.ink4)
+                Button(action: openFeedbackMail) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Send Feedback")
+                                .font(PenovaFont.body)
+                                .foregroundStyle(PenovaColor.snow)
+                            Text("Built by one person — every email gets a reply.")
+                                .font(PenovaFont.bodySmall)
+                                .foregroundStyle(PenovaColor.snow3)
+                        }
+                        Spacer()
+                        PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                            .rotationEffect(.degrees(180))
+                    }
+                    .padding(.vertical, PenovaSpace.xs)
+                }
+                .buttonStyle(.plain)
             }
             .padding(PenovaSpace.m)
             .background(PenovaColor.ink2)
             .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
         }
+        .alert("Couldn't open Mail", isPresented: $showCopyFeedbackFallback) {
+            Button("Copy diagnostic info") { copyFeedbackToClipboard() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("No mail client is configured. Copy the diagnostic info, then paste it into your browser or any other mail tool, and send to \(FeedbackComposer.recipient).")
+        }
+    }
+
+    private func openFeedbackMail() {
+        guard let url = FeedbackComposer.mailtoURL() else {
+            showCopyFeedbackFallback = true
+            return
+        }
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url) { ok in
+                if !ok { showCopyFeedbackFallback = true }
+            }
+        } else {
+            showCopyFeedbackFallback = true
+        }
+    }
+
+    private func copyFeedbackToClipboard() {
+        UIPasteboard.general.string = FeedbackComposer.clipboardFallback()
     }
 
     private var dangerBlock: some View {

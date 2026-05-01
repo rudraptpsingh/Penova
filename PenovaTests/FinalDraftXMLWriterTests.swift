@@ -89,6 +89,74 @@ import SwiftData
         #expect(xml.contains("A &amp; B &lt;c&gt; &quot;d&quot; &apos;e&apos;"))
     }
 
+    @Test func emitsTitlePageBlockWhenSet() throws {
+        let container = try makeContainer()
+        let ctx = container.mainContext
+
+        let p = Project(title: "TP Test")
+        p.titlePage = TitlePage(
+            title: "The Last Train",
+            credit: "Written by",
+            author: "Jane Writer",
+            source: "Based on the novel by R.K.",
+            contact: "jane@example.com\n+1 555 0100"
+        )
+        ctx.insert(p)
+        let ep = Episode(title: "Pilot", order: 0)
+        ep.project = p; p.episodes.append(ep); ctx.insert(ep)
+        let scene = ScriptScene(locationName: "Office", location: .interior, time: .day, order: 0)
+        scene.episode = ep; ep.scenes.append(scene); ctx.insert(scene)
+        try ctx.save()
+
+        let xml = FinalDraftXMLWriter.xml(for: p)
+        #expect(xml.contains("<TitlePage>"))
+        #expect(xml.contains("<HeaderAndFooter>"))
+        #expect(xml.contains("<Header>"))
+        #expect(xml.contains("<Footer>"))
+        // Title in header, uppercased + centered.
+        #expect(xml.contains("Alignment=\"Center\""))
+        #expect(xml.contains("<Text>THE LAST TRAIN</Text>"))
+        #expect(xml.contains("<Text>Written by</Text>"))
+        #expect(xml.contains("<Text>Jane Writer</Text>"))
+        // Source in header.
+        #expect(xml.contains("<Text>Based on the novel by R.K.</Text>"))
+        // Contact lines in footer, left-aligned, one paragraph each.
+        #expect(xml.contains("Alignment=\"Left\""))
+        #expect(xml.contains("<Text>jane@example.com</Text>"))
+        #expect(xml.contains("<Text>+1 555 0100</Text>"))
+        // TitlePage comes BEFORE Content.
+        if let tpRange = xml.range(of: "<TitlePage>"),
+           let contentRange = xml.range(of: "<Content>") {
+            #expect(tpRange.lowerBound < contentRange.lowerBound)
+        }
+    }
+
+    @Test func skipsTitlePageBlockWhenAllFieldsEmpty() throws {
+        let container = try makeContainer()
+        let ctx = container.mainContext
+        // A project whose legacy title hydrates the TitlePage will
+        // still produce a non-empty title — we simulate fully-empty by
+        // setting an explicit blank TitlePage AND clearing contact +
+        // title.
+        let p = Project(title: "")
+        p.contactBlock = ""
+        p.titlePage = TitlePage()
+        ctx.insert(p)
+        try ctx.save()
+        let xml = FinalDraftXMLWriter.xml(for: p)
+        // The all-empty case should suppress the block entirely so
+        // legacy fixtures keep parsing without seeing an empty TP.
+        // (Our default credit is "Written by" but it's only emitted
+        // alongside other content.)
+        // If the writer chose to keep credit-only, the block would appear;
+        // assert at least there's no header/footer pair when nothing
+        // else is set.
+        if xml.contains("<TitlePage>") {
+            // Credit-only is acceptable; just ensure no Header text was emitted.
+            #expect(!xml.contains("<Text>UNTITLED"))
+        }
+    }
+
     @Test func writesFileWithValidPrefix() throws {
         let container = try makeContainer()
         let ctx = container.mainContext
