@@ -4,17 +4,20 @@
 //
 //  Beat-board view: scenes laid out as cards, color-striped by beat
 //  type. Click drills into the editor for that scene. Drag-to-reorder
-//  arrives in a follow-up commit (uses EditorLogic.insertOrder once the
-//  business-logic files are moved into PenovaKit).
+//  uses SceneReorder.move() — math covered by 12 SceneReorderTests.
 //
 
 import SwiftUI
 import SwiftData
 import PenovaKit
+import UniformTypeIdentifiers
 
 struct IndexCardsPane: View {
     let projects: [Project]
     @Binding var selectedScene: ScriptScene?
+    @Environment(\.modelContext) private var context
+
+    @State private var draggingSceneID: String?
 
     private let columns = [
         GridItem(.adaptive(minimum: 240, maximum: 320), spacing: 16),
@@ -29,7 +32,21 @@ struct IndexCardsPane: View {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(allScenes, id: \.id) { scene in
                         SceneCard(scene: scene, isSelected: scene.id == selectedScene?.id)
+                            .opacity(draggingSceneID == scene.id ? 0.35 : 1)
                             .onTapGesture { selectedScene = scene }
+                            .onDrag {
+                                draggingSceneID = scene.id
+                                PenovaLog.editor.info("drag start: scene \(scene.id, privacy: .public)")
+                                return NSItemProvider(object: scene.id as NSString)
+                            }
+                            .onDrop(
+                                of: [.plainText],
+                                delegate: SceneCardDropDelegate(
+                                    targetScene: scene,
+                                    draggingSceneID: $draggingSceneID,
+                                    onMove: handleDrop
+                                )
+                            )
                     }
                 }
             }
@@ -54,6 +71,56 @@ struct IndexCardsPane: View {
 
     private var allScenes: [ScriptScene] {
         projects.flatMap(\.activeEpisodesOrdered).flatMap(\.scenesOrdered)
+    }
+
+    /// Performs a drag-drop reorder within the same episode. Cross-
+    /// episode moves arrive in v1.1.
+    private func handleDrop(sourceID: String, targetScene: ScriptScene) {
+        guard let sourceScene = allScenes.first(where: { $0.id == sourceID }),
+              let episode = sourceScene.episode,
+              episode.id == targetScene.episode?.id
+        else { return }
+
+        let scenes = episode.scenesOrdered
+        guard let targetIndex = scenes.firstIndex(where: { $0.id == targetScene.id }),
+              let sourceIndex = scenes.firstIndex(where: { $0.id == sourceID })
+        else { return }
+        guard sourceIndex != targetIndex else { return }
+
+        let items = scenes.map { (id: $0.id, order: $0.order) }
+        let reordered = SceneReorder.move(items, movingID: sourceID, to: targetIndex)
+        let lookup = Dictionary(uniqueKeysWithValues: reordered.map { ($0.id, $0.order) })
+        for s in scenes {
+            if let newOrder = lookup[s.id] {
+                s.order = newOrder
+            }
+        }
+        episode.updatedAt = .now
+        try? context.save()
+        PenovaLog.editor.info("reorder applied: source=\(sourceID, privacy: .public) → index \(targetIndex)")
+    }
+}
+
+private struct SceneCardDropDelegate: DropDelegate {
+    let targetScene: ScriptScene
+    @Binding var draggingSceneID: String?
+    let onMove: (String, ScriptScene) -> Void
+
+    func performDrop(info: DropInfo) -> Bool {
+        guard let provider = info.itemProviders(for: [.plainText]).first else { return false }
+        provider.loadObject(ofClass: NSString.self) { (string, _) in
+            DispatchQueue.main.async {
+                if let id = string as? String {
+                    onMove(id, targetScene)
+                }
+                draggingSceneID = nil
+            }
+        }
+        return true
+    }
+
+    func dropExited(info: DropInfo) {
+        // Visual reset handled by performDrop or onDrop end
     }
 }
 
