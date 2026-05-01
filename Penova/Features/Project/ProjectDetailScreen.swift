@@ -24,6 +24,8 @@ struct ProjectDetailScreen: View {
     @State private var showDeleteConfirm = false
     @State private var pendingEpisodeEdit: Episode?
     @State private var pendingEpisodeDelete: Episode?
+    @State private var showLockConfirm = false
+    @State private var showUnlockConfirm = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -65,7 +67,17 @@ struct ProjectDetailScreen: View {
             .navigationDestination(for: Episode.self) { ep in
                 EpisodeDetailScreen(episode: ep)
             }
+            .navigationDestination(for: ReportsRoute.self) { _ in
+                ReportsScreen(project: project)
+            }
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(value: ReportsRoute.scenes) {
+                        Image(systemName: "tablecells")
+                            .foregroundStyle(PenovaColor.snow)
+                    }
+                    .accessibilityLabel("Reports")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button {
@@ -90,6 +102,16 @@ struct ProjectDetailScreen: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        if project.locked {
+                            Button { showUnlockConfirm = true } label: {
+                                Label("Unlock script", systemImage: "lock.open")
+                            }
+                        } else {
+                            Button { showLockConfirm = true } label: {
+                                Label("Lock script…", systemImage: "lock")
+                            }
+                        }
+                        Divider()
                         Button { showEdit = true } label: {
                             Label("Edit project", systemImage: "pencil")
                         }
@@ -155,6 +177,32 @@ struct ProjectDetailScreen: View {
         } message: {
             Text(exportError ?? "")
         }
+        .alert("Lock script for production?",
+               isPresented: $showLockConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Lock") { lockProject() }
+        } message: {
+            Text("Scene numbers freeze at their current values. Adding, deleting, or reordering scenes after this won't renumber survivors. You can unlock anytime.")
+        }
+        .alert("Unlock script?",
+               isPresented: $showUnlockConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Unlock", role: .destructive) { unlockProject() }
+        } message: {
+            Text("Scene numbers will resume tracking the live scene order. Any production-stage references to the locked numbers will be lost.")
+        }
+    }
+
+    // MARK: - Lock helpers
+
+    private func lockProject() {
+        project.lock()
+        try? context.save()
+    }
+
+    private func unlockProject() {
+        project.unlock()
+        try? context.save()
     }
 
     private func deleteProject() {
@@ -248,7 +296,38 @@ struct ProjectDetailScreen: View {
                     .font(PenovaFont.body)
                     .foregroundStyle(PenovaColor.snow3)
             }
+            if project.locked {
+                lockedBadge
+            }
         }
+    }
+
+    /// Small persistent affordance on the project header so the lock
+    /// state is visible from anywhere in the project — the toolbar
+    /// menu also surfaces it but at a glance the user wants to see
+    /// "this script is locked" without opening any menu.
+    private var lockedBadge: some View {
+        HStack(spacing: PenovaSpace.xs) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(PenovaColor.amber)
+            Text(lockedSummary)
+                .font(PenovaFont.bodySmall)
+                .foregroundStyle(PenovaColor.amber)
+        }
+        .padding(.horizontal, PenovaSpace.s)
+        .padding(.vertical, PenovaSpace.xs)
+        .background(PenovaColor.ink2)
+        .clipShape(Capsule())
+    }
+
+    private var lockedSummary: String {
+        guard let date = project.lockedAt else {
+            return "Scene numbers locked"
+        }
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        return "Locked on \(f.string(from: date))"
     }
 
     private var stats: some View {
@@ -266,6 +345,12 @@ struct ProjectDetailScreen: View {
         pageCount = ScriptPDFRenderer.measurePageCount(project: project)
     }
 }
+
+/// Lightweight `Hashable` token used to push the Reports screen onto
+/// the existing NavigationStack. Conforming via a single case so we
+/// don't have to plumb yet another `@State` Bool — pushes feel like
+/// any other navigation destination.
+enum ReportsRoute: Hashable { case scenes }
 
 private struct StatTile: View {
     let value: Int

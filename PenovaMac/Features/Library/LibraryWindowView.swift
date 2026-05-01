@@ -44,8 +44,12 @@ struct LibraryWindowView: View {
     @State private var searchVisible: Bool = false
     @State private var titlePageEditorVisible: Bool = false
     @State private var exportSheetVisible: Bool = false
+    @State private var reportsSheetVisible: Bool = false
     @State private var newProjectVisible: Bool = false
     @State private var pendingExportFormat: MacExportFormat = .pdf
+    @State private var lockConfirmVisible: Bool = false
+    @State private var unlockConfirmVisible: Bool = false
+    @State private var pendingSceneDelete: ScriptScene?
 
     var body: some View {
         baseShell
@@ -66,6 +70,35 @@ struct LibraryWindowView: View {
                     }
                 }
             ))
+            .sheet(isPresented: $reportsSheetVisible) {
+                if let project = currentProject {
+                    MacReportsSheet(project: project)
+                }
+            }
+            .alert("Lock script for production?", isPresented: $lockConfirmVisible) {
+                Button("Cancel", role: .cancel) {}
+                Button("Lock") { lockCurrentProject() }
+            } message: {
+                Text("Scene numbers freeze at their current values. Adding, deleting, or reordering scenes after this won't renumber survivors. You can unlock anytime.")
+            }
+            .alert("Unlock script?", isPresented: $unlockConfirmVisible) {
+                Button("Cancel", role: .cancel) {}
+                Button("Unlock", role: .destructive) { unlockCurrentProject() }
+            } message: {
+                Text("Scene numbers will resume tracking the live scene order. Any production-stage references to the locked numbers will be lost.")
+            }
+            .alert(
+                "Delete scene?",
+                isPresented: Binding(
+                    get: { pendingSceneDelete != nil },
+                    set: { if !$0 { pendingSceneDelete = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) { pendingSceneDelete = nil }
+                Button("Delete", role: .destructive) { deletePendingScene() }
+            } message: {
+                Text("This removes “\(pendingSceneDelete?.heading ?? "")” and every element in it. This can't be undone.")
+            }
             .background(hiddenShortcuts)
             .onAppear {
                 if selectedScene == nil {
@@ -80,6 +113,19 @@ struct LibraryWindowView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .penovaNewScene)) { _ in
                 newScene()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaShowReports)) { _ in
+                reportsSheetVisible = true
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaLockScript)) { _ in
+                if currentProject?.locked == false {
+                    lockConfirmVisible = true
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaUnlockScript)) { _ in
+                if currentProject?.locked == true {
+                    unlockConfirmVisible = true
+                }
             }
     }
 
@@ -99,7 +145,12 @@ struct LibraryWindowView: View {
 
                     if inspectorVisible && !focusMode {
                         Divider().background(PenovaColor.ink4)
-                        SceneInspector(scene: selectedScene)
+                        SceneInspector(
+                            scene: selectedScene,
+                            onRequestDelete: { scene in
+                                pendingSceneDelete = scene
+                            }
+                        )
                             .frame(width: 300)
                     }
                 }
@@ -231,6 +282,32 @@ struct LibraryWindowView: View {
             .controlSize(.large)
             .keyboardShortcut("p", modifiers: .command)
 
+            Button(action: { reportsSheetVisible = true }) {
+                Label("Reports", systemImage: "tablecells")
+            }
+            .labelStyle(.titleAndIcon)
+            .controlSize(.large)
+            .keyboardShortcut("r", modifiers: [.command, .shift])
+            .help("Scene, location, and cast breakdown reports (⇧⌘R)")
+
+            // Lock / Unlock script for production. Toggle reflects
+            // current `Project.locked` state for the active project.
+            Menu {
+                if currentProject?.locked == true {
+                    Button("Unlock script") { unlockConfirmVisible = true }
+                } else {
+                    Button("Lock script…") { lockConfirmVisible = true }
+                }
+            } label: {
+                Label(
+                    currentProject?.locked == true ? "Locked" : "Lock",
+                    systemImage: currentProject?.locked == true ? "lock.fill" : "lock"
+                )
+            }
+            .labelStyle(.titleAndIcon)
+            .controlSize(.large)
+            .help("Freeze scene numbers for production. Unlock to resume live numbering.")
+
             Menu {
                 Button("Export PDF…") {
                     pendingExportFormat = .pdf
@@ -304,7 +381,8 @@ struct LibraryWindowView: View {
                     onOpenScene: { scene in
                         selectedScene = scene
                         viewMode = .editor
-                    }
+                    },
+                    onRequestDelete: { pendingSceneDelete = $0 }
                 )
             case .outline:
                 OutlinePane(
@@ -313,7 +391,8 @@ struct LibraryWindowView: View {
                     onOpenScene: { scene in
                         selectedScene = scene
                         viewMode = .editor
-                    }
+                    },
+                    onRequestDelete: { pendingSceneDelete = $0 }
                 )
             }
         }
@@ -387,6 +466,42 @@ struct LibraryWindowView: View {
         activeSmart = nil
         viewMode = .editor
         PenovaLog.editor.info("New scene inserted in episode '\(episode.title, privacy: .public)' at order \(nextOrder)")
+    }
+
+    /// Apply a pending scene delete (set by the inspector / outline /
+    /// index-cards context menu). Snaps the editor to the next-best
+    /// surviving scene in the same episode so the user isn't left
+    /// staring at an empty editor pane.
+    private func deletePendingScene() {
+        guard let scene = pendingSceneDelete else { return }
+        let parentEpisode = scene.episode
+        let siblings = parentEpisode?.scenesOrdered ?? []
+        let idx = siblings.firstIndex(where: { $0.id == scene.id })
+        let neighbour: ScriptScene? = {
+            guard let idx else { return siblings.first(where: { $0.id != scene.id }) }
+            // Prefer the next sibling, else the previous, else nil.
+            if idx + 1 < siblings.count { return siblings[idx + 1] }
+            if idx - 1 >= 0 { return siblings[idx - 1] }
+            return nil
+        }()
+        context.delete(scene)
+        try? context.save()
+        if selectedScene?.id == scene.id {
+            selectedScene = neighbour
+        }
+        pendingSceneDelete = nil
+    }
+
+    private func lockCurrentProject() {
+        guard let p = currentProject else { return }
+        p.lock()
+        try? context.save()
+    }
+
+    private func unlockCurrentProject() {
+        guard let p = currentProject else { return }
+        p.unlock()
+        try? context.save()
     }
 
     /// ⌘P: render the current project to a temporary PDF and open it

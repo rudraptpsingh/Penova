@@ -20,6 +20,9 @@ struct OutlinePane: View {
     /// Single-click drill-in callback — flip viewMode to editor when
     /// a row is clicked. Outline is a navigator, not a destination.
     var onOpenScene: ((ScriptScene) -> Void)? = nil
+    /// Right-click "Delete scene" callback. The parent owns the
+    /// confirm alert + sibling-selection logic.
+    var onRequestDelete: ((ScriptScene) -> Void)? = nil
 
     @State private var sort: OutlineSort = .order
     @State private var sortAscending: Bool = true
@@ -154,6 +157,16 @@ struct OutlinePane: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button("Open in editor") {
+                selectedScene = scene
+                onOpenScene?(scene)
+            }
+            Divider()
+            Button("Delete scene", role: .destructive) {
+                onRequestDelete?(scene)
+            }
+        }
         .onHover { hovering in
             hoveredID = hovering ? scene.id : (hoveredID == scene.id ? nil : hoveredID)
         }

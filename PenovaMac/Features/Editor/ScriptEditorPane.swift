@@ -84,9 +84,14 @@ struct PaperPage: View {
                     onCommit: { commit(el) },
                     onTab: { cycleKind(for: el) },
                     onReturn: { appendAfter(el) },
-                    onBackspaceOnEmpty: { delete(el) }
+                    onBackspaceOnEmpty: { delete(el) },
+                    onDeleteRow: { delete(el) },
+                    onInsertAbove: { insertAbove(el, kind: el.kind) }
                 )
                 .id(el.id)
+                .contextMenu {
+                    elementRowContextMenu(for: el)
+                }
             }
 
             // Add-row hint
@@ -181,6 +186,61 @@ struct PaperPage: View {
         try? context.save()
         focused = prev?.id
     }
+
+    /// Insert a new element of the given kind directly above `anchor`.
+    /// Inserted row gets focus.
+    private func insertAbove(_ anchor: SceneElement, kind: SceneElementKind = .action) {
+        let target = anchor.order
+        // Shift existing siblings ≥ target up by 1 to make room.
+        for el in scene.elementsOrdered where el.order >= target {
+            el.order += 1
+        }
+        let newEl = SceneElement(kind: kind, text: "", order: target)
+        newEl.scene = scene
+        context.insert(newEl)
+        scene.updatedAt = .now
+        try? context.save()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.focused = newEl.id
+        }
+    }
+
+    /// Right-click context menu surfaced from each element row. Mirrors
+    /// Final Draft's standard Insert / Change Kind / Delete actions —
+    /// users discover these features via right-click rather than having
+    /// to memorise hidden keyboard shortcuts.
+    @ViewBuilder
+    private func elementRowContextMenu(for el: SceneElement) -> some View {
+        Button("Insert line above") {
+            insertAbove(el, kind: el.kind)
+        }
+        Button("Insert line below") {
+            appendAfter(el)
+        }
+        Menu("Change kind") {
+            ForEach(SceneElementKind.allCases, id: \.self) { k in
+                Button(action: { changeKind(of: el, to: k) }) {
+                    HStack {
+                        Text(k.display)
+                        if el.kind == k {
+                            Spacer()
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        }
+        Divider()
+        Button("Delete line", role: .destructive) {
+            delete(el)
+        }
+    }
+
+    private func changeKind(of el: SceneElement, to kind: SceneElementKind) {
+        el.kind = kind
+        scene.updatedAt = .now
+        try? context.save()
+    }
 }
 
 // MARK: - Editable row (pure SwiftUI)
@@ -193,6 +253,10 @@ private struct EditableElementRow: View {
     let onTab: () -> Void
     let onReturn: () -> Void
     let onBackspaceOnEmpty: () -> Void
+    /// ⌘⌫ — delete this row regardless of whether its text is empty.
+    var onDeleteRow: () -> Void = {}
+    /// ⇧⌘I — insert a new row directly above this one.
+    var onInsertAbove: () -> Void = {}
 
     private let pageWidth: CGFloat = 480 // 640 - 80*2
 
@@ -254,6 +318,21 @@ private struct EditableElementRow: View {
                         element.scene?.updatedAt = .now
                         try? context.save()
                         PenovaLog.editor.info("⌘-shortcut set kind: \(raw, privacy: .public)")
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: .penovaDeleteFocusedElement)) { _ in
+                        // ⌘⌫ deletes the focused row outright (Final
+                        // Draft convention). Empty-row backspace is
+                        // handled separately in `.onKeyPress(.delete)`.
+                        guard focusedID == element.id else { return }
+                        onDeleteRow()
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: .penovaInsertLineAbove)) { _ in
+                        guard focusedID == element.id else { return }
+                        onInsertAbove()
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: .penovaInsertLineBelow)) { _ in
+                        guard focusedID == element.id else { return }
+                        onReturn()
                     }
             }
             .padding(.leading, leadingIndent)
