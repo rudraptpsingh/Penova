@@ -14,6 +14,10 @@ import PenovaKit
 
 struct SceneInspector: View {
     let scene: ScriptScene?
+    /// Bubbles up the user's intent to delete the inspected scene
+    /// to the parent (LibraryWindowView), which owns the confirm
+    /// alert + selectedScene binding so we can snap to a sibling.
+    var onRequestDelete: (ScriptScene) -> Void = { _ in }
     @Environment(\.modelContext) private var context
 
     var body: some View {
@@ -24,6 +28,9 @@ struct SceneInspector: View {
                     beatSection(scene: scene)
                     pageSection(scene: scene)
                     charactersSection(scene: scene)
+                    Divider()
+                        .background(PenovaColor.ink4)
+                    deleteSection(scene: scene)
                 } else {
                     Text("No scene selected")
                         .font(PenovaFont.body)
@@ -35,6 +42,29 @@ struct SceneInspector: View {
         }
         .background(PenovaColor.ink2)
         .accessibilityIdentifier(A11yID.inspector)
+    }
+
+    /// Destructive zone — anchored at the bottom of the inspector so
+    /// it doesn't crowd the editing controls but is always reachable.
+    /// Calls back into the parent so the parent can present the
+    /// confirm alert and select a sibling scene afterwards.
+    private func deleteSection(scene: ScriptScene) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            sectionLabel("Danger zone")
+            Button(role: .destructive) {
+                onRequestDelete(scene)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "trash")
+                    Text("Delete scene")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .buttonStyle(.bordered)
+            .tint(PenovaColor.ember)
+            .help("Remove this scene and its contents (⌫)")
+        }
     }
 
     private func sectionLabel(_ text: String) -> some View {

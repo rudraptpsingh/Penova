@@ -21,6 +21,9 @@ struct IndexCardsPane: View {
     /// inspector via selectedScene; the explicit drill-in is what
     /// actually navigates.
     var onOpenScene: ((ScriptScene) -> Void)? = nil
+    /// Bubbles a "right-clicked Delete on a card" up to the parent so
+    /// the parent owns the confirm alert + sibling-selection logic.
+    var onRequestDelete: ((ScriptScene) -> Void)? = nil
     @Environment(\.modelContext) private var context
 
     @State private var draggingSceneID: String?
@@ -58,6 +61,16 @@ struct IndexCardsPane: View {
                                     onMove: handleDrop
                                 )
                             )
+                            .contextMenu {
+                                Button("Open in editor") {
+                                    selectedScene = scene
+                                    onOpenScene?(scene)
+                                }
+                                Divider()
+                                Button("Delete scene", role: .destructive) {
+                                    onRequestDelete?(scene)
+                                }
+                            }
                     }
                 }
             }

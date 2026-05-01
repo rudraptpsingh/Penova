@@ -199,13 +199,69 @@ struct PenovaMacApp: App {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
             }
+
+            // Edit menu additions: line-level operations that don't
+            // belong on the global Edit menu's stock entries (Cut/
+            // Copy/Paste already work on text). These manipulate the
+            // structural element rather than the text inside it.
+            CommandGroup(after: .pasteboard) {
+                Divider()
+                Button("Delete Line") {
+                    NotificationCenter.default.post(
+                        name: .penovaDeleteFocusedElement, object: nil
+                    )
+                }
+                .keyboardShortcut(.delete, modifiers: .command)
+
+                Button("Insert Line Above") {
+                    NotificationCenter.default.post(
+                        name: .penovaInsertLineAbove, object: nil
+                    )
+                }
+                .keyboardShortcut("i", modifiers: [.command, .shift])
+
+                Button("Insert Line Below") {
+                    NotificationCenter.default.post(
+                        name: .penovaInsertLineBelow, object: nil
+                    )
+                }
+                .keyboardShortcut(.return, modifiers: [.command])
+            }
+
+            // Project-level production menu: Reports + Lock toggle. Lives
+            // under its own top-level menu so it shows up in the menu
+            // bar between View and Window — the canonical macOS path
+            // for users who haven't memorised every keyboard shortcut.
+            CommandMenu("Production") {
+                Button("Reports…") {
+                    NotificationCenter.default.post(name: .penovaShowReports, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button("Lock Script for Production…") {
+                    NotificationCenter.default.post(name: .penovaLockScript, object: nil)
+                }
+                .keyboardShortcut("l", modifiers: [.command, .shift])
+
+                Button("Unlock Script…") {
+                    NotificationCenter.default.post(name: .penovaUnlockScript, object: nil)
+                }
+            }
         }
     }
 }
 
 extension Notification.Name {
-    static let penovaNewProject = Notification.Name("penova.newProject")
-    static let penovaNewScene   = Notification.Name("penova.newScene")
+    static let penovaNewProject   = Notification.Name("penova.newProject")
+    static let penovaNewScene     = Notification.Name("penova.newScene")
+    static let penovaShowReports          = Notification.Name("penova.showReports")
+    static let penovaLockScript           = Notification.Name("penova.lockScript")
+    static let penovaUnlockScript         = Notification.Name("penova.unlockScript")
+    static let penovaDeleteFocusedElement = Notification.Name("penova.deleteFocusedElement")
+    static let penovaInsertLineAbove      = Notification.Name("penova.insertLineAbove")
+    static let penovaInsertLineBelow      = Notification.Name("penova.insertLineBelow")
     /// Set the focused element's kind to the given SceneElementKind raw value.
     /// userInfo: ["kind": SceneElementKind.rawValue]
     static let penovaSetElementKind = Notification.Name("penova.setElementKind")
