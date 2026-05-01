@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penova — A screenwriting studio for Mac and iPhone</title>
-<meta name="description" content="A dark-first screenplay editor. Three-pane Mac shell, index cards, beat tagging, industry-format PDF + Final Draft + Fountain. Free for Mac, iPhone in TestFlight beta.">
-<meta property="og:title" content="Penova — Screenwriting for Mac and iPhone">
-<meta property="og:description" content="Three-pane Mac editor. Industry-standard PDF, FDX, Fountain. Free for Mac, iPhone in TestFlight beta.">
+<title>Penova — Free, professional screenwriting for Mac and iPhone</title>
+<meta name="description" content="A free, dark-first screenwriting studio for Mac and iPhone. Industry-format PDF + Final Draft + Fountain. Forever free for individual writers — the tool Final Draft charges $250 for, on the house.">
+<meta property="og:title" content="Penova — Free professional screenwriting">
+<meta property="og:description" content="The screenwriting studio that costs $0 instead of $250. Industry-format PDF, FDX, Fountain. Mac + iPhone. Free for individuals, forever.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://penova.pages.dev">
 <meta property="og:image" content="https://penova.pages.dev/img/mac/library.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Penova — Screenwriting for Mac and iPhone">
-<meta name="twitter:description" content="Three-pane Mac editor. Industry-format PDF, FDX, Fountain. Free for Mac, iPhone in TestFlight beta.">
+<meta name="twitter:title" content="Penova — Free professional screenwriting">
+<meta name="twitter:description" content="The screenwriting studio that costs $0 instead of $250. Industry-format PDF, FDX, Fountain. Mac + iPhone. Free for individuals, forever.">
 <meta name="twitter:image" content="https://penova.pages.dev/img/mac/library.png">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-style='italic' text-anchor='middle' fill='%23f0a94a'%3EP%3C/text%3E%3C/svg%3E">
@@ -280,6 +280,139 @@
     margin-bottom: 18px;
   }
 
+  /* ANNOUNCEMENT BAR */
+  .annc {
+    background: linear-gradient(90deg, rgba(240, 169, 74, 0.18), rgba(240, 169, 74, 0.05));
+    border-bottom: 1px solid rgba(240, 169, 74, 0.25);
+    text-align: center;
+    padding: 10px 24px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--snow-2);
+    position: relative;
+    z-index: 3;
+  }
+  .annc strong { color: var(--amber); font-weight: 500; }
+  .annc a { color: var(--snow); text-decoration: underline; text-decoration-color: rgba(240, 169, 74, 0.5); text-underline-offset: 3px; }
+
+  /* HERO PRICE TAG */
+  .price-tag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(127, 163, 136, 0.12);
+    border: 1px solid rgba(127, 163, 136, 0.35);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--jade);
+  }
+  .price-tag strong { color: var(--snow); font-weight: 500; font-size: 12px; }
+
+  /* PRICING COMPARISON */
+  .pricing { padding: 80px 0; border-bottom: 1px solid var(--rule); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+  .price-card {
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    background: var(--ink-2);
+    border: 1px solid var(--rule);
+  }
+  .price-card.us {
+    background: linear-gradient(180deg, rgba(240, 169, 74, 0.08), rgba(240, 169, 74, 0.02));
+    border: 1px solid rgba(240, 169, 74, 0.4);
+    box-shadow: 0 0 0 4px rgba(240, 169, 74, 0.08);
+  }
+  .price-card .label {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--snow);
+  }
+  .price-card.us .label em { font-style: italic; color: var(--amber); }
+  .price-card .price {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    margin: 14px 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .price-card.us .price { color: var(--amber); }
+  .price-card .unit {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--snow-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .price-card .note {
+    font-size: 12px;
+    color: var(--snow-3);
+    line-height: 1.5;
+    margin-top: 14px;
+  }
+  .pricing-fine {
+    text-align: center;
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+    color: var(--snow-3);
+    font-size: 13px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .pricing-fine strong { color: var(--snow); font-weight: 500; }
+
+  /* WHY-WE-BUILT-THIS PULL QUOTE */
+  .manifesto {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .manifesto-block {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .manifesto-block .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .manifesto-block blockquote {
+    font-family: var(--serif);
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 300;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--snow);
+    margin-bottom: 28px;
+  }
+  .manifesto-block blockquote em { font-style: italic; color: var(--amber); }
+  .manifesto-block .signature {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--snow-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
   /* FOOTER */
   footer { padding: 44px 0 60px; text-align: center; }
   footer a { color: var(--snow-3); transition: color 0.2s; }
@@ -303,10 +436,16 @@
 </head>
 <body>
 
+<div class="annc">
+  <strong>Free forever for individual writers.</strong>&nbsp;&nbsp;The screenwriting studio that costs $0 instead of $250.
+  &nbsp;<a href="#pricing">See how we compare →</a>
+</div>
+
 <nav>
   <a href="/" class="brand">P<em>enova</em></a>
   <div class="nav-links">
     <a href="#mac">Mac</a>
+    <a href="#pricing">Free</a>
     <a href="#workflow">Workflow</a>
     <a href="#ios">iPhone</a>
     <a href="support.html">Support</a>
@@ -322,11 +461,15 @@
     <div class="wrap">
       <div class="hero-grid">
         <div>
+          <span class="price-tag">
+            <strong>$0</strong>&nbsp;forever&nbsp;·&nbsp;Lifetime free for individuals
+          </span>
           <h1>Write the page.<br><em>Hide the app.</em></h1>
           <p>
-            A focused screenwriting studio for Mac and iPhone. Three-pane editor,
-            index cards, beat tagging, industry-format PDF + Final Draft (.fdx) +
-            Fountain export — all on-device, no account required.
+            A professional screenwriting studio for Mac and iPhone, free
+            for individual writers. Three-pane editor, index cards, beat
+            tagging, industry-format PDF + Final Draft (.fdx) + Fountain.
+            All on-device, no account required, no trial timer.
           </p>
           <div class="ctas">
             <a class="btn-primary"
@@ -334,11 +477,11 @@
                download="Penova-1.0.0.dmg"
                data-event="download-mac">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download for Mac
+              Download free for Mac
             </a>
             <a class="btn-secondary" href="#ios">iPhone (TestFlight)</a>
           </div>
-          <div class="btn-meta">3.7 MB · macOS 14+ · Apple Silicon &amp; Intel · Free, no account</div>
+          <div class="btn-meta">3.7 MB · macOS 14+ · Apple Silicon &amp; Intel · Notarized · No account, no signup</div>
         </div>
         <div class="hero-shot">
           <img src="img/mac/library.png"
@@ -373,6 +516,75 @@
           <h3>Industry format</h3>
           <p>WGA-standard PDFs. Final Draft (.fdx) round-trip. Fountain plain-text. Re-import any of the three. Your file, your script.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">Pricing for individuals</div>
+        <h2>The same tool. <em>One-tenth the price.</em><br>Actually, none of it.</h2>
+        <p class="section-sub">
+          Industry-grade screenwriting software has always been priced for studios.
+          Penova is for writers and students. If you make money from your script
+          one day, that's because you wrote it — not because you paid for the
+          tool that typed it.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card us">
+          <div class="label">P<em>enova</em></div>
+          <div class="price">$0</div>
+          <div class="unit">forever</div>
+          <div class="note">Mac + iPhone. Industry-format PDF, FDX, Fountain. All features. No trial. No account. No watermark.</div>
+        </div>
+        <div class="price-card">
+          <div class="label">Final Draft 13</div>
+          <div class="price">$249.99</div>
+          <div class="unit">one-time</div>
+          <div class="note">Industry standard. Mac &amp; Windows. The reason we built Penova.</div>
+        </div>
+        <div class="price-card">
+          <div class="label">Fade In</div>
+          <div class="price">$79.95</div>
+          <div class="unit">one-time</div>
+          <div class="note">Cross-platform. Solid feature set, lighter than Final Draft.</div>
+        </div>
+        <div class="price-card">
+          <div class="label">WriterDuet</div>
+          <div class="price">~$132</div>
+          <div class="unit">per year</div>
+          <div class="note">Subscription. Cloud-first, real-time collaboration.</div>
+        </div>
+      </div>
+
+      <p class="pricing-fine">
+        <strong>What's free, forever:</strong> every editing, formatting, import,
+        export, search, outlining, beat-tagging, production-report and revision
+        feature you'll find on this page. <br>
+        <strong>What we'll charge for, later:</strong> optional cloud sync across
+        machines, real-time co-writing for teams, and writers'-room features for
+        studios. The single-writer experience stays free.
+      </p>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto">
+    <div class="wrap">
+      <div class="manifesto-block">
+        <div class="eyebrow">Why we built this</div>
+        <blockquote>
+          “A great screenplay should not be gatekept by <em>$249.99</em>. The
+          writer at a college in Mumbai, the kid sketching scenes on the train
+          to film school, the assistant rewriting a feature on lunch break —
+          they shouldn't lose to a writer with a bigger budget. Penova is the
+          tool we wish we'd had.”
+        </blockquote>
+        <div class="signature">— Penova, est. 2026 · Built in 🇮🇳</div>
       </div>
     </div>
   </section>
