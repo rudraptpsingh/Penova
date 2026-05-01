@@ -64,7 +64,14 @@ if [[ -z "$SIGN_UPDATE" ]]; then
 fi
 
 # sign_update emits ` length=...` `sparkle:edSignature="..."` to stdout.
-SIG_LINE=$("$SIGN_UPDATE" "$DMG")
+# We only want the signature attribute — the template below writes its
+# own `length=` from the actual on-disk file size, so re-emitting the
+# one from sign_update would produce two `length=` attributes on the
+# same element (which makes the resulting XML malformed and Sparkle
+# rejects the feed with "an error occurred while parsing the update
+# feed").
+SIG_RAW=$("$SIGN_UPDATE" "$DMG")
+SIG_LINE=$(printf '%s' "$SIG_RAW" | sed -E 's/.*(sparkle:edSignature="[^"]+").*/\1/')
 DMG_NAME=$(basename "$DMG")
 DMG_LENGTH=$(stat -f '%z' "$DMG")
 DMG_URL_DEFAULT="https://penova.app/releases/$DMG_NAME"

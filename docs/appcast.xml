@@ -2,17 +2,17 @@
 <!--
     Sparkle update feed for Penova for Mac.
     Live at https://penova.pages.dev/appcast.xml — must match the
-    `SUFeedURL` value in PenovaMac/App/Info.plist exactly.
+    SUFeedURL value in PenovaMac/App/Info.plist exactly.
 
-    Each release adds an <item> block above the previous one
+    Each release adds an item block above the previous one
     (newest first). Generate the block by running
-    `tools/sign-update.sh build/Penova.dmg --version X.Y.Z` after
-    `tools/notarize-mac.sh`, fix the `<enclosure url=>` to the real
-    CDN path, and paste it in.
+    tools/sign-update.sh on the notarized DMG, then update the
+    enclosure URL to the real CDN path and paste it in. See
+    tools/RELEASE.md for the cutting-a-release flow.
 
-    The `sparkle:edSignature` attribute on `<enclosure>` is what
+    The sparkle:edSignature attribute on the enclosure is what
     gates trust: the user's installed app refuses to install any
-    update whose signature doesn't verify against `SUPublicEDKey`
+    update whose signature doesn't verify against SUPublicEDKey
     in its bundled Info.plist.
 -->
 <rss version="2.0"
@@ -23,6 +23,20 @@
         <link>https://penova.pages.dev/appcast.xml</link>
         <description>Auto-update feed for Penova for Mac.</description>
         <language>en</language>
+        <item>
+            <title>Penova 1.1.0</title>
+            <pubDate>Sat, 02 May 2026 01:30:57 +0530</pubDate>
+            <sparkle:version>11</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://penova.pages.dev/release-notes/1.1.0.html</sparkle:releaseNotesLink>
+            <enclosure
+                url="https://penova.pages.dev/releases/Penova.dmg"
+                type="application/x-apple-diskimage"
+                length="3917377"
+                sparkle:edSignature="bLsMxtRJKP/z3cCT+oqg785rzqglf4BQNRqsJVvkG6JX5wXC5Gq1hPDTtb0DOsEs1ADPqhzepe1uM1jVZkMxAg=="
+            />
+        </item>
         <item>
             <title>Penova 1.0.0</title>
             <pubDate>Fri, 01 May 2026 21:30:02 +0530</pubDate>
