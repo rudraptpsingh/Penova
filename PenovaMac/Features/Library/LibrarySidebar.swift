@@ -22,6 +22,7 @@ struct LibrarySidebar: View {
     var body: some View {
         VStack(spacing: 0) {
             searchField
+                .accessibilityIdentifier(A11yID.sidebarSearch)
                 .padding(.horizontal, 12)
                 .padding(.top, 12)
                 .padding(.bottom, 8)
@@ -54,6 +55,7 @@ struct LibrarySidebar: View {
                 .padding(12)
         }
         .background(PenovaColor.ink2)
+        .accessibilityIdentifier(A11yID.sidebar)
         .onAppear {
             // Auto-open the first project & first episode so users see scenes
             if let p = projects.first { openedProjects.insert(p.id) }

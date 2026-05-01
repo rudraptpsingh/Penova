@@ -38,6 +38,7 @@ struct MacSearchOverlay: View {
                 Spacer()
             }
         }
+        .accessibilityIdentifier(A11yID.searchOverlay)
         .onAppear {
             fieldFocused = true
             activeIndex = 0
@@ -98,6 +99,7 @@ struct MacSearchOverlay: View {
                 .foregroundStyle(PenovaColor.snow3)
                 .font(.system(size: 16))
             TextField("Search projects, scenes, locations, dialogue…", text: $query)
+                .accessibilityIdentifier(A11yID.searchInput)
                 .textFieldStyle(.plain)
                 .font(.system(size: 17))
                 .foregroundStyle(PenovaColor.snow)

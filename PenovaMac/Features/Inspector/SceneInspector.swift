@@ -34,6 +34,7 @@ struct SceneInspector: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(PenovaColor.ink2)
+        .accessibilityIdentifier(A11yID.inspector)
     }
 
     private func sectionLabel(_ text: String) -> some View {

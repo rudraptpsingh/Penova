@@ -36,6 +36,7 @@ struct IndexCardsPane: View {
             .padding(24)
         }
         .background(PenovaColor.ink0)
+        .accessibilityIdentifier(A11yID.cardsPane)
     }
 
     private func header(for episode: Episode) -> some View {

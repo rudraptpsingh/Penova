@@ -46,6 +46,7 @@ struct TitlePageEditorSheet: View {
         }
         .background(PenovaColor.ink2)
         .preferredColorScheme(.dark)
+        .accessibilityIdentifier(A11yID.titlePageSheet)
     }
 
     private var header: some View {

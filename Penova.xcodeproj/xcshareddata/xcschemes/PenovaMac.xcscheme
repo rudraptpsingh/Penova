@@ -21,6 +21,34 @@
                ReferencedContainer = "container:Penova.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2E6AE457614A8A6FBBA4CD02"
+               BuildableName = "PenovaMacTests.xctest"
+               BlueprintName = "PenovaMacTests"
+               ReferencedContainer = "container:Penova.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54899858B498D106CCE601DA"
+               BuildableName = "PenovaMacUITests.xctest"
+               BlueprintName = "PenovaMacUITests"
+               ReferencedContainer = "container:Penova.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -39,7 +67,31 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2E6AE457614A8A6FBBA4CD02"
+               BuildableName = "PenovaMacTests.xctest"
+               BlueprintName = "PenovaMacTests"
+               ReferencedContainer = "container:Penova.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54899858B498D106CCE601DA"
+               BuildableName = "PenovaMacUITests.xctest"
+               BlueprintName = "PenovaMacUITests"
+               ReferencedContainer = "container:Penova.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

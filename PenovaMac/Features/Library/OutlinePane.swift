@@ -34,6 +34,7 @@ struct OutlinePane: View {
             .padding(.vertical, 24)
         }
         .background(PenovaColor.ink0)
+        .accessibilityIdentifier(A11yID.outlinePane)
     }
 
     private func header(for episode: Episode) -> some View {

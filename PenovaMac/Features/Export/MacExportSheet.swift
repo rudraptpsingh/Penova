@@ -79,6 +79,7 @@ struct MacExportSheet: View {
         }
         .background(PenovaColor.ink2)
         .preferredColorScheme(.dark)
+        .accessibilityIdentifier(A11yID.exportSheet)
     }
 
     private var header: some View {

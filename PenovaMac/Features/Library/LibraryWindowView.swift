@@ -46,6 +46,7 @@ struct LibraryWindowView: View {
 
     var body: some View {
         baseShell
+            .accessibilityIdentifier(A11yID.libraryWindow)
             .modifier(SheetsAndOverlays(
                 searchVisible: $searchVisible,
                 titlePageVisible: $titlePageEditorVisible,

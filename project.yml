@@ -97,6 +97,37 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
 
+  PenovaMacUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: PenovaMacUITests
+        excludes:
+          - "*.md"
+    dependencies:
+      - target: PenovaMac
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rudrapratapsingh.penova.mac.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        TEST_TARGET_NAME: PenovaMac
+
+  PenovaMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: PenovaMacTests
+    dependencies:
+      - package: PenovaKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rudrapratapsingh.penova.mac.tests
+        GENERATE_INFOPLIST_FILE: YES
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+
 schemes:
   Penova:
     build:
@@ -116,6 +147,13 @@ schemes:
     build:
       targets:
         PenovaMac: all
+        PenovaMacTests: [test]
+        PenovaMacUITests: [test]
+    test:
+      targets:
+        - PenovaMacTests
+        - PenovaMacUITests
+      gatherCoverageData: false
     run:
       config: Debug
     archive:

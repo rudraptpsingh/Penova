@@ -22,12 +22,23 @@ struct PenovaMacApp: App {
         // does on iOS via Info.plist UIAppFonts.
         registerCustomFonts()
 
+        let env = ProcessInfo.processInfo.environment
+        let inMemory = env["PENOVA_TEST_RESET_STORE"] == "1"
+
         do {
             let schema = Schema(PenovaSchema.models)
             // Local-only for the v1 dev scaffold. CloudKit wires up later.
-            let config = ModelConfiguration("Penova", schema: schema)
+            let config: ModelConfiguration
+            if inMemory {
+                PenovaLog.app.info("PENOVA_TEST_RESET_STORE: using in-memory store")
+                config = ModelConfiguration("Penova-test", schema: schema, isStoredInMemoryOnly: true)
+            } else {
+                config = ModelConfiguration("Penova", schema: schema)
+            }
             container = try ModelContainer(for: schema, configurations: [config])
             SampleLibrary.installIfNeeded(in: container.mainContext)
+            let projectCount = (try? container.mainContext.fetchCount(FetchDescriptor<Project>())) ?? 0
+            PenovaLog.app.info("App started, library has \(projectCount, privacy: .public) projects")
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }

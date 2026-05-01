@@ -30,6 +30,7 @@ struct ScriptEditorPane: View {
             .frame(maxWidth: .infinity)
         }
         .background(PenovaColor.ink0)
+        .accessibilityIdentifier(A11yID.editorPane)
     }
 
     private var emptyState: some View {

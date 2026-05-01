@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		021013B456FA19139787A272 /* PenovaKit in Frameworks */ = {isa = PBXBuildFile; productRef = 476F02CEAD1C6A58286FF3FD /* PenovaKit */; };
+		0274C0000AEC113C53C80D95 /* MacIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67844B1BE6EDFD4523E75B6B /* MacIntegrationTests.swift */; };
 		0411ED290830BB56E472DE2E /* PenovaKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7760500F46C4641D7074B00A /* PenovaKit */; };
 		0558212BAB6B626A87C40DCE /* ScriptPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */; };
 		056B1BA8D0402D0E3F469539 /* PDFLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C423322938B1FD02C34C1B /* PDFLayoutTests.swift */; };
@@ -50,6 +52,7 @@
 		916EEA4BD42E8AAE07AE0292 /* ReorderAndStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D00A628D777DD5EA2FFDDC /* ReorderAndStatusTests.swift */; };
 		922C18DAC021EE66F7C5DABC /* PenovaMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */; };
 		922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */; };
+		94E9DE8EFDCCBCF72A358FF4 /* PenovaMacUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA6A213429E86C8ECBE5506 /* PenovaMacUITests.swift */; };
 		960B361F049C22AC5F8905BB /* NewCharacterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */; };
 		97CB3E4DD1327708132C3259 /* PenovaKit in Frameworks */ = {isa = PBXBuildFile; productRef = D5C1939D3C4FC1EAAA56C020 /* PenovaKit */; };
 		98C4412427DA93BEA7000304 /* EpisodeDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978D6DFC08C6404283F4CA0A /* EpisodeDetailScreen.swift */; };
@@ -67,6 +70,7 @@
 		B8172462B32AC9F3A7940A93 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */; };
 		BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */; };
 		BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D5339999C19B127E5F30696 /* Inter-Regular.ttf */; };
+		BDE1311061C22D760C53F5D0 /* PenovaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19317ED789EE4031C852A9D1 /* PenovaLog.swift */; };
 		BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */; };
 		C8D43C249B526F471087DCC4 /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */; };
 		CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */; };
@@ -95,6 +99,13 @@
 			remoteGlobalIDString = 4346D55D19BD2F63304DED35;
 			remoteInfo = Penova;
 		};
+		72CF660CAB8B089A940B015B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49DA52B5E2104ACC6DAE449F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F92A9D852B92BAD04179889;
+			remoteInfo = PenovaMac;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -110,6 +121,7 @@
 		100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenesTabScreen.swift; sourceTree = "<group>"; };
 		1090844233EFD24671B2E60F /* IndexCardsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexCardsPane.swift; sourceTree = "<group>"; };
 		172CACD48B8CA9B61E3EFE75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		19317ED789EE4031C852A9D1 /* PenovaLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaLog.swift; sourceTree = "<group>"; };
 		196BA077D450DC0949752F56 /* MacExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacExportSheet.swift; sourceTree = "<group>"; };
 		1A4524546DE98F2547731BEF /* CRUDEdgeCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRUDEdgeCaseTests.swift; sourceTree = "<group>"; };
 		1BD9C67C488C867C969A1DF2 /* ScriptEditorPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptEditorPane.swift; sourceTree = "<group>"; };
@@ -127,6 +139,7 @@
 		4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacApp.swift; sourceTree = "<group>"; };
 		53F0831EB94C9C9471297ABF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSceneSheet.swift; sourceTree = "<group>"; };
+		580EFB8C5A7FB9057C81EACE /* PenovaMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PenovaMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalDraftXMLWriterTests.swift; sourceTree = "<group>"; };
 		5C74CF473DAD618D971CC56E /* ScenePDFContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenePDFContentTests.swift; sourceTree = "<group>"; };
 		5E9B54B721434D499688F496 /* RobotoMono-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Medium.ttf"; sourceTree = "<group>"; };
@@ -134,17 +147,20 @@
 		60EF23A86F620B2900A14CB3 /* SceneReorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneReorderTests.swift; sourceTree = "<group>"; };
 		61D16A60309038240D2F3927 /* PenovaMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PenovaMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63797BEBCD9A39817DB21091 /* SearchServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchServiceTests.swift; sourceTree = "<group>"; };
+		67844B1BE6EDFD4523E75B6B /* MacIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacIntegrationTests.swift; sourceTree = "<group>"; };
 		6A1A0385BC0F160B4E7687DA /* SceneInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneInspector.swift; sourceTree = "<group>"; };
 		6C96D74995B8C328443109F9 /* PDFPageBreakTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPageBreakTests.swift; sourceTree = "<group>"; };
 		6F8580265D1037350AC3BD67 /* OutlinePane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlinePane.swift; sourceTree = "<group>"; };
 		7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDetailScreen.swift; sourceTree = "<group>"; };
 		74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailScreen.swift; sourceTree = "<group>"; };
+		75D535B826FEAC645DCAE572 /* PenovaMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PenovaMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataCRUDTests.swift; sourceTree = "<group>"; };
 		77473BD2458260CD0DC78303 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
 		78A0B0D4B3BCC3DB31669AB1 /* PenovaMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PenovaMac.entitlements; sourceTree = "<group>"; };
 		80956E613FA97F2234F7D02F /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		8B122F5121D44FE085D1D8A4 /* MacSearchOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacSearchOverlay.swift; sourceTree = "<group>"; };
 		8C0A7A64681635BBE97E67C6 /* Penova.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Penova.entitlements; sourceTree = "<group>"; };
+		8CA6A213429E86C8ECBE5506 /* PenovaMacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacUITests.swift; sourceTree = "<group>"; };
 		8CB50832240858F20B0320BA /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayfairDisplay.ttf; sourceTree = "<group>"; };
 		9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		949E0C9EEA7AA70FB8A69256 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
@@ -185,6 +201,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		858FB5B9E191F93345D026DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				021013B456FA19139787A272 /* PenovaKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A12172F56A9E952689796614 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -322,6 +346,7 @@
 			isa = PBXGroup;
 			children = (
 				9734E0B100C1FDEBEC477D1C /* Info.plist */,
+				19317ED789EE4031C852A9D1 /* PenovaLog.swift */,
 				78A0B0D4B3BCC3DB31669AB1 /* PenovaMac.entitlements */,
 				4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */,
 				0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */,
@@ -390,6 +415,8 @@
 			children = (
 				E84EA7836B350608A4B2B035 /* Penova.app */,
 				61D16A60309038240D2F3927 /* PenovaMac.app */,
+				580EFB8C5A7FB9057C81EACE /* PenovaMacTests.xctest */,
+				75D535B826FEAC645DCAE572 /* PenovaMacUITests.xctest */,
 				DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */,
 			);
 			name = Products;
@@ -409,6 +436,14 @@
 				196BA077D450DC0949752F56 /* MacExportSheet.swift */,
 			);
 			path = Export;
+			sourceTree = "<group>";
+		};
+		9F488FD4E25C64E72A6D84B3 /* PenovaMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				67844B1BE6EDFD4523E75B6B /* MacIntegrationTests.swift */,
+			);
+			path = PenovaMacTests;
 			sourceTree = "<group>";
 		};
 		AF65C8DC1B0372E714FC35AC /* Penova */ = {
@@ -456,6 +491,8 @@
 				22026E0C65BA51EC2A922EE2 /* Packages */,
 				AF65C8DC1B0372E714FC35AC /* Penova */,
 				DDDEF499141C6F7DDB00336B /* PenovaMac */,
+				9F488FD4E25C64E72A6D84B3 /* PenovaMacTests */,
+				EB5E0861451C495015AAF6C8 /* PenovaMacUITests */,
 				2EFDCE078CCDECE3E4F83B3B /* PenovaTests */,
 				7659BBC34F303C07322E11DC /* Products */,
 			);
@@ -541,6 +578,14 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		EB5E0861451C495015AAF6C8 /* PenovaMacUITests */ = {
+			isa = PBXGroup;
+			children = (
+				8CA6A213429E86C8ECBE5506 /* PenovaMacUITests.swift */,
+			);
+			path = PenovaMacUITests;
+			sourceTree = "<group>";
+		};
 		FCCD3BFDD1ECD25EA3DDC6C1 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -579,6 +624,25 @@
 			productReference = DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		2E6AE457614A8A6FBBA4CD02 /* PenovaMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6769179BF3A8B84D7DE41DA4 /* Build configuration list for PBXNativeTarget "PenovaMacTests" */;
+			buildPhases = (
+				5CC5E270D055BFDC3BBF73C6 /* Sources */,
+				858FB5B9E191F93345D026DF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PenovaMacTests;
+			packageProductDependencies = (
+				476F02CEAD1C6A58286FF3FD /* PenovaKit */,
+			);
+			productName = PenovaMacTests;
+			productReference = 580EFB8C5A7FB9057C81EACE /* PenovaMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4346D55D19BD2F63304DED35 /* Penova */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8774DC3BE088BD6C86514B8E /* Build configuration list for PBXNativeTarget "Penova" */;
@@ -598,6 +662,24 @@
 			productName = Penova;
 			productReference = E84EA7836B350608A4B2B035 /* Penova.app */;
 			productType = "com.apple.product-type.application";
+		};
+		54899858B498D106CCE601DA /* PenovaMacUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3826A553798723972818903C /* Build configuration list for PBXNativeTarget "PenovaMacUITests" */;
+			buildPhases = (
+				72447830F4BD228AEAA3217F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				91B55BD75DED51B2074413DF /* PBXTargetDependency */,
+			);
+			name = PenovaMacUITests;
+			packageProductDependencies = (
+			);
+			productName = PenovaMacUITests;
+			productReference = 75D535B826FEAC645DCAE572 /* PenovaMacUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		6F92A9D852B92BAD04179889 /* PenovaMac */ = {
 			isa = PBXNativeTarget;
@@ -632,6 +714,9 @@
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
+					54899858B498D106CCE601DA = {
+						TestTargetID = 6F92A9D852B92BAD04179889;
+					};
 					6F92A9D852B92BAD04179889 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -657,6 +742,8 @@
 			targets = (
 				4346D55D19BD2F63304DED35 /* Penova */,
 				6F92A9D852B92BAD04179889 /* PenovaMac */,
+				2E6AE457614A8A6FBBA4CD02 /* PenovaMacTests */,
+				54899858B498D106CCE601DA /* PenovaMacUITests */,
 				27C74FFA1B5191C73F444DBE /* PenovaTests */,
 			);
 		};
@@ -726,6 +813,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5CC5E270D055BFDC3BBF73C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0274C0000AEC113C53C80D95 /* MacIntegrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		72447830F4BD228AEAA3217F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94E9DE8EFDCCBCF72A358FF4 /* PenovaMacUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9BD4D25DB4E542A3A69516E7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -736,6 +839,7 @@
 				7B3BC67961D11E6F515F81B1 /* MacExportSheet.swift in Sources */,
 				172BCC5DBCC6C259394B9B13 /* MacSearchOverlay.swift in Sources */,
 				E502FDA343AC2117F9A1736A /* OutlinePane.swift in Sources */,
+				BDE1311061C22D760C53F5D0 /* PenovaLog.swift in Sources */,
 				922C18DAC021EE66F7C5DABC /* PenovaMacApp.swift in Sources */,
 				BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */,
 				A2C981ECC83CFC236DF1EC2D /* SceneInspector.swift in Sources */,
@@ -784,6 +888,11 @@
 			isa = PBXTargetDependency;
 			target = 4346D55D19BD2F63304DED35 /* Penova */;
 			targetProxy = 3C8F5058C8FA7E2297ACB61E /* PBXContainerItemProxy */;
+		};
+		91B55BD75DED51B2074413DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F92A9D852B92BAD04179889 /* PenovaMac */;
+			targetProxy = 72CF660CAB8B089A940B015B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -870,6 +979,23 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Penova.app/Penova";
+			};
+			name = Release;
+		};
+		1B0E7B92BE7FB920EC5F39E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac.tests;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -1043,6 +1169,59 @@
 			};
 			name = Debug;
 		};
+		BF00722FA03C39AC752515C1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = PenovaMac;
+			};
+			name = Release;
+		};
+		C9D051ED47F21C90AF1F6F1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = PenovaMac;
+			};
+			name = Debug;
+		};
+		D25946C78D63258EACC62303 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac.tests;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
 		FCE9138C16065FED0D23B858 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1081,11 +1260,29 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		3826A553798723972818903C /* Build configuration list for PBXNativeTarget "PenovaMacUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9D051ED47F21C90AF1F6F1F /* Debug */,
+				BF00722FA03C39AC752515C1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		59D95BA9A60088E18EC0A2AA /* Build configuration list for PBXNativeTarget "PenovaMac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FCE9138C16065FED0D23B858 /* Debug */,
 				89B2F481C074F04A75E5AD7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6769179BF3A8B84D7DE41DA4 /* Build configuration list for PBXNativeTarget "PenovaMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D25946C78D63258EACC62303 /* Debug */,
+				1B0E7B92BE7FB920EC5F39E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -1118,6 +1315,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		476F02CEAD1C6A58286FF3FD /* PenovaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PenovaKit;
+		};
 		7760500F46C4641D7074B00A /* PenovaKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PenovaKit;
