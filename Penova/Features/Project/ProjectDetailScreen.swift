@@ -31,6 +31,7 @@ struct ProjectDetailScreen: View {
                 VStack(alignment: .leading, spacing: PenovaSpace.l) {
                     header
                     stats
+                    revisionsCard
                     PenovaSectionHeader(title: "Episodes")
                     if project.activeEpisodesOrdered.isEmpty {
                         EmptyState(
@@ -168,6 +169,39 @@ struct ProjectDetailScreen: View {
         project.updatedAt = .now
         try? context.save()
         pendingEpisodeDelete = nil
+    }
+
+    private var revisionsCard: some View {
+        NavigationLink {
+            RevisionsListScreen(project: project)
+        } label: {
+            HStack(spacing: PenovaSpace.m) {
+                PenovaIconView(.bookmark, size: 18, color: PenovaColor.amber)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Revisions")
+                        .font(PenovaFont.bodyMedium)
+                        .foregroundStyle(PenovaColor.snow)
+                    Text(revisionsSubtitle)
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow3)
+                }
+                Spacer()
+                PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                    .rotationEffect(.degrees(180))
+            }
+            .padding(PenovaSpace.m)
+            .background(PenovaColor.ink2)
+            .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Revisions, \(revisionsSubtitle)")
+    }
+
+    private var revisionsSubtitle: String {
+        let count = project.revisions.count
+        if count == 0 { return "Save a snapshot of this draft" }
+        if count == 1 { return "1 revision" }
+        return "\(count) revisions"
     }
 
     private func exportPDF() {

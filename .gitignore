@@ -74,3 +74,14 @@ Penova.xcodeproj/project.xcworkspace/xcshareddata/
 
 # Logs
 *.log
+
+# Test fixtures — script PDFs/FDX/Fountain files are never committed.
+# Their copyrights belong to the screenwriters; we fetch them locally
+# via tools/fetch_reference_scripts.sh for parser testing. The
+# directory README is the only tracked artefact.
+PenovaTests/Fixtures/screenplays/*.pdf
+PenovaTests/Fixtures/screenplays/*.fdx
+PenovaTests/Fixtures/screenplays/*.fountain
+PenovaTests/Fixtures/screenplays/**/*.pdf
+PenovaTests/Fixtures/screenplays/**/*.fdx
+PenovaTests/Fixtures/screenplays/**/*.fountain

@@ -14,6 +14,7 @@ import PenovaKit
 struct NewProjectSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var auth: AuthSession
     var editing: Project? = nil
 
     @State private var title: String = ""
@@ -103,11 +104,19 @@ struct NewProjectSheet: View {
     }
 
     private func hydrate() {
-        guard let p = editing else { return }
-        title = p.title
-        logline = p.logline
-        selectedGenres = Set(p.genre.isEmpty ? [.drama] : p.genre)
-        contactBlock = p.contactBlock
+        if let p = editing {
+            title = p.title
+            logline = p.logline
+            selectedGenres = Set(p.genre.isEmpty ? [.drama] : p.genre)
+            contactBlock = p.contactBlock
+            return
+        }
+        // Brand-new project — pre-fill the title-page contact block
+        // from the signed-in Apple ID. Anonymous users get an empty
+        // box; the field is editable so they can override anything.
+        if contactBlock.isEmpty {
+            contactBlock = auth.defaultContactBlock
+        }
     }
 
     private func toggle(_ genre: Genre) {

@@ -17,6 +17,8 @@ struct HomeScreen: View {
     @Query(sort: \Project.updatedAt, order: .reverse)
     private var allProjects: [Project]
     @Query private var allScenes: [ScriptScene]
+    @Query(sort: \WritingDay.date, order: .reverse) private var writingDays: [WritingDay]
+    @AppStorage(HabitTracker.goalDefaultsKey) private var dailyGoal: Int = HabitTracker.defaultGoal
 
     private var projects: [Project] {
         allProjects.filter { $0.status == .active }
@@ -45,6 +47,7 @@ struct HomeScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: PenovaSpace.l) {
                     header
+                    habitCard
                     if let scene = resumeScene {
                         resumeCard(for: scene)
                     }
@@ -77,6 +80,11 @@ struct HomeScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: Project.self) { project in
                 ProjectDetailScreen(project: project)
+            }
+            .navigationDestination(for: HomeRoute.self) { route in
+                switch route {
+                case .habit: HabitScreen()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -173,5 +181,56 @@ struct HomeScreen: View {
                 .foregroundStyle(PenovaColor.snow)
         }
     }
+
+    // MARK: - Habit card
+
+    private var habitTodayWords: Int {
+        let key = WritingDay.dayKey(for: .now)
+        return writingDays.first(where: { $0.dateKey == key })?.wordCount ?? 0
+    }
+
+    private var habitStreak: Int {
+        HabitTracker.currentStreak(rows: writingDays, goal: max(1, dailyGoal))
+    }
+
+    private var habitGoalHit: Bool { habitTodayWords >= max(1, dailyGoal) }
+
+    private var habitCard: some View {
+        NavigationLink(value: HomeRoute.habit) {
+            HStack(alignment: .center, spacing: PenovaSpace.m) {
+                PenovaIconView(.progress, size: 18,
+                               color: habitGoalHit ? PenovaColor.jade : PenovaColor.amber)
+                VStack(alignment: .leading, spacing: PenovaSpace.xs) {
+                    HStack(spacing: PenovaSpace.s) {
+                        Text(Copy.habit.streakLabel.uppercased())
+                            .font(PenovaFont.labelCaps)
+                            .tracking(PenovaTracking.labelCaps)
+                            .foregroundStyle(PenovaColor.snow3)
+                        Text(Copy.habit.streakDaysLabel(habitStreak))
+                            .font(PenovaFont.bodyMedium)
+                            .foregroundStyle(habitStreak > 0 ? PenovaColor.amber : PenovaColor.snow)
+                    }
+                    Text(Copy.habit.wordsOfGoal(words: habitTodayWords, goal: max(1, dailyGoal)))
+                        .font(PenovaFont.monoScript)
+                        .foregroundStyle(PenovaColor.snow3)
+                }
+                Spacer(minLength: 0)
+                PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                    .rotationEffect(.degrees(180))
+            }
+            .padding(PenovaSpace.m)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(PenovaColor.ink2)
+            .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(Copy.habit.title), \(Copy.habit.streakDaysLabel(habitStreak))")
+    }
 }
+
+/// Home-tab navigation routes that aren't @Model objects (those use the
+/// per-type navigationDestination — Project, ScriptScene). This enum
+/// covers the leaf screens that sit purely on Home (currently just the
+/// habit dashboard).
+enum HomeRoute: Hashable { case habit }
 

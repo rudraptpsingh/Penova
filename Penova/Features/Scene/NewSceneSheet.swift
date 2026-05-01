@@ -24,7 +24,6 @@ struct NewSceneSheet: View {
 
     // Free-form heading entry. When true, the chip pickers collapse and the
     // user types the whole slug line directly. We parse on save.
-    // TODO: hook into continuous editor when it lands
     @State private var freeFormMode: Bool = false
     @State private var freeFormHeading: String = ""
 

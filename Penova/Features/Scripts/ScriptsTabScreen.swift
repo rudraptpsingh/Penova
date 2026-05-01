@@ -45,15 +45,24 @@ struct ScriptsTabScreen: View {
                     }
 
                     if filtered.isEmpty {
-                        EmptyState(
-                            icon: .scripts,
-                            title: filter == .active ? Copy.emptyStates.scriptsTitle : "Nothing here.",
-                            message: filter == .active
-                                ? Copy.emptyStates.scriptsBody
-                                : "Projects with this status will show up here.",
-                            ctaTitle: filter == .active ? Copy.emptyStates.scriptsCta : nil,
-                            ctaAction: filter == .active ? { showNewProject = true } : nil
-                        )
+                        VStack(spacing: PenovaSpace.m) {
+                            EmptyState(
+                                icon: .scripts,
+                                title: filter == .active ? Copy.emptyStates.scriptsTitle : "Nothing here.",
+                                message: filter == .active
+                                    ? Copy.emptyStates.scriptsBody
+                                    : "Projects with this status will show up here.",
+                                ctaTitle: filter == .active ? Copy.emptyStates.scriptsCta : nil,
+                                ctaAction: filter == .active ? { showNewProject = true } : nil
+                            )
+                            // Secondary path: writers arriving with an
+                            // existing PDF / FDX / Fountain shouldn't have
+                            // to discover the toolbar menu to onboard.
+                            if filter == .active {
+                                importPromptCard
+                                    .padding(.horizontal, PenovaSpace.l)
+                            }
+                        }
                     } else {
                         VStack(spacing: PenovaSpace.m) {
                             ForEach(filtered) { project in
@@ -98,7 +107,7 @@ struct ScriptsTabScreen: View {
                         Button {
                             showImportPicker = true
                         } label: {
-                            Label("Import from Fountain…", systemImage: "square.and.arrow.down")
+                            Label(Copy.scripts.importMenuLabel, systemImage: "square.and.arrow.down")
                         }
                     } label: {
                         PenovaIconView(.plus, size: 18, color: PenovaColor.snow)
@@ -175,22 +184,7 @@ struct ScriptsTabScreen: View {
 
     private func handleFountainImport(url: URL) {
         do {
-            // Scoped access: security-scoped URLs are required for document
-            // picker results on iOS.
-            let scoped = url.startAccessingSecurityScopedResource()
-            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-
-            let data = try Data(contentsOf: url)
-            guard let text = String(data: data, encoding: .utf8)
-                ?? String(data: data, encoding: .isoLatin1) else {
-                importError = "Could not read file as text."
-                return
-            }
-            let doc = FountainParser.parse(text)
-            let name = url.deletingPathExtension().lastPathComponent
-            let title = name.isEmpty ? "Untitled" : name
-            _ = FountainImporter.makeProject(title: title, from: doc, context: context)
-            try context.save()
+            _ = try ScreenplayImporter.importFile(at: url, into: context)
         } catch {
             importError = error.localizedDescription
         }
@@ -201,5 +195,40 @@ struct ScriptsTabScreen: View {
         context.delete(project)
         try? context.save()
         pendingDelete = nil
+    }
+
+    /// Secondary onboarding path: a writer arriving with an existing
+    /// script shouldn't need to find the toolbar `+` menu. Compact card
+    /// rendered under the empty state when there are no active projects.
+    private var importPromptCard: some View {
+        Button {
+            showImportPicker = true
+        } label: {
+            HStack(spacing: PenovaSpace.m) {
+                PenovaIconView(.export, size: 18, color: PenovaColor.amber)
+                    .rotationEffect(.degrees(180))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Copy.scripts.importEmptyState)
+                        .font(PenovaFont.bodyMedium)
+                        .foregroundStyle(PenovaColor.snow)
+                    Text(Copy.scripts.importMenuSubtitle)
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow3)
+                }
+                Spacer()
+                PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                    .rotationEffect(.degrees(180))
+            }
+            .padding(PenovaSpace.m)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(PenovaColor.ink2)
+            .overlay(
+                RoundedRectangle(cornerRadius: PenovaRadius.md)
+                    .stroke(PenovaColor.amber.opacity(0.2), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Copy.scripts.importEmptyCta)
     }
 }

@@ -392,6 +392,7 @@ struct SceneDetailScreen: View {
         }
         scene.updatedAt = .now
         try? context.save()
+        HabitTracker.record(scene: scene, in: context)
     }
 
     private func normaliseAndSave() {
@@ -401,6 +402,7 @@ struct SceneDetailScreen: View {
             }
         }
         try? context.save()
+        HabitTracker.record(scene: scene, in: context)
     }
 }
 
