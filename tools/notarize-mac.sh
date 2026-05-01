@@ -22,25 +22,63 @@
 #    2. Developer ID Application certificate installed in login keychain
 #       (Xcode → Settings → Accounts → Manage Certificates → +).
 #    3. App-specific password generated at https://appleid.apple.com.
-#    4. Stash credentials so notarytool can use them:
-#         xcrun notarytool store-credentials penova-notary \
-#           --apple-id "you@example.com" \
-#           --team-id "ABCDE12345" \
-#           --password "abcd-efgh-ijkl-mnop"
+#    4. Hand notarytool credentials. Two paths supported, in order:
+#       a) Keychain profile (cleanest for repeat use on one machine):
+#            xcrun notarytool store-credentials penova-notary \
+#              --apple-id "you@example.com" \
+#              --team-id  "ABCDE12345" \
+#              --password "abcd-efgh-ijkl-mnop"
+#          Then export PENOVA_NOTARY_PROFILE=penova-notary.
+#       b) Inline env vars (matches the slipstream / GitHub Actions
+#          pattern — same secret names work as-is):
+#            export APPLE_ID=you@example.com
+#            export APPLE_TEAM_ID=ABCDE12345
+#            export APPLE_APP_SPECIFIC_PASSWORD=abcd-efgh-ijkl-mnop
 #
 #  Required env vars at run time:
-#    PENOVA_TEAM_ID       Apple Developer 10-char team ID (e.g. ABCDE12345)
+#    PENOVA_TEAM_ID                Apple Developer 10-char team ID
+#                                  (or APPLE_TEAM_ID — same thing)
+#  At least one of:
+#    PENOVA_NOTARY_PROFILE         Keychain profile name
+#    APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD (+ APPLE_TEAM_ID)
 #  Optional:
-#    PENOVA_NOTARY_PROFILE  Keychain profile name (default: penova-notary)
-#    PENOVA_VERSION         Override MARKETING_VERSION (e.g. 1.0.1)
-#    PENOVA_BUILD_NUMBER    Override CURRENT_PROJECT_VERSION (e.g. 42)
+#    PENOVA_VERSION                Override MARKETING_VERSION (e.g. 1.0.1)
+#    PENOVA_BUILD_NUMBER           Override CURRENT_PROJECT_VERSION
 
 set -euo pipefail
 
 # -------- Config ------------------------------------------------------
 
-TEAM_ID="${PENOVA_TEAM_ID:?Set PENOVA_TEAM_ID to your 10-char Apple Developer team ID}"
-NOTARY_PROFILE="${PENOVA_NOTARY_PROFILE:-penova-notary}"
+# Team ID resolution: prefer Penova-specific, fall back to the
+# slipstream-style APPLE_TEAM_ID so existing operators don't have
+# to set anything new.
+TEAM_ID="${PENOVA_TEAM_ID:-${APPLE_TEAM_ID:-}}"
+[[ -n "$TEAM_ID" ]] || {
+  echo "✗ Set PENOVA_TEAM_ID (or APPLE_TEAM_ID) to your 10-char Apple Developer team ID." >&2
+  exit 1
+}
+
+# Notarytool auth resolution. If a keychain profile is set we use it;
+# otherwise we fall back to the inline env-var triple.
+NOTARY_PROFILE="${PENOVA_NOTARY_PROFILE:-}"
+APPLE_ID_VALUE="${APPLE_ID:-}"
+APPLE_PASSWORD_VALUE="${APPLE_APP_SPECIFIC_PASSWORD:-${APPLE_PASSWORD:-}}"
+
+# Choose auth mode.
+if [[ -n "$NOTARY_PROFILE" ]]; then
+  NOTARY_AUTH=(--keychain-profile "$NOTARY_PROFILE")
+elif [[ -n "$APPLE_ID_VALUE" && -n "$APPLE_PASSWORD_VALUE" ]]; then
+  NOTARY_AUTH=(
+    --apple-id "$APPLE_ID_VALUE"
+    --password "$APPLE_PASSWORD_VALUE"
+    --team-id  "$TEAM_ID"
+  )
+else
+  echo "✗ Neither PENOVA_NOTARY_PROFILE nor APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD is set." >&2
+  echo "  Set up one of the two auth paths described in the script header." >&2
+  exit 1
+fi
+
 SCHEME="PenovaMac"
 APP_NAME="Penova"
 PROJECT="Penova.xcodeproj"
@@ -125,9 +163,7 @@ say "Zipping .app for notarytool submission"
 ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
 
 say "Submitting .app to Apple notary service (this can take 1–5 min)"
-xcrun notarytool submit "$ZIP_PATH" \
-  --keychain-profile "$NOTARY_PROFILE" \
-  --wait
+xcrun notarytool submit "$ZIP_PATH" "${NOTARY_AUTH[@]}" --wait
 ok ".app notarized"
 
 # -------- Staple the .app --------------------------------------------
@@ -150,9 +186,7 @@ ok "DMG at $DMG_PATH"
 # -------- Notarize the DMG -------------------------------------------
 
 say "Submitting DMG to notary service"
-xcrun notarytool submit "$DMG_PATH" \
-  --keychain-profile "$NOTARY_PROFILE" \
-  --wait
+xcrun notarytool submit "$DMG_PATH" "${NOTARY_AUTH[@]}" --wait
 ok "DMG notarized"
 
 # -------- Staple the DMG ---------------------------------------------
