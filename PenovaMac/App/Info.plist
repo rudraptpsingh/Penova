@@ -39,7 +39,7 @@
         and SUEnableDownloaderService default to YES on Sparkle 2.x.
     -->
     <key>SUFeedURL</key>
-    <string>https://penova.app/appcast.xml</string>
+    <string>https://penova.pages.dev/appcast.xml</string>
     <key>SUPublicEDKey</key>
     <string>yP9aQOzOfa5LhYiexRhE52NGCqqYez/2qWizjuj/XSc=</string>
     <key>SUEnableAutomaticChecks</key>
