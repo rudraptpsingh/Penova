@@ -20,6 +20,7 @@
 		0B22BADB791826FE15738A6C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D9B7F2F7A18A3156660103 /* RootView.swift */; };
 		0F7E757BB62963B5F2E864DB /* PDFLineSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 272D8B66F02F2E38BD3C672C /* PDFLineSource.swift */; };
 		124441D3EA9131225BE4F16C /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80956E613FA97F2234F7D02F /* SettingsScreen.swift */; };
+		130830C432481169CB6C6C82 /* EditorContdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018FA2F6059EC0C90E3BD678 /* EditorContdTests.swift */; };
 		144142179327150946EF429F /* LibrarySidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFDE9B33673A317F4B0D723 /* LibrarySidebar.swift */; };
 		15CBDE9031EE185AAE07D1F1 /* VoiceCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */; };
 		172BCC5DBCC6C259394B9B13 /* MacSearchOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B122F5121D44FE085D1D8A4 /* MacSearchOverlay.swift */; };
@@ -82,6 +83,7 @@
 		960B361F049C22AC5F8905BB /* NewCharacterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */; };
 		97CB3E4DD1327708132C3259 /* PenovaKit in Frameworks */ = {isa = PBXBuildFile; productRef = D5C1939D3C4FC1EAAA56C020 /* PenovaKit */; };
 		98C4412427DA93BEA7000304 /* EpisodeDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978D6DFC08C6404283F4CA0A /* EpisodeDetailScreen.swift */; };
+		9AE10268B4432242F783156F /* CharacterRenameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CBA8440F37064EFEFA3958 /* CharacterRenameTests.swift */; };
 		9B0DD11A70F2C5340D94C2DB /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E6CC3E7EAD85F7B429F31 /* Inter-Medium.ttf */; };
 		9F8CC214502FCE62ED6B0F4D /* SearchAndCharacterReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7B232CCCE173DCAFA5D0C6 /* SearchAndCharacterReportTests.swift */; };
 		A242B55E8EFA2B83319160F0 /* FinalDraftXMLWriterDeepTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */; };
@@ -148,6 +150,7 @@
 
 /* Begin PBXFileReference section */
 		0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCharacterSheet.swift; sourceTree = "<group>"; };
+		018FA2F6059EC0C90E3BD678 /* EditorContdTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorContdTests.swift; sourceTree = "<group>"; };
 		01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalDraftXMLWriterDeepTests.swift; sourceTree = "<group>"; };
 		02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScreen.swift; sourceTree = "<group>"; };
 		04C25BEB7974BE6F4BA84EFD /* TitlePageEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitlePageEditorSheet.swift; sourceTree = "<group>"; };
@@ -264,6 +267,7 @@
 		E2D00A628D777DD5EA2FFDDC /* ReorderAndStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReorderAndStatusTests.swift; sourceTree = "<group>"; };
 		E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFRenderSmokeTests.swift; sourceTree = "<group>"; };
 		E3DE4830601DD2956399CA48 /* DevanagariRenderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevanagariRenderTests.swift; sourceTree = "<group>"; };
+		E5CBA8440F37064EFEFA3958 /* CharacterRenameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterRenameTests.swift; sourceTree = "<group>"; };
 		E84EA7836B350608A4B2B035 /* Penova.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Penova.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurePageCountTests.swift; sourceTree = "<group>"; };
 		EA593BC6043FE8663310F8F3 /* RevisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionTests.swift; sourceTree = "<group>"; };
@@ -357,8 +361,10 @@
 			children = (
 				186CD4EF2F6FF49FBFB59E9E /* AuthSessionTests.swift */,
 				5246196E669041E4598BA092 /* AutocompleteServiceTests.swift */,
+				E5CBA8440F37064EFEFA3958 /* CharacterRenameTests.swift */,
 				1A4524546DE98F2547731BEF /* CRUDEdgeCaseTests.swift */,
 				E3DE4830601DD2956399CA48 /* DevanagariRenderTests.swift */,
+				018FA2F6059EC0C90E3BD678 /* EditorContdTests.swift */,
 				B759711443F2E63064750D1E /* EditorLogicTests.swift */,
 				8603AF3BC0D725896C882A84 /* FDXReaderTests.swift */,
 				207EB1D29DF0223FD3B7AE60 /* FeedbackComposerTests.swift */,
@@ -974,7 +980,9 @@
 				6890FEFB3C5C607E30513344 /* AuthSessionTests.swift in Sources */,
 				D143841AD50BB0A60EC622FA /* AutocompleteServiceTests.swift in Sources */,
 				41EA258C0DAC979563D37DD1 /* CRUDEdgeCaseTests.swift in Sources */,
+				9AE10268B4432242F783156F /* CharacterRenameTests.swift in Sources */,
 				F9F587FBB4F98C92723FE9A0 /* DevanagariRenderTests.swift in Sources */,
+				130830C432481169CB6C6C82 /* EditorContdTests.swift in Sources */,
 				32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */,
 				7F1DC673EDD74797E4AF6E40 /* FDXReaderTests.swift in Sources */,
 				20BC97D8D7DF8C3FC51F099A /* FeedbackComposerTests.swift in Sources */,
@@ -1301,7 +1309,7 @@
 				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 111;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1312,7 +1320,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
 				PRODUCT_NAME = Penova;
 				SDKROOT = macosx;
@@ -1327,7 +1335,7 @@
 				CODE_SIGN_ENTITLEMENTS = Penova/App/Penova.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 111;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Penova/App/Info.plist;
@@ -1341,7 +1349,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
 				PRODUCT_NAME = Penova;
 				SDKROOT = iphoneos;
@@ -1360,7 +1368,7 @@
 				CODE_SIGN_ENTITLEMENTS = Penova/App/Penova.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 111;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Penova/App/Info.plist;
@@ -1374,7 +1382,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
 				PRODUCT_NAME = Penova;
 				SDKROOT = iphoneos;
@@ -1446,7 +1454,7 @@
 				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 111;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1457,7 +1465,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
 				PRODUCT_NAME = Penova;
 				SDKROOT = macosx;

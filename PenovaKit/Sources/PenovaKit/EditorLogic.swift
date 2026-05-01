@@ -62,6 +62,62 @@ public enum EditorLogic {
         }
     }
 
+    // MARK: - Continued-dialogue marker
+
+    /// Standard suffix used when the same character speaks again after
+    /// an interruption (action line, transition) or across a page break.
+    /// All-caps; trailing apostrophe-d is the WGA-conventional form.
+    public static let contdSuffix = "(CONT'D)"
+
+    /// Returns the bare character name, stripped of any standard suffix
+    /// like `(CONT'D)`, `(V.O.)`, `(O.S.)`, `(O.C.)`. Used for matching
+    /// "is this the same speaker as the previous cue?" — `JANE` should
+    /// match `JANE (CONT'D)` and `JANE (V.O.)` so the marker logic
+    /// recognises a continued speaker.
+    public static func bareCharacterName(_ cue: String) -> String {
+        var name = cue.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Strip every trailing "(...)" group (handles "JANE (V.O.) (CONT'D)").
+        while let openIdx = name.lastIndex(of: "("), name.hasSuffix(")") {
+            name = String(name[..<openIdx]).trimmingCharacters(in: .whitespaces)
+        }
+        return name.uppercased()
+    }
+
+    /// Decides whether a character cue should carry the `(CONT'D)`
+    /// suffix because the same character spoke earlier in the scene
+    /// without an intervening character change. Skips any number of
+    /// non-character elements between the two cues (Action, Transition,
+    /// Parenthetical, etc.) — that's the convention every pro tool
+    /// implements.
+    ///
+    /// Returns the cue text with the suffix appended (or unchanged if
+    /// no continuation is detected, or if the suffix is already there).
+    /// `previousCharacterCues` is the *ordered* list of every character
+    /// cue earlier in the scene that wasn't followed by another
+    /// character change before this one — typically just the most-recent
+    /// preceding cue. Order doesn't matter for correctness; we only
+    /// look at the last entry.
+    public static func appendContdIfNeeded(
+        cue: String,
+        previousCharacterCue: String?
+    ) -> String {
+        let normalised = cue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalised.isEmpty else { return cue }
+        // Already has the marker — leave alone (writer-typed override).
+        if normalised.uppercased().contains(contdSuffix) { return normalised }
+        guard let prev = previousCharacterCue,
+              !prev.trimmingCharacters(in: .whitespaces).isEmpty
+        else { return normalised }
+        let bareCurrent = bareCharacterName(normalised)
+        let barePrevious = bareCharacterName(prev)
+        guard bareCurrent == barePrevious, !bareCurrent.isEmpty else {
+            return normalised
+        }
+        // Preserve any non-CONT'D suffixes the writer typed
+        // (e.g. "JANE (V.O.)" → "JANE (V.O.) (CONT'D)").
+        return "\(normalised) \(contdSuffix)"
+    }
+
     // MARK: - Character autocomplete
 
     /// Case-insensitive substring match over the supplied character names.

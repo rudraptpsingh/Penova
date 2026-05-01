@@ -406,8 +406,21 @@ struct SceneDetailScreen: View {
     /// normalised (uppercased headings/characters/transitions, trimmed).
     private func commitNormalisation(for el: SceneElement) {
         switch el.kind {
-        case .heading, .character, .transition:
+        case .heading, .transition:
             el.text = el.text.uppercased()
+        case .character:
+            // Same convention as headings/transitions: ALL CAPS. Then
+            // append (CONT'D) if this cue belongs to the same character
+            // who spoke earlier in the scene without a different
+            // character speaking in between. Matches Final Draft's
+            // "automatic character continueds" default — see
+            // tools/RELEASE.md research notes for the convention.
+            let upper = el.text.uppercased()
+            let priorCue = previousCharacterCue(before: el)
+            el.text = EditorLogic.appendContdIfNeeded(
+                cue: upper,
+                previousCharacterCue: priorCue
+            )
         default:
             break
         }
@@ -415,6 +428,24 @@ struct SceneDetailScreen: View {
         scene.updatedAt = .now
         try? context.save()
         HabitTracker.record(scene: scene, in: context)
+    }
+
+    /// Walk backwards from `target` through this scene's elements and
+    /// return the most-recent character cue, or nil if there isn't one.
+    /// Stops at the start of the scene; non-character elements (Action,
+    /// Parenthetical, Dialogue, Transition) are skipped — exactly the
+    /// behaviour Final Draft's auto (CONT'D) uses. We do NOT stop at
+    /// transitions because writers commonly insert one between
+    /// continued dialogue blocks (e.g. SMASH CUT TO: then back to JANE).
+    private func previousCharacterCue(before target: SceneElement) -> String? {
+        let ordered = scene.elementsOrdered
+        guard let idx = ordered.firstIndex(where: { $0.id == target.id }), idx > 0 else {
+            return nil
+        }
+        for el in ordered[..<idx].reversed() where el.kind == .character {
+            return el.text
+        }
+        return nil
     }
 
     private func normaliseAndSave() {
@@ -503,7 +534,17 @@ struct SceneElementInlineRow: View {
                 element.kind == .character || element.kind == .transition || element.kind == .heading
                     ? .characters : .sentences
             )
-            .autocorrectionDisabled(element.kind == .character || element.kind == .transition)
+            // Autocorrect mangles ALL-CAPS rows (heading, character, transition,
+            // act-break) — names get "fixed" to common words, INT./EXT. gets
+            // turned into "Int." etc. Disable it for those; keep it on for
+            // action + dialogue + parenthetical where natural-language
+            // correction actually helps writers.
+            .autocorrectionDisabled(
+                element.kind == .heading
+                || element.kind == .character
+                || element.kind == .transition
+                || element.kind == .actBreak
+            )
             .submitLabel(.next)
             .focused(focused, equals: element.id)
             .padding(.leading, leading)

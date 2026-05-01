@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Penova 1.1.1 — release notes</title>
+<style>
+  body { background: #0b0a08; color: #efe9db;
+         font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+         font-size: 14px; line-height: 1.55; margin: 24px; }
+  h1 { font-size: 22px; margin: 0 0 16px; color: #fff; }
+  h2 { font-size: 16px; margin: 24px 0 8px; color: #f0a94a; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .date { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+          font-size: 11px; color: #948e80; letter-spacing: 0.06em;
+          text-transform: uppercase; margin-bottom: 18px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+         font-size: 12.5px; background: #1a1a17; padding: 1px 5px;
+         border-radius: 3px; color: #d4cebe; }
+  strong { color: #fff; }
+</style>
+</head>
+<body>
+<h1>Penova 1.1.1</h1>
+<div class="date">2 May 2026 · macOS 14+</div>
+
+<h2>Writer-essentials</h2>
+<ul>
+  <li><strong>(CONT'D) auto-insertion</strong> — when the same character speaks again in a scene without a different character cue in between, the second cue automatically gets <code>(CONT'D)</code> appended. Matches Final Draft's "automatic character continueds" default. Works through suffixes too: <code>JANE (V.O.)</code> → action → <code>JANE</code> becomes <code>JANE (CONT'D)</code>.</li>
+  <li><strong>Global character rename</strong> — editing a character's name in the Characters tab now rewrites every cue + dialogue/parenthetical reference across every scene of every project the character belongs to. Element-aware: never touches action lines, dialogue body text, or characters whose names happen to share a prefix (so renaming <code>JANE</code> → <code>JEAN</code> leaves <code>JANET</code> alone).</li>
+  <li><strong>Spell check + autocorrect</strong> — autocorrect is now properly off on every ALL-CAPS row (heading, character, transition, act break) and on for action / dialogue / parenthetical. No more "INT." getting corrected to "Int." or character names getting "fixed" to common words.</li>
+</ul>
+
+<h2>Updates</h2>
+<ul>
+  <li><strong>Faster auto-update notifications</strong> — Penova checks for new versions every <em>hour</em> while running (was every 24 hours). When a new version is available, the standard "A new version is available" dialog appears automatically — no need to click <strong>Penova → Check for Updates…</strong> first. The on-demand command is still there if you want to force a check.</li>
+</ul>
+
+<h2>Validation</h2>
+<ul>
+  <li>Validated end-to-end against three real-world reference screenplays: Big Fish (122 pages, 192 scenes — John August), Brick &amp; Steel and The Last Birthday Card (Stu Maschwitz). Penova's Fountain parser, PDF parser, and FDX reader all handle them cleanly.</li>
+  <li>Validated <code>(MORE)</code> / <code>(CONT'D)</code> markers at page breaks render correctly when dialogue spans pages.</li>
+  <li>422 unit tests across 43 suites pass (24 new in this release).</li>
+</ul>
+
+<p style="margin-top: 32px; color: #5e5a52; font-size: 12px;">
+  Feedback or bug reports — <a href="mailto:rudra.ptp.singh@gmail.com" style="color: #f0a94a;">rudra.ptp.singh@gmail.com</a>
+  · <a href="tel:+919956340651" style="color: #f0a94a;">+91 99563 40651</a>
+  · <a href="https://wa.me/919956340651" style="color: #f0a94a;">WhatsApp</a>.
+</p>
+</body>
+</html>

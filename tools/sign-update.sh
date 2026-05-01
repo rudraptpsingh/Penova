@@ -64,7 +64,7 @@ if [[ -z "$SIGN_UPDATE" ]]; then
 fi
 
 # sign_update emits ` length=...` `sparkle:edSignature="..."` to stdout.
-# We only want the signature attribute — the template below writes its
+# Extract only the signature attribute — the template below writes its
 # own `length=` from the actual on-disk file size, so re-emitting the
 # one from sign_update would produce two `length=` attributes on the
 # same element (which makes the resulting XML malformed and Sparkle

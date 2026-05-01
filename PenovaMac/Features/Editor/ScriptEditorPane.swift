@@ -146,13 +146,37 @@ struct PaperPage: View {
     // MARK: - Editor actions
 
     private func commit(_ el: SceneElement) {
-        let normalised = EditorLogic.normalise(text: el.text, kind: el.kind)
+        var normalised = EditorLogic.normalise(text: el.text, kind: el.kind)
+        // Auto-(CONT'D) when the same character speaks again without
+        // a different character cue in between. Matches Final Draft's
+        // "automatic character continueds" default; only applies to
+        // .character rows.
+        if el.kind == .character {
+            normalised = EditorLogic.appendContdIfNeeded(
+                cue: normalised,
+                previousCharacterCue: previousCharacterCue(before: el)
+            )
+        }
         if normalised != el.text {
             el.text = normalised
         }
         stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
+    }
+
+    /// Most-recent character cue earlier in the same scene; nil if
+    /// there isn't one. See SceneDetailScreen.previousCharacterCue
+    /// for the contract.
+    private func previousCharacterCue(before target: SceneElement) -> String? {
+        let ordered = scene.elementsOrdered
+        guard let idx = ordered.firstIndex(where: { $0.id == target.id }), idx > 0 else {
+            return nil
+        }
+        for el in ordered[..<idx].reversed() where el.kind == .character {
+            return el.text
+        }
+        return nil
     }
 
     private func cycleKind(for el: SceneElement) {
