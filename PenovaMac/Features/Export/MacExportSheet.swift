@@ -210,11 +210,8 @@ struct MacExportSheet: View {
             let xml = FinalDraftXMLWriter.xml(for: project)
             try xml.write(to: url, atomically: true, encoding: .utf8)
         case .pdf:
-            // Wire to the Mac PDF adapter once ScreenplayLayoutEngine is
-            // extracted into PenovaKit. For v0, write a placeholder PDF
-            // banner so users see something land on disk.
-            let placeholder = "Penova — PDF export coming in v0.2.\nUse FDX or Fountain for now."
-            try placeholder.write(to: url, atomically: true, encoding: .utf8)
+            try ScreenplayPDFRenderer.render(project: project, to: url)
+            PenovaLog.export.info("PDF export to \(url.lastPathComponent, privacy: .public): \(ScreenplayPDFRenderer.measurePageCount(project: project)) pages")
         }
     }
 }
