@@ -199,6 +199,9 @@ struct MacNewProjectSheet: View {
 
         try? context.save()
         PenovaLog.library.info("Created new project '\(trimmed, privacy: .public)' with starter episode + scene")
+        // F5 — opt-in usage stats. record() is a no-op when the toggle
+        // is off; even when on, only an aggregate counter is captured.
+        AnalyticsService.shared.record(.scriptCreated)
         onCreated(project)
         dismiss()
     }

@@ -50,7 +50,19 @@
   </div>
 
   <h2>Data we collect</h2>
-  <p>None. Penova does not collect, store, or transmit any personal information to us or to any third party. All scripts, projects, characters, and notes you create stay on your device.</p>
+  <p>None, by default. Penova does not collect, store, or transmit any personal information to us or to any third party. All scripts, projects, characters, and notes you create stay on your device.</p>
+
+  <h2>Optional, opt-in usage statistics</h2>
+  <p>Settings → Privacy &amp; Analytics offers a toggle: <em>“Help improve Penova by sharing anonymous usage data.”</em> It is <strong>off by default</strong>. You can turn it off at any time.</p>
+  <p>When (and only when) it is on, Penova sends one small JSON payload per day to <code>https://penova.pages.dev/v1/ping</code> containing:</p>
+  <ul>
+    <li>App version and build number (e.g. <code>1.0.0 (142)</code>)</li>
+    <li>Operating system family and version (<code>macos 14.4.1</code> or <code>ios 17.4</code>)</li>
+    <li>Locale (e.g. <code>en-US</code>)</li>
+    <li>Four aggregate counts: <em>scriptsOpened</em>, <em>scriptsCreated</em>, <em>exportsRun</em>, <em>reportsViewed</em></li>
+  </ul>
+  <p>The payload is smaller than 1&nbsp;KB. We do <strong>not</strong> send the contents of your scripts, your name, your email, your IP address, an installation identifier, your device model, or any filenames or paths. You can preview the exact JSON payload at any time via the Settings sheet labelled <em>“View what's been sent.”</em></p>
+  <p>The endpoint runs as a Cloudflare Pages Function. The source code is open: <a href="https://github.com/rudraptpsingh/Penova/blob/main/docs/functions/v1/ping.ts">docs/functions/v1/ping.ts</a>. Cloudflare's edge necessarily sees the request IP, but our function does not log it or persist it; we store only date-bucketed aggregate counts, keyed by date / OS / app version / locale.</p>
 
   <h2>Device permissions</h2>
   <p>Penova asks for the following permissions only for features you actively use:</p>
@@ -63,7 +75,7 @@
   <p>Your scripts are stored locally using Apple's SwiftData framework. If you have iCloud device backup enabled on your iPhone, iOS may include Penova's data in your device backup. That backup is governed by Apple's privacy policy and is not accessed by us.</p>
 
   <h2>Third-party services</h2>
-  <p>Penova does not use analytics, advertising SDKs, tracking frameworks, or any third-party services that collect user data. There is no SDK inside the app other than Apple's own frameworks.</p>
+  <p>Penova does not use third-party analytics, advertising SDKs, or tracking frameworks. There is no SDK inside the app other than Apple's own frameworks and Sparkle (used to deliver Mac auto-updates from this same domain). The opt-in usage-stats endpoint described above is hosted by us on Cloudflare; no third-party processor (e.g. Plausible, Fathom, Mixpanel) ever sees your data.</p>
 
   <h2>Children's privacy</h2>
   <p>Penova is rated 4+ and does not knowingly collect data from anyone, including children under 13. If you believe we have inadvertently received information about a child, please contact us and we will delete it.</p>

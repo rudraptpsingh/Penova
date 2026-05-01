@@ -147,6 +147,11 @@ struct NewProjectSheet: View {
             let pilot = Episode(title: "Pilot", order: 0)
             pilot.project = project
             context.insert(pilot)
+
+            // F5 — opt-in usage stats. record() is a no-op when the
+            // toggle is off; even when on, only an aggregate counter
+            // is captured.
+            AnalyticsService.shared.record(.scriptCreated)
         }
         try? context.save()
         dismiss()

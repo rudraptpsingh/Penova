@@ -40,6 +40,11 @@ struct PenovaApp: App {
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
+
+        // F5 — opt-in anonymous usage stats. startScheduling() is a
+        // no-op when the toggle is off; the actual flushIfDue() guard
+        // bails out on `analyticsEnabled == false`.
+        AnalyticsService.shared.startScheduling()
     }
 
     var body: some Scene {

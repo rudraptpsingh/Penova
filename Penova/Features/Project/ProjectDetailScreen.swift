@@ -264,6 +264,8 @@ struct ProjectDetailScreen: View {
         do {
             let url = try ScriptPDFRenderer.render(project: project)
             exportFile = ExportFile(url: url, format: .pdf)
+            // F5 — opt-in usage stats. No-op when toggle is off.
+            AnalyticsService.shared.record(.exportRun)
         } catch {
             exportError = error.localizedDescription
         }
@@ -273,6 +275,7 @@ struct ProjectDetailScreen: View {
         do {
             let url = try FinalDraftXMLWriter.write(project: project)
             exportFile = ExportFile(url: url, format: .fdx)
+            AnalyticsService.shared.record(.exportRun)
         } catch {
             exportError = error.localizedDescription
         }
@@ -282,6 +285,7 @@ struct ProjectDetailScreen: View {
         do {
             let url = try FountainExporter.write(project: project)
             exportFile = ExportFile(url: url, format: .fountain)
+            AnalyticsService.shared.record(.exportRun)
         } catch {
             exportError = error.localizedDescription
         }
@@ -345,7 +349,13 @@ struct ProjectDetailScreen: View {
             StatTile(value: project.characters.count, label: "Characters")
             StatTile(value: pageCount, label: "Pages")
         }
-        .onAppear(perform: refreshPageCount)
+        .onAppear {
+            refreshPageCount()
+            // F5 — opt-in usage stats. Counts opening a project (the
+            // closest iOS analogue to "scriptOpened" on Mac, where it
+            // means selecting a scene to view). No-op when toggle off.
+            AnalyticsService.shared.record(.scriptOpened)
+        }
         .onChange(of: project.updatedAt) { _, _ in refreshPageCount() }
     }
 

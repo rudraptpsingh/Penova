@@ -43,6 +43,10 @@ struct ReportsScreen: View {
         .background(PenovaColor.ink0)
         .navigationTitle("Reports")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // F5 — opt-in usage stats. No-op when toggle is off.
+            AnalyticsService.shared.record(.reportViewed)
+        }
     }
 
     // MARK: - Tab bar
