@@ -15,6 +15,12 @@ import PenovaKit
 @main
 struct PenovaMacApp: App {
     let container: ModelContainer
+    /// Sparkle 2.x auto-update controller. Penova is distributed
+    /// direct-from-website (no Mac App Store), so it must ship its
+    /// own update path. The service starts checking against
+    /// SUFeedURL (Info.plist) on launch and surfaces a
+    /// "Check for Updates…" menu item under the Penova app menu.
+    @StateObject private var updater = UpdaterService()
 
     init() {
         // --smoke: run the end-to-end smoke harness and exit. No UI.
@@ -186,6 +192,15 @@ struct PenovaMacApp: App {
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: false))
         .commands {
+            // Sparkle "Check for Updates…" — sits under the app menu
+            // (Penova → Check for Updates…) per macOS convention. The
+            // CommandGroup(after: .appInfo) places it directly below
+            // "About Penova", which is where every Sparkle-using app
+            // (Highland, Fade In, OmniFocus, Things) puts it.
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updater)
+            }
+
             // Replace the default New… command with one that produces a Project,
             // then forward via NotificationCenter — the in-window state listens.
             CommandGroup(replacing: .newItem) {

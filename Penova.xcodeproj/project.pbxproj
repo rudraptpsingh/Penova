@@ -90,6 +90,7 @@
 		AEB6496287E2AB90F38BA9D4 /* CharactersTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */; };
 		AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */; };
 		AFDAE0EA65484E2108E2DD45 /* FountainRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8B8A33B4AEA01C01A267D0 /* FountainRoundTripTests.swift */; };
+		B2684AB2672FB97DDCFC0481 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F704CDBE88326205A4E3B30B /* UpdaterService.swift */; };
 		B8172462B32AC9F3A7940A93 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */; };
 		BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */; };
 		BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D5339999C19B127E5F30696 /* Inter-Regular.ttf */; };
@@ -100,6 +101,7 @@
 		D143841AD50BB0A60EC622FA /* AutocompleteServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5246196E669041E4598BA092 /* AutocompleteServiceTests.swift */; };
 		D2976059AECC1EDEB2B09964 /* IndexCardsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1090844233EFD24671B2E60F /* IndexCardsPane.swift */; };
 		D43068233BC7C0D981FC490B /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */; };
+		D5B15CDFD7C1D72D3E56437D /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A5A4E1D32E6427268B3E6A87 /* Sparkle */; };
 		D5B6C1D6E07B42A741EB79F5 /* SwiftDataCRUDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */; };
 		D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */; };
 		DBE6C529C87142E9E99B0B4D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9326E15607D7A357A2BEDDB3 /* README.md */; };
@@ -253,6 +255,7 @@
 		E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurePageCountTests.swift; sourceTree = "<group>"; };
 		EA593BC6043FE8663310F8F3 /* RevisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionTests.swift; sourceTree = "<group>"; };
 		EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailScreen.swift; sourceTree = "<group>"; };
+		F704CDBE88326205A4E3B30B /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
 		FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
 		FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
 		FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEpisodeSheet.swift; sourceTree = "<group>"; };
@@ -280,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0411ED290830BB56E472DE2E /* PenovaKit in Frameworks */,
+				D5B15CDFD7C1D72D3E56437D /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +443,7 @@
 				4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */,
 				0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */,
 				28337EE4F750D2DABD9149E8 /* SmokeTest.swift */,
+				F704CDBE88326205A4E3B30B /* UpdaterService.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -832,6 +837,7 @@
 			name = PenovaMac;
 			packageProductDependencies = (
 				7760500F46C4641D7074B00A /* PenovaKit */,
+				A5A4E1D32E6427268B3E6A87 /* Sparkle */,
 			);
 			productName = PenovaMac;
 			productReference = 61D16A60309038240D2F3927 /* PenovaMac.app */;
@@ -869,6 +875,7 @@
 			mainGroup = B7508883A6C3A501831A3B4B;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				9C77A563A63959329D8E9AB9 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				4B5667F0D74218287E7E35C5 /* XCLocalSwiftPackageReference "PenovaKit" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -1007,6 +1014,7 @@
 				46DE3194BB6715CAC43F0779 /* SmartGroupPane.swift in Sources */,
 				E33B2E2C309A68CC3113131E /* SmokeTest.swift in Sources */,
 				6CF5E8CDB6236A96F744ED79 /* TitlePageEditorSheet.swift in Sources */,
+				B2684AB2672FB97DDCFC0481 /* UpdaterService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1268,7 +1276,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
 				PRODUCT_NAME = Penova;
 				SDKROOT = macosx;
@@ -1413,7 +1421,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
 				PRODUCT_NAME = Penova;
 				SDKROOT = macosx;
@@ -1486,6 +1494,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		9C77A563A63959329D8E9AB9 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		476F02CEAD1C6A58286FF3FD /* PenovaKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1494,6 +1513,11 @@
 		7760500F46C4641D7074B00A /* PenovaKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PenovaKit;
+		};
+		A5A4E1D32E6427268B3E6A87 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9C77A563A63959329D8E9AB9 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 		D5C1939D3C4FC1EAAA56C020 /* PenovaKit */ = {
 			isa = XCSwiftPackageProductDependency;
