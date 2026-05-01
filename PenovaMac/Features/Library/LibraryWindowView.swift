@@ -40,8 +40,31 @@ struct LibraryWindowView: View {
     @State private var viewMode: CenterViewMode = .editor
     @State private var inspectorVisible: Bool = true
     @State private var focusMode: Bool = false
+    @State private var searchVisible: Bool = false
+    @State private var titlePageEditorVisible: Bool = false
+    @State private var exportSheetVisible: Bool = false
 
     var body: some View {
+        baseShell
+            .modifier(SheetsAndOverlays(
+                searchVisible: $searchVisible,
+                titlePageVisible: $titlePageEditorVisible,
+                exportVisible: $exportSheetVisible,
+                projects: projects,
+                onSelectScene: { selectedScene = $0 }
+            ))
+            .background(hiddenShortcuts)
+            .onAppear {
+                if selectedScene == nil {
+                    selectedScene = projects
+                        .flatMap(\.activeEpisodesOrdered)
+                        .flatMap(\.scenesOrdered)
+                        .first
+                }
+            }
+    }
+
+    private var baseShell: some View {
         NavigationSplitView(columnVisibility: $sidebarVisibility) {
             LibrarySidebar(
                 projects: projects,
@@ -77,17 +100,22 @@ struct LibraryWindowView: View {
             }
         }
         .overlay(alignment: .bottom) {
-            if focusMode {
-                focusPill
-            }
+            if focusMode { focusPill }
         }
-        .onAppear {
-            if selectedScene == nil {
-                selectedScene = projects
-                    .flatMap(\.activeEpisodesOrdered)
-                    .flatMap(\.scenesOrdered)
-                    .first
-            }
+    }
+
+    @ViewBuilder
+    private var hiddenShortcuts: some View {
+        Group {
+            Button("") { searchVisible = true }
+                .keyboardShortcut("f", modifiers: .command)
+                .opacity(0)
+            Button("") { titlePageEditorVisible = true }
+                .keyboardShortcut("t", modifiers: [.command, .shift])
+                .opacity(0)
+            Button("") { exportSheetVisible = true }
+                .keyboardShortcut("e", modifiers: .command)
+                .opacity(0)
         }
     }
 
@@ -238,6 +266,41 @@ struct LibraryWindowView: View {
         context.insert(scene)
         try? context.save()
         selectedScene = scene
+    }
+}
+
+// MARK: - Sheets and overlays
+
+private struct SheetsAndOverlays: ViewModifier {
+    @Binding var searchVisible: Bool
+    @Binding var titlePageVisible: Bool
+    @Binding var exportVisible: Bool
+    let projects: [Project]
+    let onSelectScene: (ScriptScene) -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if searchVisible {
+                    MacSearchOverlay(
+                        isVisible: $searchVisible,
+                        projects: projects,
+                        onSelectScene: onSelectScene
+                    )
+                }
+            }
+            .sheet(isPresented: $titlePageVisible) {
+                if let firstProject = projects.first {
+                    TitlePageEditorSheet(project: firstProject)
+                        .frame(width: 920, height: 540)
+                }
+            }
+            .sheet(isPresented: $exportVisible) {
+                if let firstEp = projects.first?.activeEpisodesOrdered.first {
+                    MacExportSheet(episode: firstEp)
+                        .frame(width: 600)
+                }
+            }
     }
 }
 

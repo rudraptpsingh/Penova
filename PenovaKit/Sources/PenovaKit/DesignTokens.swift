@@ -25,6 +25,7 @@ import SwiftUI
 public enum PenovaColor {
     // Surfaces — dark canvas
     public static let ink0    = Color(hex: 0x0B0A08) // Canvas
+    public static let ink1    = Color(hex: 0x100E0B) // Status bar / sub-card (between ink0 and ink2)
     public static let ink2    = Color(hex: 0x15130F) // Card
     public static let ink3    = Color(hex: 0x1F1C17) // Elevated
     public static let ink4    = Color(hex: 0x2A2620) // Divider
