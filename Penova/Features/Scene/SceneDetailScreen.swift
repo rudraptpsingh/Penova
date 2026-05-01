@@ -486,7 +486,16 @@ struct SceneElementInlineRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.xs) {
             HStack(alignment: .top, spacing: PenovaSpace.s) {
-                kindBadge
+                // Element-kind chip is an editing affordance — only useful
+                // when the user is actively typing in the row. Showing it
+                // on every row turns the script panel into a column of
+                // labelled editor widgets instead of a screenplay; it's
+                // especially intrusive on short transition lines like
+                // "CUT TO:" where the badge dominates the actual text.
+                // Reveal on focus only.
+                if isFocused {
+                    kindBadge
+                }
                 field
             }
             if element.kind == .character && isFocused && !characterMatches.isEmpty {
