@@ -9,11 +9,11 @@
 <meta property="og:description" content="The screenwriting studio that costs $0 instead of $250. Industry-format PDF, FDX, Fountain. Mac + iPhone. Free for individuals, forever.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://penova.pages.dev">
-<meta property="og:image" content="https://penova.pages.dev/img/mac/library.png">
+<meta property="og:image" content="https://penova.pages.dev/img/mac/editor.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Penova — Free professional screenwriting">
 <meta name="twitter:description" content="The screenwriting studio that costs $0 instead of $250. Industry-format PDF, FDX, Fountain. Mac + iPhone. Free for individuals, forever.">
-<meta name="twitter:image" content="https://penova.pages.dev/img/mac/library.png">
+<meta name="twitter:image" content="https://penova.pages.dev/img/mac/editor.png">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-style='italic' text-anchor='middle' fill='%23f0a94a'%3EP%3C/text%3E%3C/svg%3E">
 
@@ -34,6 +34,103 @@
 -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
         data-cf-beacon='{"token": "{{CLOUDFLARE_BEACON_TOKEN}}"}'></script>
+
+<!--
+    Schema.org structured data — helps Google + AI agents (Perplexity,
+    ChatGPT browsing, Claude search) extract pricing, platform, and
+    feature info correctly when they cite Penova.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Penova",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Screenwriting software",
+  "operatingSystem": "macOS 14, iOS 17",
+  "url": "https://penova.pages.dev/",
+  "downloadUrl": "https://penova.pages.dev/releases/Penova-1.0.0.dmg",
+  "softwareVersion": "1.0.0",
+  "fileSize": "3.7 MB",
+  "datePublished": "2026-05-01",
+  "description": "A free, dark-first screenwriting studio for Mac and iPhone. Industry-format PDF, Final Draft (.fdx) and Fountain export, beat-tagged index cards, sortable outline, scene/location/cast production reports, page locking. Free for individual writers, forever.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "url": "https://penova.pages.dev/releases/Penova-1.0.0.dmg"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Penova",
+    "url": "https://penova.pages.dev/"
+  },
+  "featureList": [
+    "Industry-format PDF export (WGA convention)",
+    "Final Draft (.fdx) round-trip import + export",
+    "Fountain plain-text round-trip",
+    "PDF re-import — parse a screenplay back into structured data",
+    "Three-pane Mac editor (Library, Editor, Inspector)",
+    "Beat-tagged Index Cards with drag-to-reorder",
+    "Sortable Outline view",
+    "Scene, location, and cast production reports",
+    "Page locking — freeze scene numbers for production",
+    "Revision snapshots with WGA color sequence (white → blue → pink → ...)",
+    "Auto-update via Sparkle",
+    "On-device speech recognition for voice quick-capture (iPhone, 4 locales)"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Penova",
+  "url": "https://penova.pages.dev/",
+  "description": "Free professional screenwriting for Mac and iPhone."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Penova really free for individual writers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Every editing, formatting, import, export, search, outlining, beat-tagging, production-report and revision feature is free forever for individual writers. The future paid tier is for cloud sync across machines and real-time co-writing for studios — features with real server costs we'd have to operate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Penova compare to Final Draft?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Final Draft 13 is $249.99 and Penova is $0. Both export industry-standard WGA-format PDF and round-trip Final Draft (.fdx). Final Draft has a deeper feature set for production crews (Tagger, full revision-mode workflow). For pre-production writing — the actual writing — Penova ships everything you need free."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What platforms does Penova support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Penova for Mac runs on macOS 14 and later, on both Apple Silicon and Intel. Penova for iPhone is in TestFlight beta and runs on iOS 17 and later. iPad support is on the roadmap."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a Penova app for Windows?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A native Windows version is in development. If you'd use it, email rudra.ptp.singh@gmail.com with the subject 'Windows' — we prioritize the Windows port based on demonstrated interest. In the meantime, Penova exports to Final Draft (.fdx), Fountain, and PDF, so a script started on a Mac is fully portable to a Windows collaborator."
+      }
+    }
+  ]
+}
+</script>
 
 <style>
   :root {
@@ -115,33 +212,80 @@
   }
   .hero h1 em { font-style: italic; color: var(--amber); font-variation-settings: "SOFT" 80; }
   .hero p { font-size: 17px; color: var(--snow-2); max-width: 460px; margin-bottom: 28px; }
-  .ctas { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-  .btn-primary, .btn-secondary {
+  /* CTAs — handcrafted two-line buttons modelled after Things 3 /
+     Highland's download CTAs. Primary is a tall pill with a top
+     line in body type and a sub-line in mono type so platform +
+     version + size are visible without a separate caption. */
+  .ctas { display: flex; gap: 14px; flex-wrap: wrap; align-items: stretch; }
+  .btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     padding: 14px 22px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: transform 0.15s ease, background 0.15s ease;
+    border-radius: 8px;
+    text-align: left;
+    transition: transform 0.18s cubic-bezier(.2,.7,.2,1),
+                background 0.15s ease,
+                border-color 0.15s ease,
+                box-shadow 0.18s ease;
   }
-  .btn-primary { background: var(--amber); color: var(--ink-0); }
-  .btn-primary:hover { background: var(--amber-dim); }
+  .btn:active { transform: translateY(1px); }
+  .btn .glyph {
+    flex: none;
+    width: 18px; height: 18px;
+    display: grid; place-items: center;
+  }
+  .btn .stack {
+    display: flex; flex-direction: column;
+    line-height: 1.15;
+    gap: 2px;
+  }
+  .btn .stack strong {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14.5px;
+    letter-spacing: -0.005em;
+  }
+  .btn .stack small {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .btn-primary {
+    background: var(--snow);
+    color: var(--ink-0);
+    border: 1px solid var(--snow);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset,
+                0 12px 24px -10px rgba(240, 169, 74, 0.35),
+                0 2px 6px -2px rgba(0,0,0,0.5);
+  }
+  .btn-primary:hover {
+    background: #fff;
+    border-color: #fff;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset,
+                0 16px 36px -14px rgba(240, 169, 74, 0.5),
+                0 4px 10px -4px rgba(0,0,0,0.55);
+  }
   .btn-secondary {
-    background: var(--ink-2);
+    background: transparent;
     color: var(--snow);
-    border: 1px solid var(--rule);
+    border: 1px solid var(--snow-4);
   }
-  .btn-secondary:hover { background: var(--ink-3); border-color: var(--snow-4); }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--snow-3);
+  }
   .btn-meta {
     font-family: var(--mono);
     font-size: 11px;
-    color: var(--snow-3);
+    color: var(--snow-4);
     letter-spacing: 0.06em;
-    text-transform: uppercase;
     margin-top: 14px;
   }
+  .btn-meta strong { color: var(--snow-3); font-weight: 500; }
   .hero-shot {
     border-radius: 10px;
     overflow: hidden;
@@ -229,6 +373,48 @@
     box-shadow: 0 20px 40px -16px rgba(0,0,0,0.5);
   }
   .flow-shot img { width: 100%; height: auto; display: block; }
+
+  /* Windows section */
+  .windows {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--rule);
+    background: linear-gradient(180deg, transparent, rgba(127, 163, 136, 0.04));
+  }
+  .windows-block {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .windows .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(127, 163, 136, 0.12);
+    border: 1px solid rgba(127, 163, 136, 0.4);
+    color: var(--jade);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .windows h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.5vw, 38px);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .windows h2 em { font-style: italic; color: var(--amber); }
+  .windows p {
+    color: var(--snow-2);
+    font-size: 15px;
+    max-width: 560px;
+    margin: 0 auto 22px;
+    line-height: 1.65;
+  }
+  .windows .ctas { justify-content: center; }
 
   /* iOS section */
   .ios {
@@ -448,8 +634,9 @@
     <a href="#pricing">Free</a>
     <a href="#workflow">Workflow</a>
     <a href="#ios">iPhone</a>
-    <a href="support.html">Support</a>
-    <a href="privacy.html">Privacy</a>
+    <a href="#windows">Windows</a>
+    <a href="blog/">Blog</a>
+    <a href="support">Support</a>
   </div>
   <div class="nav-meta">v1.0.0 · 1 May 2026</div>
 </nav>
@@ -464,28 +651,48 @@
           <span class="price-tag">
             <strong>$0</strong>&nbsp;forever&nbsp;·&nbsp;Lifetime free for individuals
           </span>
-          <h1>Write the page.<br><em>Hide the app.</em></h1>
+          <h1>
+            Industry-format screenplays.<br>
+            <em>Free for writers, forever.</em>
+          </h1>
           <p>
-            A professional screenwriting studio for Mac and iPhone, free
-            for individual writers. Three-pane editor, index cards, beat
-            tagging, industry-format PDF + Final Draft (.fdx) + Fountain.
-            All on-device, no account required, no trial timer.
+            Penova is a professional screenwriting studio for Mac and
+            iPhone. Three-pane editor, index cards, beat tagging, and
+            WGA-format PDF / Final Draft (.fdx) / Fountain export — the
+            features Final Draft charges $250 for, free for individual
+            writers and students.
           </p>
           <div class="ctas">
-            <a class="btn-primary"
+            <a class="btn btn-primary"
                href="releases/Penova-1.0.0.dmg"
                download="Penova-1.0.0.dmg"
                data-event="download-mac">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download free for Mac
+              <span class="glyph" aria-hidden="true">
+                <!-- Apple logo glyph — proper macOS distribution mark, not a generic download icon. -->
+                <svg width="18" height="18" viewBox="0 0 170 170" fill="currentColor"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.197-2.12-9.973-3.17-14.34-3.17-4.58 0-9.492 1.05-14.746 3.17-5.262 2.13-9.501 3.24-12.742 3.35-4.929.21-9.842-1.96-14.746-6.52-3.13-2.73-7.045-7.41-11.735-14.04-5.032-7.08-9.169-15.29-12.41-24.65-3.471-10.11-5.211-19.9-5.211-29.378 0-10.857 2.346-20.221 7.045-28.068 3.693-6.303 8.606-11.275 14.755-14.925s12.793-5.51 19.948-5.629c3.915 0 9.049 1.211 15.429 3.591 6.362 2.388 10.443 3.599 12.227 3.599 1.334 0 5.868-1.416 13.55-4.239 7.265-2.618 13.397-3.702 18.418-3.275 13.604 1.098 23.819 6.464 30.602 16.135-12.165 7.37-18.183 17.692-18.063 30.939.11 10.32 3.86 18.91 11.227 25.71 3.34 3.17 7.07 5.62 11.222 7.36-.9 2.61-1.85 5.11-2.86 7.51zM119.11 7.24c0 8.102-2.96 15.667-8.86 22.669-7.12 8.324-15.732 13.134-25.071 12.375a25.222 25.222 0 0 1-.188-3.07c0-7.778 3.386-16.102 9.399-22.908 3.002-3.446 6.82-6.311 11.45-8.597 4.62-2.252 8.99-3.497 13.1-3.71.12 1.083.17 2.166.17 3.24z"/></svg>
+              </span>
+              <span class="stack">
+                <strong>Download Penova for Mac</strong>
+                <small>v1.0.0 · macOS 14+ · 3.7 MB</small>
+              </span>
             </a>
-            <a class="btn-secondary" href="#ios">iPhone (TestFlight)</a>
+            <a class="btn btn-secondary" href="#ios">
+              <span class="glyph" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.6"/><path d="M11 18.6h2"/></svg>
+              </span>
+              <span class="stack">
+                <strong>Try the iPhone beta</strong>
+                <small>TestFlight · iOS 17+</small>
+              </span>
+            </a>
           </div>
-          <div class="btn-meta">3.7 MB · macOS 14+ · Apple Silicon &amp; Intel · Notarized · No account, no signup</div>
+          <div class="btn-meta">
+            <strong>Notarized by Apple.</strong> No account. No trial timer. No watermark.
+          </div>
         </div>
         <div class="hero-shot">
-          <img src="img/mac/library.png"
-               alt="Penova for Mac — three-pane editor with project sidebar, scene list, and inspector"
+          <img src="img/mac/editor.png"
+               alt="Penova for Mac — three-pane editor with cream-paper script in the center, project sidebar on the left, and scene inspector on the right"
                width="1440" height="900">
         </div>
       </div>
@@ -539,7 +746,7 @@
           <div class="label">P<em>enova</em></div>
           <div class="price">$0</div>
           <div class="unit">forever</div>
-          <div class="note">Mac + iPhone. Industry-format PDF, FDX, Fountain. All features. No trial. No account. No watermark.</div>
+          <div class="note">Mac + iPhone today · Windows in development. Industry-format PDF, FDX, Fountain. All features. No trial. No account. No watermark.</div>
         </div>
         <div class="price-card">
           <div class="label">Final Draft 13</div>
@@ -578,13 +785,15 @@
       <div class="manifesto-block">
         <div class="eyebrow">Why we built this</div>
         <blockquote>
-          “A great screenplay should not be gatekept by <em>$249.99</em>. The
-          writer at a college in Mumbai, the kid sketching scenes on the train
-          to film school, the assistant rewriting a feature on lunch break —
-          they shouldn't lose to a writer with a bigger budget. Penova is the
-          tool we wish we'd had.”
+          “A great screenplay shouldn't be gatekept by <em>$249.99</em>. The
+          film student writing nights between classes, the writers' assistant
+          taking notes on weekends, the indie filmmaker self-funding their
+          first feature — none of them should lose to a writer with a bigger
+          software budget. The screenplay you write in Penova is the same
+          file Final Draft would charge you to type. Penova is the tool we
+          wish we'd had.”
         </blockquote>
-        <div class="signature">— Penova, est. 2026 · Built in 🇮🇳</div>
+        <div class="signature">— Penova, est. 2026 · For screenwriters everywhere.</div>
       </div>
     </div>
   </section>
@@ -603,66 +812,68 @@
 
       <div class="flow-card">
         <div class="flow-copy">
-          <div class="flow-step">Pane 01 — Index cards</div>
-          <h3>Beat board for the <em>structural</em> pass.</h3>
+          <div class="flow-step">Pane 01 — Editor</div>
+          <h3>Distraction-free pages, with the <em>chrome</em> you need.</h3>
           <p>
-            Every scene is a card. Color-stripe by beat type — setup,
-            inciting, midpoint, climax. Drag to reorder; the script
-            renumbers everything underneath. Click a card to jump
-            straight into its dialogue.
+            Cream-paper script on a dark canvas. Tab cycles element type.
+            Right-click any line for Insert above / Insert below / Change
+            kind / Delete. ⌘⌫ removes a row regardless of content. The
+            inspector on the right tracks the active scene's heading,
+            beat, page estimate, speaking characters — and the danger
+            zone for one-tap delete.
           </p>
         </div>
         <div class="flow-shot">
-          <img src="img/mac/index-cards.png" alt="Penova index cards view">
+          <img src="img/mac/editor.png" alt="Penova editor — cream-paper screenplay page on a dark canvas, with sidebar and inspector">
         </div>
       </div>
 
       <div class="flow-card reverse">
         <div class="flow-shot">
-          <img src="img/mac/outline.png" alt="Penova outline view">
+          <img src="img/mac/cards.png" alt="Penova index cards view — eight scene cards laid out as a beat board">
         </div>
         <div class="flow-copy">
-          <div class="flow-step">Pane 02 — Outline</div>
-          <h3>Sortable lanes for the <em>navigational</em> pass.</h3>
+          <div class="flow-step">Pane 02 — Index cards</div>
+          <h3>Beat board for the <em>structural</em> pass.</h3>
           <p>
-            See every scene's location, time, beat, and page count in
-            one table. Click any column header to re-sort. Hover a row
-            to preview, click to open. Faster than scrolling through
-            a 110-page PDF.
+            Every scene is a card, color-striped by beat — setup, inciting,
+            midpoint, climax, resolution. Drag to reorder; the script
+            renumbers underneath. Click a card to jump straight into its
+            dialogue. Right-click for Open in editor / Delete scene.
           </p>
         </div>
       </div>
 
       <div class="flow-card">
         <div class="flow-copy">
-          <div class="flow-step">Pane 03 — Editor</div>
-          <h3>Distraction-free pages, with the <em>chrome</em> you need.</h3>
+          <div class="flow-step">Pane 03 — Outline</div>
+          <h3>Sortable lanes for the <em>navigational</em> pass.</h3>
           <p>
-            Cream-paper page on a dark canvas. Tab cycles element
-            type. Right-click a line for Insert above / Insert below /
-            Change kind / Delete. ⌘⌫ to delete a row regardless of
-            content. ⌘F to search the script. Auto-complete pulls
-            from prior cues and locations.
+            Every scene's location, time, beat, and page count in one
+            table. Click any column header to re-sort. Hover a row to
+            preview, click to open. Faster than scrolling through a
+            110-page PDF — and once the script is locked, the scene
+            numbers freeze in place just like Final Draft.
           </p>
         </div>
         <div class="flow-shot">
-          <img src="img/mac/focus.png" alt="Penova focus mode editor">
+          <img src="img/mac/outline.png" alt="Penova outline view — sortable table of every scene with location, time, beat, and page count">
         </div>
       </div>
 
       <div class="flow-card reverse">
         <div class="flow-shot">
-          <img src="img/mac/title-page.png" alt="Penova title page editor">
+          <img src="img/mac/reports.png" alt="Penova production reports — scene table with INT/EXT, location, time, cues, and word counts">
         </div>
         <div class="flow-copy">
-          <div class="flow-step">Pane 04 — Title page &amp; export</div>
-          <h3>Industry-format <em>PDF, FDX, Fountain</em>.</h3>
+          <div class="flow-step">Pane 04 — Production reports</div>
+          <h3>Scene, location, and cast tables — <em>script supervisor ready</em>.</h3>
           <p>
-            One sheet for title, author, and contact block. Export to
-            WGA-standard PDF, Final Draft (.fdx), or Fountain plain-text —
-            with the title page wired through correctly. Lock the
-            script for production and scene numbers freeze in place
-            (just like Final Draft).
+            Hand your draft to a producer. Three-tab breakdown: scene
+            list (INT/EXT, location, time, cue count, words), location
+            roll-up, and cast roll-up sorted by dialogue weight. Lock
+            the script first and these numbers stay frozen through
+            every revision.
           </p>
         </div>
       </div>
@@ -677,23 +888,79 @@
           <span class="badge">Beta · TestFlight</span>
           <h2>Penova for <em>iPhone</em>.</h2>
           <p>
-            The same screenplay engine, optimised for one hand. Quick capture
+            The same screenplay engine, optimized for one hand. Quick capture
             with on-device speech recognition (English + हिन्दी), an editor
             that respects portrait, and your scripts sync nowhere — they
             stay on your device.
           </p>
           <div class="ctas">
             <!-- Replace href with your TestFlight public link once invites are open. -->
-            <a class="btn-primary" href="https://testflight.apple.com/join/PLACEHOLDER" data-event="testflight-ios">
-              Join the iPhone beta
+            <a class="btn btn-primary" href="https://testflight.apple.com/join/PLACEHOLDER" data-event="testflight-ios">
+              <span class="glyph" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.6"/><path d="M11 18.6h2"/></svg>
+              </span>
+              <span class="stack">
+                <strong>Join the iPhone beta</strong>
+                <small>TestFlight · iOS 17+</small>
+              </span>
             </a>
-            <a class="btn-secondary" href="#mac">Get the Mac app instead</a>
+            <a class="btn btn-secondary" href="#mac">
+              <span class="stack">
+                <strong>Get the Mac app instead</strong>
+                <small>Direct download · macOS 14+</small>
+              </span>
+            </a>
           </div>
-          <div class="btn-meta">iOS 17+ · Apple Sign-In · Free during beta</div>
+          <div class="btn-meta">iOS 17+ · Sign in with Apple · Free during beta</div>
         </div>
         <div class="ios-shots">
           <img src="img/02_scene_editor.png" alt="Penova iPhone scene editor">
           <img src="img/03_project_detail.png" alt="Penova iPhone project detail">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Windows -->
+  <section class="windows" id="windows">
+    <div class="wrap">
+      <div class="windows-block">
+        <span class="badge">In development · Tell us you want it</span>
+        <h2>Penova for <em>Windows</em>.</h2>
+        <p>
+          A native Windows version is on the way. We're building Mac and
+          iPhone first because that's where most of the early writers came
+          from — but if Windows is your primary machine and you want
+          industry-format screenwriting for free, the loudest demand
+          decides what ships next.
+        </p>
+        <p>
+          Drop us a line and we'll add you to the early-access list. One
+          email, one line — your platform is enough. We'll write back when
+          the Windows beta opens.
+        </p>
+        <div class="ctas">
+          <a class="btn btn-primary"
+             href="mailto:rudra.ptp.singh@gmail.com?subject=Windows%20%E2%80%94%20I%20want%20Penova%20for%20Windows&amp;body=Hi%2C%20I%27d%20use%20Penova%20on%20Windows.%20Sign%20me%20up%20for%20the%20beta%20when%20it%20opens.%0A%0AWindows%20version%3A%20%0AWhat%20I%20write%20%28features%2FTV%2Fshorts%29%3A%20%0A"
+             data-event="windows-interest">
+            <span class="glyph" aria-hidden="true">
+              <!-- Plain envelope glyph — interest registration -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 7 8.5-7"/></svg>
+            </span>
+            <span class="stack">
+              <strong>Tell us you want Windows</strong>
+              <small>Email · One line is enough</small>
+            </span>
+          </a>
+          <a class="btn btn-secondary" href="#mac">
+            <span class="stack">
+              <strong>Get the Mac app meanwhile</strong>
+              <small>Direct download · macOS 14+</small>
+            </span>
+          </a>
+        </div>
+        <div class="btn-meta" style="margin-top:18px;">
+          Your scripts on Mac are <strong>portable</strong>. Penova exports Final Draft (.fdx), Fountain, and PDF — anything you write today opens in any Windows screenwriting app, and in the Penova Windows app when it ships.
         </div>
       </div>
     </div>
@@ -704,11 +971,22 @@
 <footer>
   <div class="wrap">
     <div class="foot-links">
-      <a href="support.html">Support</a>
-      <a href="privacy.html">Privacy</a>
+      <a href="blog/">Blog</a>
+      <a href="support">Support</a>
+      <a href="privacy">Privacy</a>
       <a href="appcast.xml">Update feed</a>
     </div>
-    <div class="foot-meta">© 2026 Rudra Pratap Singh · Penova v1.0.0 · Built in 🇮🇳</div>
+    <div class="foot-meta" style="margin-bottom: 10px;">
+      Built by one person. Feedback, feature requests, and business queries are read and replied to.
+    </div>
+    <div class="foot-meta">
+      <a href="mailto:rudra.ptp.singh@gmail.com">rudra.ptp.singh@gmail.com</a>
+      &nbsp;·&nbsp;
+      <a href="tel:+919956340651">+91 99563 40651</a>
+      &nbsp;·&nbsp;
+      <a href="https://wa.me/919956340651">WhatsApp</a>
+    </div>
+    <div class="foot-meta" style="margin-top: 14px;">© 2026 Rudra Pratap Singh · Penova v1.0.0 · Built in 🇮🇳</div>
   </div>
 </footer>
 

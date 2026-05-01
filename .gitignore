@@ -85,3 +85,4 @@ PenovaTests/Fixtures/screenplays/*.fountain
 PenovaTests/Fixtures/screenplays/**/*.pdf
 PenovaTests/Fixtures/screenplays/**/*.fdx
 PenovaTests/Fixtures/screenplays/**/*.fountain
+.wrangler/

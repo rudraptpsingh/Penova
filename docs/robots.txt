@@ -1,0 +1,13 @@
+# Penova — robots.txt
+# Public landing site for the free Mac/iPhone screenwriting app.
+# Allow indexing by search engines and reasonable AI crawlers; the
+# pages here are designed to be discoverable.
+
+User-agent: *
+Allow: /
+
+# Don't waste crawler budget on artifacts that aren't user-readable.
+Disallow: /releases/
+Disallow: /appcast.xml
+
+Sitemap: https://penova.pages.dev/sitemap.xml
