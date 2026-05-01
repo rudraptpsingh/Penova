@@ -28,6 +28,7 @@
 		4885E1C5BB2F3B5C1B414352 /* SearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63797BEBCD9A39817DB21091 /* SearchServiceTests.swift */; };
 		4DC274E8363B8E0B21D539BA /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77473BD2458260CD0DC78303 /* SeedData.swift */; };
 		4F5665867EECA543740A3794 /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */; };
+		51D11D515746C0291CC23DC0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B69266B4165396AF3BE61060 /* Assets.xcassets */; };
 		60353FCE2B1B2736F4A0327E /* MeasurePageCountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */; };
 		65AC2666F3FB5D7A6BFDE537 /* CharacterDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */; };
 		69190BB81A070D08F3251619 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */; };
@@ -154,6 +155,7 @@
 		A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
 		AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFlowView.swift; sourceTree = "<group>"; };
 		AE7B232CCCE173DCAFA5D0C6 /* SearchAndCharacterReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchAndCharacterReportTests.swift; sourceTree = "<group>"; };
+		B69266B4165396AF3BE61060 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B759711443F2E63064750D1E /* EditorLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorLogicTests.swift; sourceTree = "<group>"; };
 		BA7679894C47D022D747EE1A /* PDFTitlePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTitlePageTests.swift; sourceTree = "<group>"; };
 		BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 		402EECE80CAD6F3BA2D4634A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B69266B4165396AF3BE61060 /* Assets.xcassets */,
 				44322770DB8072793E68A20A /* Fonts */,
 			);
 			path = Resources;
@@ -680,6 +683,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51D11D515746C0291CC23DC0 /* Assets.xcassets in Resources */,
 				31582675706C3DC7DBD72022 /* Inter-Bold.ttf in Resources */,
 				789D7B7E9F60458A947F8372 /* Inter-Medium.ttf in Resources */,
 				BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */,
@@ -947,6 +951,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1038,6 +1043,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
