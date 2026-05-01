@@ -64,6 +64,7 @@ struct NewCharacterSheet: View {
             }
             .onAppear(perform: hydrate)
         }
+            .preferredColorScheme(.dark)
     }
 
     private var projectPicker: some View {

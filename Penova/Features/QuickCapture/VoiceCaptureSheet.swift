@@ -87,6 +87,7 @@ struct VoiceCaptureSheet: View {
             }
             .onDisappear { recorder.stop() }
         }
+            .preferredColorScheme(.dark)
     }
 
     private func toggleRecording() {

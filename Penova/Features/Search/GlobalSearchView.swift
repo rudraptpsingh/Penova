@@ -53,6 +53,7 @@ struct GlobalSearchView: View {
                 }
             }
         }
+            .preferredColorScheme(.dark)
         .onChange(of: query) { _, newValue in
             scheduleDebounce(newValue)
         }

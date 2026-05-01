@@ -99,6 +99,7 @@ struct NewProjectSheet: View {
             }
             .onAppear(perform: hydrate)
         }
+            .preferredColorScheme(.dark)
     }
 
     private func hydrate() {

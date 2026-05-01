@@ -56,5 +56,6 @@ struct ExportShareSheet: View {
             .navigationTitle("Export")
             .navigationBarTitleDisplayMode(.inline)
         }
+            .preferredColorScheme(.dark)
     }
 }

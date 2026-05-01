@@ -50,6 +50,7 @@ struct RootView: View {
                 .tag(Tab.scenes)
         }
         .tint(PenovaColor.amber)
+        .preferredColorScheme(.dark)
         .environmentObject(router)
         .onAppear { applyScreenshotRoute() }
         .onChange(of: router.pendingSceneID) { _, newValue in

@@ -53,6 +53,7 @@ struct NewEpisodeSheet: View {
                 if let ep = editing { title = ep.title }
             }
         }
+            .preferredColorScheme(.dark)
     }
 
     private func save() {

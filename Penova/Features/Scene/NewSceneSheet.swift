@@ -110,6 +110,7 @@ struct NewSceneSheet: View {
             }
             .onAppear(perform: hydrate)
         }
+            .preferredColorScheme(.dark)
     }
 
     private func hydrate() {
