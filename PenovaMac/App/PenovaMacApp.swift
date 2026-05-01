@@ -199,6 +199,28 @@ struct PenovaMacApp: App {
             // (Highland, Fade In, OmniFocus, Things) puts it.
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updater)
+                Divider()
+                Button("Send Feedback…") {
+                    PenovaMacFeedback.sendFeedback()
+                }
+            }
+
+            // Help menu — Apple's convention puts feedback under Help
+            // for users who didn't think to look in the app menu. We
+            // provide both paths (Bear/Tot pattern).
+            CommandGroup(replacing: .help) {
+                Button("Penova Help") {
+                    if let url = URL(string: "https://penova.pages.dev/support") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .keyboardShortcut("?", modifiers: [.command])
+
+                Divider()
+
+                Button("Send Feedback to Penova…") {
+                    PenovaMacFeedback.sendFeedback()
+                }
             }
 
             // Replace the default New… command with one that produces a Project,

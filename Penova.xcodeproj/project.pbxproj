@@ -24,7 +24,9 @@
 		15CBDE9031EE185AAE07D1F1 /* VoiceCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */; };
 		172BCC5DBCC6C259394B9B13 /* MacSearchOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B122F5121D44FE085D1D8A4 /* MacSearchOverlay.swift */; };
 		1F8BF3CAF6A155752A10A3F4 /* MacPDFRenderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3CC864B1287BEA86592F4E /* MacPDFRenderTests.swift */; };
+		20BC97D8D7DF8C3FC51F099A /* FeedbackComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207EB1D29DF0223FD3B7AE60 /* FeedbackComposerTests.swift */; };
 		26CFFF1E938FBA5E7D494F5D /* PDFPageBreakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C96D74995B8C328443109F9 /* PDFPageBreakTests.swift */; };
+		28D1504BCE38A3560F2A3F07 /* PenovaMacFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62015E6995BA625579B1DD0 /* PenovaMacFeedback.swift */; };
 		2B6989BE67DE7B010A4183DB /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E07C94B3CE06C0D97AC5EC52 /* Inter-SemiBold.ttf */; };
 		2D552732A137B6D9E01EFFFE /* LibraryWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ED3E399DCC78C094F80D1 /* LibraryWindowView.swift */; };
 		31582675706C3DC7DBD72022 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */; };
@@ -162,6 +164,7 @@
 		1BD9C67C488C867C969A1DF2 /* ScriptEditorPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptEditorPane.swift; sourceTree = "<group>"; };
 		1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersTabScreen.swift; sourceTree = "<group>"; };
 		1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneHeadingParserTests.swift; sourceTree = "<group>"; };
+		207EB1D29DF0223FD3B7AE60 /* FeedbackComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackComposerTests.swift; sourceTree = "<group>"; };
 		25D486CD1D488EE931D32996 /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
 		25DC376E071873F871BF16D1 /* DesignSystemGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemGallery.swift; sourceTree = "<group>"; };
 		272D8B66F02F2E38BD3C672C /* PDFLineSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLineSource.swift; sourceTree = "<group>"; };
@@ -222,6 +225,7 @@
 		9F8ED3E399DCC78C094F80D1 /* LibraryWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryWindowView.swift; sourceTree = "<group>"; };
 		A0D48F047FDBBA1EA36E4BB1 /* GlobalSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSearchView.swift; sourceTree = "<group>"; };
 		A1C423322938B1FD02C34C1B /* PDFLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutTests.swift; sourceTree = "<group>"; };
+		A62015E6995BA625579B1DD0 /* PenovaMacFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacFeedback.swift; sourceTree = "<group>"; };
 		A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
 		AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFlowView.swift; sourceTree = "<group>"; };
@@ -339,6 +343,7 @@
 				E3DE4830601DD2956399CA48 /* DevanagariRenderTests.swift */,
 				B759711443F2E63064750D1E /* EditorLogicTests.swift */,
 				8603AF3BC0D725896C882A84 /* FDXReaderTests.swift */,
+				207EB1D29DF0223FD3B7AE60 /* FeedbackComposerTests.swift */,
 				01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */,
 				5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */,
 				C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */,
@@ -441,6 +446,7 @@
 				19317ED789EE4031C852A9D1 /* PenovaLog.swift */,
 				78A0B0D4B3BCC3DB31669AB1 /* PenovaMac.entitlements */,
 				4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */,
+				A62015E6995BA625579B1DD0 /* PenovaMacFeedback.swift */,
 				0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */,
 				28337EE4F750D2DABD9149E8 /* SmokeTest.swift */,
 				F704CDBE88326205A4E3B30B /* UpdaterService.swift */,
@@ -948,6 +954,7 @@
 				F9F587FBB4F98C92723FE9A0 /* DevanagariRenderTests.swift in Sources */,
 				32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */,
 				7F1DC673EDD74797E4AF6E40 /* FDXReaderTests.swift in Sources */,
+				20BC97D8D7DF8C3FC51F099A /* FeedbackComposerTests.swift in Sources */,
 				A242B55E8EFA2B83319160F0 /* FinalDraftXMLWriterDeepTests.swift in Sources */,
 				F51ED583A2CCBC90CD9D2BD8 /* FinalDraftXMLWriterTests.swift in Sources */,
 				7B81B947626453E7EFD8A9EF /* FountainParserTests.swift in Sources */,
@@ -1008,6 +1015,7 @@
 				E502FDA343AC2117F9A1736A /* OutlinePane.swift in Sources */,
 				BDE1311061C22D760C53F5D0 /* PenovaLog.swift in Sources */,
 				922C18DAC021EE66F7C5DABC /* PenovaMacApp.swift in Sources */,
+				28D1504BCE38A3560F2A3F07 /* PenovaMacFeedback.swift in Sources */,
 				BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */,
 				A2C981ECC83CFC236DF1EC2D /* SceneInspector.swift in Sources */,
 				FE15DFA88C81ECA666E59F3D /* ScriptEditorPane.swift in Sources */,
