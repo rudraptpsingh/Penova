@@ -14,6 +14,35 @@ import Foundation
 
 @Suite struct EditorLogicTests {
 
+    // MARK: - External keyboard contract
+    //
+    // iPad-with-keyboard and Mac users press Tab repeatedly to find the
+    // element kind they want. The cycle must close — N taps where N =
+    // SceneElementKind.allCases.count brings them back to where they
+    // started, no kind is unreachable, no kind is duplicated.
+
+    @Test func tabCycleClosesAfterFullPass() {
+        for start in SceneElementKind.allCases {
+            var k = start
+            for _ in 0..<SceneElementKind.allCases.count {
+                k = EditorLogic.tabCycle(from: k)
+            }
+            #expect(k == start, "Tab cycle does not close at \(start); ended at \(k)")
+        }
+    }
+
+    @Test func tabCycleVisitsEveryKindExactlyOnce() {
+        var visited: Set<SceneElementKind> = []
+        var k = SceneElementKind.heading
+        for _ in 0..<SceneElementKind.allCases.count {
+            visited.insert(k)
+            k = EditorLogic.tabCycle(from: k)
+        }
+        #expect(visited.count == SceneElementKind.allCases.count,
+                "Tab cycle skips kinds; visited \(visited)")
+    }
+
+
     // MARK: - nextKind (Return advancement)
 
     @Test func nextKindHeadingAdvancesToAction() {

@@ -29,6 +29,13 @@ struct PenovaApp: App {
             let schema = Schema(PenovaSchema.models)
             let config = ModelConfiguration("Penova", schema: schema)
             container = try ModelContainer(for: schema, configurations: [config])
+            // Note: SwiftData's `ModelContext.undoManager` does NOT
+            // reliably reverse persisted deletes once save() has run
+            // (verified via UndoSupportTests.swiftDataDeleteIsNotUndoable).
+            // The user-facing safety net is therefore the confirm-delete
+            // alerts on every top-level destructive screen. A future
+            // soft-delete tombstone (deletedAt + 30-day purge) would
+            // give us proper restore-from-trash.
             SeedData.installIfNeeded(in: container.mainContext)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
