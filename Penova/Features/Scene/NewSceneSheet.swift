@@ -85,6 +85,9 @@ struct NewSceneSheet: View {
                             text: $locationName,
                             placeholder: "Platform 7"
                         )
+                        if !filteredLocationSuggestions.isEmpty {
+                            locationSuggestionStrip
+                        }
                         chipRow("Time", selection: $time, options: SceneTimeOfDay.allCases) { $0.rawValue }
                     }
                     PenovaTextField(
@@ -140,6 +143,44 @@ struct NewSceneSheet: View {
                     ) {
                         selection.wrappedValue = option
                     }
+                }
+            }
+        }
+    }
+
+    // MARK: - Location autocomplete
+
+    /// All locations already used in this project, frequency-sorted.
+    /// We pull the parent project off `episode.project` lazily on each
+    /// keystroke — cheap because it's an in-memory SwiftData walk.
+    private var filteredLocationSuggestions: [String] {
+        guard let project = episode.project else { return [] }
+        let pool = AutocompleteService.locations(in: project)
+            .filter { $0 != locationName.uppercased() }   // hide exact-match self
+        let trimmed = locationName.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else {
+            // Empty query → show top 6 most-used locations as quick-tap suggestions.
+            return Array(pool.prefix(6))
+        }
+        return Array(EditorLogic.suggestions(query: trimmed, in: pool).prefix(6))
+    }
+
+    private var locationSuggestionStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: PenovaSpace.xs) {
+                ForEach(filteredLocationSuggestions, id: \.self) { suggestion in
+                    Button {
+                        locationName = suggestion
+                    } label: {
+                        Text(suggestion)
+                            .font(PenovaFont.monoScript)
+                            .foregroundStyle(PenovaColor.snow)
+                            .padding(.horizontal, PenovaSpace.s)
+                            .padding(.vertical, PenovaSpace.xs)
+                            .background(PenovaColor.ink3)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
