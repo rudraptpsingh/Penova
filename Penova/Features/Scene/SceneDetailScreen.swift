@@ -21,6 +21,17 @@ struct SceneDetailScreen: View {
     @FocusState private var focused: String?
     @State private var showEditScene = false
     @State private var showDeleteConfirm = false
+    /// F4 — pending smart paste awaiting user confirmation. The pill
+    /// overlays above the editor; tapping Convert / Keep / auto-
+    /// dismiss resolves it.
+    @State private var pendingPaste: PendingPaste?
+
+    private struct PendingPaste: Identifiable {
+        let id = UUID()
+        let text: String
+        let verdict: ScreenplayPasteVerdict
+        let anchorID: String?
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -78,6 +89,23 @@ struct SceneDetailScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .toolbar { keyboardToolbar }
+            .overlay(alignment: .top) {
+                if let pending = pendingPaste {
+                    PastePromptPill(
+                        onConvert: {
+                            applySmartPaste(pending, asPlain: false)
+                            pendingPaste = nil
+                        },
+                        onKeepPlain: {
+                            applySmartPaste(pending, asPlain: true)
+                            pendingPaste = nil
+                        }
+                    )
+                    .padding(.horizontal, PenovaSpace.m)
+                    .padding(.top, PenovaSpace.s)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
             .onChange(of: focused) { _, newValue in
                 if let id = newValue {
                     withAnimation(PenovaMotion.easingFast) {
@@ -178,6 +206,26 @@ struct SceneDetailScreen: View {
                             .padding(.horizontal, PenovaSpace.s)
                             .padding(.vertical, PenovaSpace.xs)
                         }
+
+                        Divider()
+                            .frame(height: 20)
+                            .padding(.horizontal, PenovaSpace.xs)
+
+                        Button {
+                            triggerSmartPaste(anchor: el)
+                        } label: {
+                            HStack(spacing: PenovaSpace.xs) {
+                                Image(systemName: "doc.on.clipboard")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(PenovaColor.snow)
+                                Text("Smart paste")
+                                    .font(PenovaFont.bodySmall)
+                                    .foregroundStyle(PenovaColor.snow)
+                            }
+                            .padding(.horizontal, PenovaSpace.s)
+                            .padding(.vertical, PenovaSpace.xs)
+                        }
+                        .accessibilityLabel("Smart paste from clipboard")
                     }
                     .padding(.vertical, PenovaSpace.xs)
                 }
@@ -400,6 +448,83 @@ struct SceneDetailScreen: View {
         context.delete(scene)
         try? context.save()
         dismiss()
+    }
+
+    // MARK: - F4 smart paste
+
+    /// Read UIPasteboard, classify, route. Direct-Fountain skips the
+    /// pill; .maybeScreenplay shows the pill at the top of the editor;
+    /// .plain inserts as a single Action element.
+    private func triggerSmartPaste(anchor: SceneElement?) {
+        guard let raw = UIPasteboard.general.string, !raw.isEmpty else { return }
+        let verdict = ScreenplayPasteDetector.classify(raw)
+        let anchorID = anchor?.id ?? focused
+        switch verdict {
+        case .fountain:
+            insertSmartPasteBlocks(
+                ScreenplayPasteConverter.convert(raw, verdict: verdict),
+                afterID: anchorID
+            )
+        case .maybeScreenplay:
+            withAnimation(PenovaMotion.easingFast) {
+                pendingPaste = PendingPaste(
+                    text: raw, verdict: verdict, anchorID: anchorID
+                )
+            }
+        case .plain:
+            insertSmartPasteBlocks(
+                ScreenplayPasteConverter.convert(raw, verdict: verdict),
+                afterID: anchorID
+            )
+        }
+    }
+
+    private func applySmartPaste(_ p: PendingPaste, asPlain: Bool) {
+        let verdict: ScreenplayPasteVerdict = asPlain ? .plain : p.verdict
+        let blocks = ScreenplayPasteConverter.convert(p.text, verdict: verdict)
+        insertSmartPasteBlocks(blocks, afterID: p.anchorID)
+    }
+
+    private func insertSmartPasteBlocks(
+        _ blocks: [ScreenplayPasteConverter.Block],
+        afterID: String?
+    ) {
+        guard !blocks.isEmpty else { return }
+        let ordered = scene.elementsOrdered
+        let anchorIndex: Int
+        if let afterID, let idx = ordered.firstIndex(where: { $0.id == afterID }) {
+            anchorIndex = idx
+        } else {
+            anchorIndex = ordered.count - 1
+        }
+        let anchorOrder = anchorIndex >= 0 ? ordered[anchorIndex].order : -1
+
+        for el in scene.elementsOrdered where el.order > anchorOrder {
+            el.order += blocks.count
+        }
+
+        var nextOrder = anchorOrder + 1
+        var firstID: String?
+        let activeRevID = scene.episode?.project?.activeRevision?.id
+        for block in blocks {
+            let new = SceneElement(
+                kind: block.kind,
+                text: block.text,
+                order: nextOrder,
+                characterName: block.characterName
+            )
+            new.scene = scene
+            if let revID = activeRevID { new.lastRevisedRevisionID = revID }
+            context.insert(new)
+            scene.elements.append(new)
+            if firstID == nil { firstID = new.id }
+            nextOrder += 1
+        }
+        scene.updatedAt = .now
+        try? context.save()
+        if let id = firstID {
+            DispatchQueue.main.async { focused = id }
+        }
     }
 
     /// Called just before advancing focus so the current row's text is

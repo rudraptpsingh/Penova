@@ -243,6 +243,21 @@ struct PenovaMacApp: App {
             // structural element rather than the text inside it.
             CommandGroup(after: .pasteboard) {
                 Divider()
+                // F4 — Smart Paste. ⇧⌘V on Mac (Final Draft / Highland
+                // both use the same shortcut for paste-as-screenplay).
+                // We add a separate menu item rather than intercepting
+                // ⌘V because the SwiftUI/AppKit boundary makes it hard
+                // to forward fall-through to the focused TextField's
+                // default paste behaviour without writing a custom
+                // NSTextView wrapper.
+                Button("Smart Paste") {
+                    NotificationCenter.default.post(
+                        name: .penovaSmartPaste, object: nil
+                    )
+                }
+                .keyboardShortcut("v", modifiers: [.command, .shift])
+
+                Divider()
                 Button("Delete Line") {
                     NotificationCenter.default.post(
                         name: .penovaDeleteFocusedElement, object: nil
@@ -310,6 +325,11 @@ extension Notification.Name {
     /// Set the focused element's kind to the given SceneElementKind raw value.
     /// userInfo: ["kind": SceneElementKind.rawValue]
     static let penovaSetElementKind = Notification.Name("penova.setElementKind")
+    /// F4 — ⇧⌘V Smart Paste: editor reads NSPasteboard, classifies it
+    /// via ScreenplayPasteDetector, and either inserts structured
+    /// elements (Fountain), shows a pill (maybeScreenplay), or pastes
+    /// as a plain Action (plain).
+    static let penovaSmartPaste = Notification.Name("penova.smartPaste")
 }
 
 // MARK: - Font registration

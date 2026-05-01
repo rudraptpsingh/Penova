@@ -11,6 +11,7 @@
 
 import SwiftUI
 import SwiftData
+import AppKit
 import PenovaKit
 
 struct ScriptEditorPane: View {
@@ -56,6 +57,21 @@ struct PaperPage: View {
     @Bindable var scene: ScriptScene
     @Environment(\.modelContext) private var context
     @FocusState private var focused: String?
+    /// Pending paste awaiting user confirmation. Populated when ⇧⌘V is
+    /// pressed and the detector returns `.maybeScreenplay`. The pill
+    /// overlays above the editor; tapping Convert/Keep dismisses it.
+    @State private var pendingPaste: PendingPaste?
+
+    /// Stashed payload for the smart-paste flow. Holds the raw string
+    /// + verdict + the anchor element that was focused at the moment
+    /// of the paste so we can insert at the right spot once the user
+    /// decides what to do.
+    private struct PendingPaste: Identifiable {
+        let id = UUID()
+        let text: String
+        let verdict: ScreenplayPasteVerdict
+        let anchorID: String?
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -111,6 +127,23 @@ struct PaperPage: View {
         )
         .shadow(color: .black.opacity(0.5), radius: 30, x: 0, y: 20)
         .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+        .overlay(alignment: .top) {
+            if let pending = pendingPaste {
+                PastePromptPill(
+                    onConvert: {
+                        applyConversion(pending)
+                        pendingPaste = nil
+                    },
+                    onKeepPlain: {
+                        applyPlain(pending)
+                        pendingPaste = nil
+                    }
+                )
+                .padding(.top, 12)
+                .padding(.horizontal, 12)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
         .onAppear {
             if let last = scene.elementsOrdered.last {
                 focused = last.id
@@ -120,6 +153,10 @@ struct PaperPage: View {
             if let last = scene.elementsOrdered.last {
                 focused = last.id
             }
+            pendingPaste = nil
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .penovaSmartPaste)) { _ in
+            handleSmartPaste()
         }
     }
 
@@ -253,6 +290,100 @@ struct PaperPage: View {
         stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
+    }
+
+    // MARK: - F4 smart paste
+
+    /// Read NSPasteboard, classify, route. Direct-Fountain skips the
+    /// pill and inserts immediately. .maybeScreenplay shows the pill
+    /// for the user to confirm. .plain inserts a single Action.
+    private func handleSmartPaste() {
+        guard let raw = NSPasteboard.general.string(forType: .string),
+              !raw.isEmpty else { return }
+        let verdict = ScreenplayPasteDetector.classify(raw)
+        let anchorID = focused
+        switch verdict {
+        case .fountain:
+            insertBlocks(
+                ScreenplayPasteConverter.convert(raw, verdict: verdict),
+                afterID: anchorID
+            )
+        case .maybeScreenplay:
+            withAnimation(PenovaMotion.easingFast) {
+                pendingPaste = PendingPaste(
+                    text: raw, verdict: verdict, anchorID: anchorID
+                )
+            }
+        case .plain:
+            insertBlocks(
+                ScreenplayPasteConverter.convert(raw, verdict: verdict),
+                afterID: anchorID
+            )
+        }
+    }
+
+    /// User tapped "Convert" on the pill — parse via the lite parser
+    /// and insert the typed blocks.
+    private func applyConversion(_ p: PendingPaste) {
+        let blocks = ScreenplayPasteConverter.convert(p.text, verdict: p.verdict)
+        insertBlocks(blocks, afterID: p.anchorID)
+    }
+
+    /// User tapped "Keep as plain text" or the pill auto-dismissed —
+    /// fall back to a single Action element.
+    private func applyPlain(_ p: PendingPaste) {
+        let blocks = ScreenplayPasteConverter.convert(p.text, verdict: .plain)
+        insertBlocks(blocks, afterID: p.anchorID)
+    }
+
+    /// Insert the given typed blocks as new SceneElements, slotted in
+    /// after the element with `afterID` (or at the end if no anchor).
+    /// All inserts land in a single `context.save()` so undo restores
+    /// the pre-paste state in one step.
+    private func insertBlocks(
+        _ blocks: [ScreenplayPasteConverter.Block],
+        afterID: String?
+    ) {
+        guard !blocks.isEmpty else { return }
+        let ordered = scene.elementsOrdered
+        let anchorIndex: Int
+        if let afterID, let idx = ordered.firstIndex(where: { $0.id == afterID }) {
+            anchorIndex = idx
+        } else {
+            anchorIndex = ordered.count - 1
+        }
+        let anchorOrder = anchorIndex >= 0 ? ordered[anchorIndex].order : -1
+
+        // Shift everyone after the anchor up by `blocks.count` so the
+        // inserted run slots in contiguously.
+        for el in scene.elementsOrdered where el.order > anchorOrder {
+            el.order += blocks.count
+        }
+
+        var nextOrder = anchorOrder + 1
+        var firstInsertedID: String?
+        let activeRevID = scene.episode?.project?.activeRevision?.id
+        for block in blocks {
+            let new = SceneElement(
+                kind: block.kind,
+                text: block.text,
+                order: nextOrder,
+                characterName: block.characterName
+            )
+            new.scene = scene
+            if let revID = activeRevID { new.lastRevisedRevisionID = revID }
+            context.insert(new)
+            if firstInsertedID == nil { firstInsertedID = new.id }
+            nextOrder += 1
+        }
+        scene.updatedAt = .now
+        try? context.save()
+
+        if let id = firstInsertedID {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                self.focused = id
+            }
+        }
     }
 }
 
