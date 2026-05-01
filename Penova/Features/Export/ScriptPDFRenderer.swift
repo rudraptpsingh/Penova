@@ -86,16 +86,20 @@ enum ScriptPDFRenderer {
     private static func layout(project: Project, state: inout LayoutState) {
         drawTitlePage(project: project, state: &state)
         let resetPerEpisode = project.activeEpisodesOrdered.count > 1
-        var sceneNumber = 1
+        var liveNumber = 1
         for (epIndex, episode) in project.activeEpisodesOrdered.enumerated() {
             state.startScriptPage()
             if project.activeEpisodesOrdered.count > 1 {
                 drawEpisodeHeader(episode, index: epIndex, state: &state)
             }
-            if resetPerEpisode { sceneNumber = 1 }
+            if resetPerEpisode { liveNumber = 1 }
             for scene in episode.scenesOrdered {
-                drawScene(scene, number: sceneNumber, state: &state)
-                sceneNumber += 1
+                // When the project is locked, prefer the frozen scene
+                // number from `lockedSceneNumbers`; otherwise fall back
+                // to the live 1-based count.
+                let renderNumber = project.renderSceneNumber(for: scene, live: liveNumber)
+                drawScene(scene, number: renderNumber, state: &state)
+                liveNumber += 1
             }
         }
     }
