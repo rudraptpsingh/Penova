@@ -179,6 +179,12 @@ struct PenovaMacApp: App {
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
+
+        // F5 — opt-in anonymous usage stats. startScheduling() is a
+        // no-op when the toggle is off (the actual flushIfDue() guard
+        // bails out on `analyticsEnabled == false`), so it's safe to
+        // call unconditionally on every launch.
+        AnalyticsService.shared.startScheduling()
     }
 
     var body: some Scene {
@@ -308,6 +314,13 @@ struct PenovaMacApp: App {
                 }
                 .keyboardShortcut("r", modifiers: [.command, .option])
             }
+        }
+
+        // Standard ⌘, "Settings…" window — Privacy & Analytics tab
+        // hosts the F5 opt-in toggle. The Settings scene is a peer of
+        // WindowGroup, NOT a modifier on it.
+        Settings {
+            SettingsScene()
         }
     }
 }

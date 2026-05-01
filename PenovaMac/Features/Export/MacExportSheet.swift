@@ -192,6 +192,9 @@ struct MacExportSheet: View {
         do {
             try writeContent(to: url)
             resultMessage = "Exported to \(url.lastPathComponent)"
+            // F5 — opt-in usage stats. record() is a no-op when the
+            // toggle is off; only counts successful exports.
+            AnalyticsService.shared.record(.exportRun)
         } catch {
             resultMessage = "Export failed: \(error.localizedDescription)"
         }

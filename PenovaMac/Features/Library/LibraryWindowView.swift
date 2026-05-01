@@ -116,6 +116,8 @@ struct LibraryWindowView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .penovaShowReports)) { _ in
                 reportsSheetVisible = true
+                // F5 — opt-in usage stats. No-op when the toggle is off.
+                AnalyticsService.shared.record(.reportViewed)
             }
             .onReceive(NotificationCenter.default.publisher(for: .penovaLockScript)) { _ in
                 if currentProject?.locked == false {

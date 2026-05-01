@@ -17,10 +17,12 @@ struct SettingsScreen: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var auth: AuthSession
+    @ObservedObject private var prefs = PreferencesStore.shared
 
     @State private var showDeleteAll = false
     @State private var showSignOutConfirm = false
     @State private var showCopyFeedbackFallback = false
+    @State private var showAnalyticsSent = false
 
     var body: some View {
         ScrollView {
@@ -28,6 +30,7 @@ struct SettingsScreen: View {
                 accountBlock
                 appearanceBlock
                 privacyBlock
+                analyticsBlock
                 habitBlock
                 aboutBlock
                 dangerBlock
@@ -48,6 +51,9 @@ struct SettingsScreen: View {
             Button("Sign out", role: .destructive) { auth.signOut() }
         } message: {
             Text("Your scripts stay on this device. Signing back in restores your name and email on new exports.")
+        }
+        .sheet(isPresented: $showAnalyticsSent) {
+            AnalyticsSentSheet()
         }
     }
 
@@ -181,6 +187,93 @@ struct SettingsScreen: View {
         }
     }
 
+    /// F5 — opt-in anonymous usage stats. OFF by default. The toggle is
+    /// bound to `PreferencesStore.shared.analyticsEnabled`; flipping it
+    /// either enables or disables a once-per-day POST to
+    /// `https://penova.pages.dev/v1/ping`. Disclosure copy mirrors the
+    /// Mac Settings scene (compressed for mobile).
+    private var analyticsBlock: some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.s) {
+            Text("Analytics")
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(PenovaColor.snow3)
+            VStack(alignment: .leading, spacing: PenovaSpace.s) {
+                Toggle(isOn: $prefs.analyticsEnabled) {
+                    Text("Help improve Penova by sharing anonymous usage data")
+                        .font(PenovaFont.body)
+                        .foregroundStyle(PenovaColor.snow)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .tint(PenovaColor.amber)
+
+                Divider().overlay(PenovaColor.ink4)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("What we collect (only when this is on):")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow2)
+                    Text("• App version, iOS version, locale\n• Aggregate counts: scripts opened, scripts created, exports run, reports viewed")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow3)
+
+                    Text("What we never collect:")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow2)
+                        .padding(.top, 4)
+                    Text("• The contents of your scripts\n• Your name, email, IP, or any account identifier\n• Document filenames, paths, or metadata")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow3)
+
+                    Text("Sent once per day, in a payload smaller than 1 KB. You can turn this off at any time.")
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow4)
+                        .padding(.top, 4)
+                }
+
+                Divider().overlay(PenovaColor.ink4)
+
+                Button(action: { showAnalyticsSent = true }) {
+                    HStack {
+                        Text("View what's been sent")
+                            .font(PenovaFont.body)
+                            .foregroundStyle(PenovaColor.snow)
+                        Spacer()
+                        PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                            .rotationEffect(.degrees(180))
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Divider().overlay(PenovaColor.ink4)
+
+                Button(action: openPrivacyDetails) {
+                    HStack {
+                        Text("Privacy details")
+                            .font(PenovaFont.body)
+                            .foregroundStyle(PenovaColor.snow)
+                        Spacer()
+                        PenovaIconView(.back, size: 14, color: PenovaColor.snow4)
+                            .rotationEffect(.degrees(180))
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(PenovaSpace.m)
+            .background(PenovaColor.ink2)
+            .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+        }
+    }
+
+    private func openPrivacyDetails() {
+        if let url = URL(string: "https://penova.pages.dev/privacy") {
+            UIApplication.shared.open(url)
+        }
+    }
+
     private var habitBlock: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.s) {
             Text("Writing")
@@ -306,5 +399,87 @@ struct SettingsScreen: View {
         try? context.save()
         UserDefaults.standard.removeObject(forKey: "penova.didSeedDemo.v2")
         HabitTracker.clearAllSnapshots()
+    }
+}
+
+// MARK: - Analytics "View what's been sent" sheet
+
+/// Lets the user see exactly what payload would be sent right now if a
+/// flush fired. Updates live as `pendingCounters` changes. The user can
+/// copy the JSON to the clipboard for a totally transparent audit.
+private struct AnalyticsSentSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var analytics = AnalyticsService.shared
+    @ObservedObject private var prefs = PreferencesStore.shared
+
+    @State private var copied = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: PenovaSpace.m) {
+                    Text(subtitle)
+                        .font(PenovaFont.bodySmall)
+                        .foregroundStyle(PenovaColor.snow3)
+
+                    Text(payloadJSON)
+                        .font(.system(size: 12, design: .monospaced))
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(PenovaSpace.m)
+                        .background(PenovaColor.ink2)
+                        .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.md))
+
+                    Button(action: copy) {
+                        HStack(spacing: 6) {
+                            Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                            Text(copied ? "Copied" : "Copy JSON to clipboard")
+                        }
+                        .font(PenovaFont.body)
+                        .foregroundStyle(PenovaColor.amber)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(PenovaSpace.l)
+            }
+            .background(PenovaColor.ink0)
+            .navigationTitle("What's been sent")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private var subtitle: String {
+        if !prefs.analyticsEnabled {
+            return "Analytics is off. Nothing is being sent."
+        }
+        if let last = prefs.analyticsLastSent {
+            let f = DateFormatter()
+            f.dateStyle = .medium
+            f.timeStyle = .short
+            return "Last successful send: \(f.string(from: last))"
+        }
+        return "Never sent."
+    }
+
+    private var payloadJSON: String {
+        let payload = analytics.makePayload()
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(payload),
+              let s = String(data: data, encoding: .utf8) else {
+            return "{}"
+        }
+        return s
+    }
+
+    private func copy() {
+        UIPasteboard.general.string = payloadJSON
+        copied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { copied = false }
     }
 }

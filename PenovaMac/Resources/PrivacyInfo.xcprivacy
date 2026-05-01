@@ -10,17 +10,8 @@
     <array>
         <!--
             F5 (v1.1) — opt-in anonymous usage stats. Off by default.
-            We collect aggregate product-interaction counters when, and
-            only when, the user toggles "Help improve Penova by sharing
-            anonymous usage data" ON in Settings → Privacy & Analytics.
-
-            Per Apple's privacy-manifest schema:
-              - NSPrivacyCollectedDataType: ProductInteraction
-              - NSPrivacyCollectedDataTypeLinked = false
-                  (no install ID, no account ID, no device model)
-              - NSPrivacyCollectedDataTypeTracking = false
-                  (no ad identifier, no cross-site/app combination)
-              - Purpose: AppFunctionality + Analytics
+            See Penova/Resources/PrivacyInfo.xcprivacy for the canonical
+            comment block; this file mirrors it for the Mac target.
         -->
         <dict>
             <key>NSPrivacyCollectedDataType</key>

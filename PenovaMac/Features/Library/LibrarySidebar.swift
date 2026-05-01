@@ -240,6 +240,12 @@ struct LibrarySidebar: View {
         let isSelected = selectedScene?.id == scene.id
         let isHovered  = hoveredSceneID == scene.id
         return Button(action: {
+            // F5 — count this as opening a script when the user
+            // navigates to a different scene (not when re-tapping the
+            // already-selected one, which would just re-affirm focus).
+            if !isSelected {
+                AnalyticsService.shared.record(.scriptOpened)
+            }
             selectedScene = scene
             activeSmart = nil
         }) {
