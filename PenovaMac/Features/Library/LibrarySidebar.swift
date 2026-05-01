@@ -28,16 +28,30 @@ enum SmartGroup: String, CaseIterable, Identifiable {
         case .recentlyEdited: return "clock"
         }
     }
+
+    /// Scenes that belong to this smart group, flattened across all
+    /// projects, in the order the group's UI should display them.
+    static func scenes(for group: SmartGroup, in projects: [Project]) -> [ScriptScene] {
+        let all = projects.flatMap(\.activeEpisodesOrdered).flatMap(\.scenesOrdered)
+        switch group {
+        case .allScenes:
+            return all
+        case .bookmarked:
+            return all.filter(\.bookmarked)
+        case .recentlyEdited:
+            return all.sorted { $0.updatedAt > $1.updatedAt }.prefix(20).map { $0 }
+        }
+    }
 }
 
 struct LibrarySidebar: View {
     let projects: [Project]
     @Binding var selectedScene: ScriptScene?
+    @Binding var activeSmart: SmartGroup?
 
     @State private var query: String = ""
     @State private var openedEpisodes: Set<String> = []
     @State private var openedProjects: Set<String> = []
-    @State private var activeSmart: SmartGroup?
     @State private var hoveredSmart: SmartGroup?
     @State private var hoveredSceneID: String?
 
@@ -171,19 +185,13 @@ struct LibrarySidebar: View {
     }
 
     private func selectSmart(_ group: SmartGroup) {
-        activeSmart = group
-        // Pick the appropriate "first" scene for this smart group so the
-        // editor pane has something to show. Cross-project flat list.
-        let scenes: [ScriptScene]
-        switch group {
-        case .allScenes:
-            scenes = allScenes
-        case .bookmarked:
-            scenes = allScenes.filter(\.bookmarked)
-        case .recentlyEdited:
-            scenes = allScenes.sorted { $0.updatedAt > $1.updatedAt }
+        // Toggle off if already active
+        if activeSmart == group {
+            activeSmart = nil
+            return
         }
-        selectedScene = scenes.first ?? selectedScene
+        activeSmart = group
+        let scenes = SmartGroup.scenes(for: group, in: projects)
         PenovaLog.library.info("smart group: \(group.rawValue, privacy: .public), \(scenes.count) scenes")
     }
 

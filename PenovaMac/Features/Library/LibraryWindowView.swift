@@ -36,6 +36,7 @@ struct LibraryWindowView: View {
     @Query(sort: \Project.updatedAt, order: .reverse) private var projects: [Project]
 
     @State private var selectedScene: ScriptScene?
+    @State private var activeSmart: SmartGroup?
     @State private var sidebarVisibility: NavigationSplitViewVisibility = .all
     @State private var viewMode: CenterViewMode = .editor
     @State private var inspectorVisible: Bool = true
@@ -69,7 +70,8 @@ struct LibraryWindowView: View {
         NavigationSplitView(columnVisibility: $sidebarVisibility) {
             LibrarySidebar(
                 projects: projects,
-                selectedScene: $selectedScene
+                selectedScene: $selectedScene,
+                activeSmart: $activeSmart
             )
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
         } detail: {
@@ -208,13 +210,25 @@ struct LibraryWindowView: View {
 
     @ViewBuilder
     private var centerPane: some View {
-        switch viewMode {
-        case .editor:
-            ScriptEditorPane(scene: selectedScene)
-        case .cards:
-            IndexCardsPane(projects: projects, selectedScene: $selectedScene)
-        case .outline:
-            OutlinePane(projects: projects, selectedScene: $selectedScene)
+        if let group = activeSmart {
+            SmartGroupPane(
+                group: group,
+                projects: projects,
+                onSelectScene: { scene in
+                    selectedScene = scene
+                    activeSmart = nil   // exit smart-group mode
+                    viewMode = .editor
+                }
+            )
+        } else {
+            switch viewMode {
+            case .editor:
+                ScriptEditorPane(scene: selectedScene)
+            case .cards:
+                IndexCardsPane(projects: projects, selectedScene: $selectedScene)
+            case .outline:
+                OutlinePane(projects: projects, selectedScene: $selectedScene)
+            }
         }
     }
 
