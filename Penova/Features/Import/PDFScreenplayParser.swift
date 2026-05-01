@@ -103,6 +103,12 @@ public enum PDFScreenplayParser {
         }
         diag.droppedChromeCount = dropped
 
+        // Stitch parentheticals the renderer wrapped across two visual
+        // lines (e.g. `(without looking` + `up)`). Without this pass,
+        // both lines look broken to validateColumns and the parens
+        // column gets demoted to dialogue.
+        bodyLines = stitchWrappedParens(bodyLines)
+
         // First pass: detect whether page 0 looks like a title page.
         // Heuristic: zero scene-heading-shaped lines AND has a Title-like
         // string OR is densely centered. We check the first heuristic
@@ -391,6 +397,56 @@ public enum PDFScreenplayParser {
             }
             out.append(flush(Array(xSorted[runStart..<xSorted.count]), base: head))
             i = j
+        }
+        return out
+    }
+
+    /// Stitch parentheticals that the renderer wrapped across visual
+    /// lines. The paren column is narrow (~144pt = ~20 Courier chars),
+    /// so a longer-than-20-char `(without looking up)` arrives as two
+    /// adjacent same-x lines: `(without looking` and `up)`. Neither
+    /// matches `^\(.*\)$` on its own — without stitching, validateColumns
+    /// would demote the parens column to dialogue. This pass folds the
+    /// continuation into the opener so downstream classification sees a
+    /// single, well-formed parenthetical.
+    static func stitchWrappedParens(_ lines: [PDFLine]) -> [PDFLine] {
+        guard lines.count > 1 else { return lines }
+        var out: [PDFLine] = []
+        out.reserveCapacity(lines.count)
+        var i = 0
+        while i < lines.count {
+            let cur = lines[i]
+            let curText = cur.text.trimmingCharacters(in: .whitespaces)
+            // Look for the open-paren-but-not-closed pattern.
+            let opensButNotCloses = curText.hasPrefix("(") && !curText.hasSuffix(")")
+            if opensButNotCloses, i + 1 < lines.count {
+                let next = lines[i + 1]
+                let nextText = next.text.trimmingCharacters(in: .whitespaces)
+                // Continuation must sit at (effectively) the same x and
+                // close with `)` without itself opening a new `(`.
+                let sameColumn = abs(next.x - cur.x) <= 6
+                let closesButDidNotOpen = nextText.hasSuffix(")")
+                    && !nextText.hasPrefix("(")
+                // Must also be the very next visual line on the same
+                // page — yTop strictly less, gap within ~2 line heights.
+                let onSamePage = next.pageIndex == cur.pageIndex
+                let yGap = cur.yTop - next.yTop
+                let adjacent = onSamePage && yGap > 0 && yGap <= 28
+                if sameColumn && closesButDidNotOpen && adjacent {
+                    let merged = curText + " " + nextText
+                    out.append(PDFLine(
+                        text: merged,
+                        x: cur.x,
+                        yTop: cur.yTop,
+                        pageHeight: cur.pageHeight,
+                        pageIndex: cur.pageIndex
+                    ))
+                    i += 2
+                    continue
+                }
+            }
+            out.append(cur)
+            i += 1
         }
         return out
     }

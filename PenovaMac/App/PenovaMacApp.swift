@@ -162,6 +162,11 @@ struct PenovaMacApp: App {
                 config = ModelConfiguration("Penova", schema: schema)
             }
             container = try ModelContainer(for: schema, configurations: [config])
+            // Note: SwiftData's `ModelContext.undoManager` does not
+            // reliably reverse persisted deletes after save(); see
+            // PenovaTests/UndoSupportTests for the contract. Top-level
+            // confirm-delete alerts are the user-facing safety net
+            // until soft-delete tombstones land.
             SampleLibrary.installIfNeeded(in: container.mainContext)
             let projectCount = (try? container.mainContext.fetchCount(FetchDescriptor<Project>())) ?? 0
             PenovaLog.app.info("App started, library has \(projectCount, privacy: .public) projects")

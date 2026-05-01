@@ -522,24 +522,23 @@ private func renderAndReparse(_ project: Project) throws -> FountainParser.Parse
 
         let doc = try renderAndReparse(p)
         // Text-survival invariant: every (paren) we wrote round-trips
-        // SOMEWHERE in the recovered output. The parser may misclassify
-        // longer parentheticals as dialogue (the PDFKit column tolerance
-        // is tighter than we'd like for parens > ~14 chars), but the
-        // user-facing concern is the text not vanishing.
+        // SOMEWHERE in the recovered output.
         let allText = doc.scenes.flatMap { $0.elements }.map(\.text)
         for source in ["(softly)", "(without looking up)"] {
             #expect(allText.contains(where: { $0.contains(source) }),
                     "lost parenthetical text '\(source)'")
         }
-        // At least one parenthetical kind survives — proves the role
-        // detector still fires for canonical short parens.
+        // BOTH parentheticals classify correctly. The wrapped-paren
+        // stitcher (`stitchWrappedParens`) folds `(without looking` +
+        // `up)` into one logical line so validateColumns keeps the
+        // parens column intact.
         let parensTagged = doc.scenes.flatMap { $0.elements }
             .filter { $0.kind == .parenthetical }
-        #expect(!parensTagged.isEmpty,
-                "no parenthetical kind recovered at all — classifier regressed")
-        for p in parensTagged {
-            #expect(p.text.hasPrefix("(") && p.text.hasSuffix(")"),
-                    "parenthetical lost wrap: \(p.text)")
+        #expect(parensTagged.count >= 2,
+                "expected ≥2 parens classified, got \(parensTagged.count): \(parensTagged.map(\.text))")
+        for paren in parensTagged {
+            #expect(paren.text.hasPrefix("(") && paren.text.hasSuffix(")"),
+                    "parenthetical lost wrap: \(paren.text)")
         }
         // Both speakers survive in cue order.
         let cues = doc.scenes.flatMap { $0.elements }
@@ -669,5 +668,114 @@ private func renderAndReparse(_ project: Project) throws -> FountainParser.Parse
         #expect(firstDoc.scenes.count == secondDoc.scenes.count,
                 "scene count drifted between identical renders: \(firstDoc.scenes.count) vs \(secondDoc.scenes.count)")
         #expect(firstSceneCount >= 6, "lost scenes on first pass")
+    }
+
+    // MARK: - Mid-dialogue parenthetical (Final Draft "(beat)" pattern)
+    //
+    // The most-cited mobile-screenplay-app limitation in user reviews is
+    // "you can't insert a (beat) mid-dialogue without breaking out a new
+    // character cue." Penova's data model is a flat ordered list, so
+    // dialogue → parenthetical → dialogue is naturally representable;
+    // this test proves it survives render → re-parse without inserting
+    // a phantom character cue between the two dialogue blocks.
+
+    @Test func midDialogueParentheticalKeepsSameSpeaker() throws {
+        let container = try makeContainer2()
+        let ctx = container.mainContext
+        let p = Project(title: "Beat"); ctx.insert(p)
+        let ep = Episode(title: "Pilot", order: 0)
+        ep.project = p; p.episodes.append(ep); ctx.insert(ep)
+        let s = newScene("Roof", order: 0, in: ep, ctx: ctx)
+        append(s, [
+            (.heading, s.heading),
+            (.action, "Wind."),
+            (.character, "ALICE"),
+            (.dialogue, "I have to say something."),
+            (.parenthetical, "(beat)"),
+            (.dialogue, "I'm not coming back."),
+            (.action, "She turns away."),
+        ], in: ctx)
+        try ctx.save()
+
+        let doc = try renderAndReparse(p)
+
+        // Exactly one ALICE cue should be recovered — the renderer must
+        // not emit a fresh character cue between the two dialogue blocks.
+        let cues = doc.scenes.flatMap { $0.elements }
+            .filter { $0.kind == .character }
+            .map { $0.text.uppercased() }
+        let aliceCount = cues.filter { $0 == "ALICE" }.count
+        #expect(aliceCount == 1,
+                "phantom character cue between dialogue blocks; ALICE appears \(aliceCount)× in cues=\(cues)")
+
+        // Both dialogue lines round-trip somewhere. Tolerant on
+        // classification (parser may merge consecutive same-x dialogue
+        // into one block); the user-facing concern is text survival.
+        let allText = doc.scenes.flatMap { $0.elements }.map(\.text)
+            .joined(separator: " ")
+        #expect(allText.contains("I have to say something"),
+                "lost dialogue line 1")
+        #expect(allText.contains("not coming back"),
+                "lost dialogue line 2")
+        #expect(allText.contains("(beat)"),
+                "(beat) mid-dialogue parenthetical lost; got \(allText)")
+    }
+
+    @Test func dialogueParentheticalDialogueOrderingPreserved() throws {
+        // Sequence-fidelity variant: the recovered scene must show the
+        // parenthetical sandwiched between the two dialogue runs.
+        let container = try makeContainer2()
+        let ctx = container.mainContext
+        let p = Project(title: "Order"); ctx.insert(p)
+        let ep = Episode(title: "Pilot", order: 0)
+        ep.project = p; p.episodes.append(ep); ctx.insert(ep)
+        let s = newScene("Stage", order: 0, in: ep, ctx: ctx)
+        append(s, [
+            (.heading, s.heading),
+            (.character, "BOB"),
+            (.dialogue, "FIRSTHALF"),
+            (.parenthetical, "(quietly)"),
+            (.dialogue, "SECONDHALF"),
+        ], in: ctx)
+        try ctx.save()
+
+        let doc = try renderAndReparse(p)
+        let elements = doc.scenes.flatMap { $0.elements }
+        guard let firstIdx = elements.firstIndex(where: { $0.text.contains("FIRSTHALF") }),
+              let parenIdx = elements.firstIndex(where: { $0.text.contains("(quietly") }),
+              let secondIdx = elements.firstIndex(where: { $0.text.contains("SECONDHALF") })
+        else {
+            Issue.record("missing one of: FIRSTHALF, (quietly), SECONDHALF in \(elements.map(\.text))")
+            return
+        }
+        #expect(firstIdx < parenIdx, "(quietly) appeared before FIRSTHALF")
+        #expect(parenIdx < secondIdx, "(quietly) appeared after SECONDHALF")
+    }
+}
+
+// MARK: - EditorLogic mid-dialogue parens flow
+
+@Suite struct MidDialogueParensEditorFlowTests {
+
+    @Test func tabFromDialogueGoesToParenthetical() {
+        // The user's path: while in dialogue, Tab → parenthetical.
+        // Required so they can type "(beat)" mid-dialogue without
+        // resorting to a different keyboard shortcut.
+        #expect(EditorLogic.tabCycle(from: .dialogue) == .parenthetical)
+    }
+
+    @Test func returnFromParentheticalGoesBackToDialogue() {
+        // After typing "(beat)", Return must return them to dialogue —
+        // NOT action. Otherwise the user has to manually re-cycle on
+        // every (beat).
+        #expect(EditorLogic.nextKind(after: .parenthetical) == .dialogue)
+    }
+
+    @Test func parentheticalNormalisationWrapsBareText() {
+        // The user typing "beat" in a parenthetical row should get
+        // "(beat)" on commit — they don't have to remember the parens.
+        #expect(EditorLogic.normalise(text: "beat", kind: .parenthetical) == "(beat)")
+        #expect(EditorLogic.normalise(text: "  beat  ", kind: .parenthetical) == "(beat)")
+        #expect(EditorLogic.normalise(text: "(already)", kind: .parenthetical) == "(already)")
     }
 }
