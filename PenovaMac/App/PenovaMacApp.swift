@@ -201,6 +201,9 @@ struct PenovaMacApp: App {
 extension Notification.Name {
     static let penovaNewProject = Notification.Name("penova.newProject")
     static let penovaNewScene   = Notification.Name("penova.newScene")
+    /// Set the focused element's kind to the given SceneElementKind raw value.
+    /// userInfo: ["kind": SceneElementKind.rawValue]
+    static let penovaSetElementKind = Notification.Name("penova.setElementKind")
 }
 
 // MARK: - Font registration

@@ -136,7 +136,23 @@ struct LibraryWindowView: View {
             Button("") { exportSheetVisible = true }
                 .keyboardShortcut("e", modifiers: .command)
                 .opacity(0)
+
+            // ⌘1–⌘7 set the focused element's kind directly (Final Draft
+            // / Highland / Fade In all expose this same chord).
+            ForEach(Array(SceneElementKind.allCases.enumerated()), id: \.offset) { idx, kind in
+                Button("") { postSetKind(kind) }
+                    .keyboardShortcut(KeyEquivalent(Character(String(idx + 1))), modifiers: .command)
+                    .opacity(0)
+            }
         }
+    }
+
+    private func postSetKind(_ kind: SceneElementKind) {
+        NotificationCenter.default.post(
+            name: .penovaSetElementKind,
+            object: nil,
+            userInfo: ["kind": kind.rawValue]
+        )
     }
 
     // MARK: - Navigation title

@@ -188,6 +188,7 @@ struct PaperPage: View {
 private struct EditableElementRow: View {
     @Bindable var element: SceneElement
     @FocusState.Binding var focusedID: String?
+    @Environment(\.modelContext) private var context
     let onCommit: () -> Void
     let onTab: () -> Void
     let onReturn: () -> Void
@@ -242,6 +243,17 @@ private struct EditableElementRow: View {
                         if new != element.id {
                             onCommit()
                         }
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: .penovaSetElementKind)) { note in
+                        // ⌘1–⌘7 — only the focused row reacts.
+                        guard focusedID == element.id,
+                              let raw = note.userInfo?["kind"] as? String,
+                              let kind = SceneElementKind(rawValue: raw)
+                        else { return }
+                        element.kind = kind
+                        element.scene?.updatedAt = .now
+                        try? context.save()
+                        PenovaLog.editor.info("⌘-shortcut set kind: \(raw, privacy: .public)")
                     }
             }
             .padding(.leading, leadingIndent)
