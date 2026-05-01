@@ -101,7 +101,15 @@ struct PaperPage: View {
         .padding(.horizontal, 80)
         .padding(.top, 48)
         .padding(.bottom, 80)
-        .frame(width: 640, alignment: .leading)
+        // Paper width: adaptive instead of hard 640pt. The window's
+        // minWidth is 1024 — after the 260pt library sidebar and the
+        // 300pt scene inspector, the editor pane has only ~464pt
+        // available, which a fixed 640pt paper overflows (forcing the
+        // user to scroll horizontally to see the right margin). With
+        // maxWidth + idealWidth, the paper renders at 640pt when there's
+        // room (default window size 1280pt+) and shrinks to fit when
+        // the user drags the window narrower or hides nothing.
+        .frame(idealWidth: 640, maxWidth: 640, alignment: .leading)
         .background(PenovaColor.paper)
         .foregroundStyle(paperInk)
         .clipShape(RoundedRectangle(cornerRadius: 2))
@@ -217,6 +225,16 @@ struct PaperPage: View {
     private func delete(_ el: SceneElement) {
         let prev = scene.elementsOrdered.last { $0.order < el.order }
         context.delete(el)
+        // Compact `order` to a contiguous 0..N-1 sequence so subsequent
+        // insertAbove / appendAfter calls can't collide on the same
+        // value. Without this, repeated insert-above + delete sequences
+        // leave sparse `order` values that occasionally produce
+        // duplicates because Swift's stable-sort assumption breaks on
+        // equal keys, and the editor's ForEach order flips between
+        // reloads.
+        for (i, surviving) in scene.elementsOrdered.enumerated() {
+            surviving.order = i
+        }
         scene.updatedAt = .now
         try? context.save()
         focused = prev?.id
