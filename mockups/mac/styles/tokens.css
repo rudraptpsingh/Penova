@@ -1,0 +1,74 @@
+/* Penova design tokens — mirrored 1:1 from PenovaSpec/DesignTokens.swift */
+
+:root {
+  /* Surfaces — dark canvas */
+  --ink0: #0B0A08;
+  --ink1: #100E0B;
+  --ink2: #15130F;
+  --ink3: #1F1C17;
+  --ink4: #2A2620;
+  --ink5: #3A352D;
+
+  /* Neutrals — light content */
+  --snow:  #F5F0E6;
+  --snow2: #E8E2D4;
+  --snow3: #BDB6A6;
+  --snow4: #8B8476;
+
+  /* Accents — semantic, one meaning each */
+  --amber:         #E89B3C;
+  --amber-pressed: #C27F28;
+  --amber-hover:   #F2B968;
+  --jade:          #7FA388;
+  --ember:         #C65D5D;
+  --slate:         #7C8A94;
+
+  /* Editor — script paper surface */
+  --paper:        #F5F0E6;
+  --paper-line:   #D4CBBB;
+  --paper-grain:  rgba(11, 10, 8, 0.025);
+
+  /* Beat colors — derived (decorative; never amber) */
+  --beat-setup:      #7C8A94; /* slate */
+  --beat-inciting:   #C65D5D; /* ember */
+  --beat-turn:       #B68A4A; /* ochre */
+  --beat-midpoint:   #7FA388; /* jade */
+  --beat-climax:     #8E3B3B; /* crimson */
+  --beat-resolution: #8B8476; /* snow4 */
+
+  /* Spacing ladder — 4 / 8 / 12 / 16 / 24 / 40 / 64 (nothing in between) */
+  --s-xs:  4px;
+  --s-s:   8px;
+  --s-sm: 12px;
+  --s-m:  16px;
+  --s-l:  24px;
+  --s-xl: 40px;
+  --s-xxl: 64px;
+
+  /* Radii — three only */
+  --r-sm:   8px;  /* chip · tag */
+  --r-md:  12px;  /* card · sheet */
+  --r-full: 9999px; /* CTA · avatar */
+
+  /* Motion — single curve */
+  --t-fast: 120ms;
+  --t-base: 200ms;
+  --t-slow: 320ms;
+  --ease:   cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Type ramp — Inter (UI), Roboto Mono (script), Playfair Display (brand) */
+  --f-ui:    'Inter', system-ui, sans-serif;
+  --f-mono:  'Roboto Mono', ui-monospace, monospace;
+  --f-brand: 'Playfair Display', Georgia, serif;
+
+  /* Sizes lifted from PenovaFont — used as type-step variables */
+  --t-hero:        28px; /* Inter Bold */
+  --t-title:       22px; /* Inter Bold */
+  --t-body-large:  17px; /* Inter SemiBold */
+  --t-body-medium: 15px; /* Inter Medium */
+  --t-body:        15px; /* Inter Regular */
+  --t-body-small:  13px; /* Inter Regular */
+  --t-caps:        11px; /* Inter SemiBold, tracking 12% */
+  --t-tiny:        10px; /* Inter Medium, tracking 10% */
+  --t-script:      14px; /* Roboto Mono Medium — bumped from 13 for screen legibility */
+}

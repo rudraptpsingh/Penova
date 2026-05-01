@@ -13,6 +13,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct RevisionsListScreen: View {
     @Environment(\.modelContext) private var context

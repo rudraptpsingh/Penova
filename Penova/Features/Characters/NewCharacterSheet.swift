@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct NewCharacterSheet: View {
     @Environment(\.modelContext) private var context
@@ -63,6 +64,7 @@ struct NewCharacterSheet: View {
             }
             .onAppear(perform: hydrate)
         }
+            .preferredColorScheme(.dark)
     }
 
     private var projectPicker: some View {

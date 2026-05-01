@@ -13,7 +13,9 @@ xcuserdata/
 
 ## Build artefacts (regenerate from source)
 build/
+build_artifacts/
 DerivedData/
+*.xcresult/
 *.xcworkspace
 !default.xcworkspace
 *.hmap

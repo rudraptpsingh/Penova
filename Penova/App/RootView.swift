@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 /// App-level router. Feature screens publish intent (e.g. "jump to this scene")
 /// and RootView reacts by flipping the tab and pushing onto the right stack.
@@ -49,6 +50,7 @@ struct RootView: View {
                 .tag(Tab.scenes)
         }
         .tint(PenovaColor.amber)
+        .preferredColorScheme(.dark)
         .environmentObject(router)
         .onAppear { applyScreenshotRoute() }
         .onChange(of: router.pendingSceneID) { _, newValue in

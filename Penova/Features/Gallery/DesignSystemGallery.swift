@@ -10,6 +10,7 @@
 
 #if DEBUG
 import SwiftUI
+import PenovaKit
 
 struct DesignSystemGallery: View {
     @State private var chipSelected = true

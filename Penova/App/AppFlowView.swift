@@ -15,6 +15,7 @@
 //
 
 import SwiftUI
+import PenovaKit
 
 struct AppFlowView: View {
     enum Stage { case splash, onboarding, main }

@@ -11,6 +11,7 @@
 import Testing
 import Foundation
 @testable import Penova
+@testable import PenovaKit
 
 @Suite struct FDXReaderTests {
 

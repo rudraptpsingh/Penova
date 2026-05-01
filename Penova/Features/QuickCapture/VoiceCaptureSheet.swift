@@ -20,6 +20,7 @@ import SwiftUI
 import SwiftData
 import AVFoundation
 import Speech
+import PenovaKit
 
 struct VoiceCaptureSheet: View {
     @Environment(\.modelContext) private var context
@@ -68,6 +69,7 @@ struct VoiceCaptureSheet: View {
                 if recorder.isRecording { recorder.stop() }
             }
         }
+            .preferredColorScheme(.dark)
     }
 
     // MARK: - Locale row

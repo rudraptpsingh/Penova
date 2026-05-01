@@ -8,6 +8,7 @@
 //
 
 import Testing
+@testable import PenovaKit
 @testable import Penova
 
 @Suite struct SceneHeadingParserTests {

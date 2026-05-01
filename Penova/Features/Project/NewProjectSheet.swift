@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct NewProjectSheet: View {
     @Environment(\.modelContext) private var context
@@ -99,6 +100,7 @@ struct NewProjectSheet: View {
             }
             .onAppear(perform: hydrate)
         }
+            .preferredColorScheme(.dark)
     }
 
     private func hydrate() {

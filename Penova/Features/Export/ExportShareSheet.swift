@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import PenovaKit
 
 public enum ExportFormat: String, Codable, CaseIterable {
     case pdf, fdx, fountain
@@ -55,5 +56,6 @@ struct ExportShareSheet: View {
             .navigationTitle("Export")
             .navigationBarTitleDisplayMode(.inline)
         }
+            .preferredColorScheme(.dark)
     }
 }

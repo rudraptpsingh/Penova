@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct NewEpisodeSheet: View {
     @Environment(\.modelContext) private var context
@@ -52,6 +53,7 @@ struct NewEpisodeSheet: View {
                 if let ep = editing { title = ep.title }
             }
         }
+            .preferredColorScheme(.dark)
     }
 
     private func save() {

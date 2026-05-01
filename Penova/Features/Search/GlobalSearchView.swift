@@ -18,6 +18,7 @@
 import SwiftUI
 import SwiftData
 import Combine
+import PenovaKit
 
 struct GlobalSearchView: View {
     @Environment(\.dismiss) private var dismiss
@@ -52,6 +53,7 @@ struct GlobalSearchView: View {
                 }
             }
         }
+            .preferredColorScheme(.dark)
         .onChange(of: query) { _, newValue in
             scheduleDebounce(newValue)
         }

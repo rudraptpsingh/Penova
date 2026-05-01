@@ -23,6 +23,7 @@ import Testing
 import Foundation
 import CoreGraphics
 @testable import Penova
+@testable import PenovaKit
 
 // MARK: - Mock line source
 

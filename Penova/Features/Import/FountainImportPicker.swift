@@ -20,6 +20,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import PenovaKit
 
 struct ScreenplayImportPicker: View {
     @Environment(\.dismiss) private var dismiss

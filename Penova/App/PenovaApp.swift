@@ -9,6 +9,7 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import PenovaKit
 
 @main
 struct PenovaApp: App {

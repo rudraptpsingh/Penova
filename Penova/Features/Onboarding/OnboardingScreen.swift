@@ -18,6 +18,7 @@
 
 import SwiftUI
 import AuthenticationServices
+import PenovaKit
 
 struct OnboardingScreen: View {
     let onFinish: () -> Void

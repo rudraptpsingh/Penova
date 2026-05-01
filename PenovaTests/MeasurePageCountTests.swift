@@ -12,6 +12,7 @@ import Testing
 import Foundation
 import SwiftData
 import CoreGraphics
+@testable import PenovaKit
 @testable import Penova
 
 @MainActor

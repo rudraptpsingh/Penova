@@ -9,6 +9,7 @@
 
 import Testing
 import Foundation
+@testable import PenovaKit
 @testable import Penova
 
 @Suite struct EditorLogicTests {
