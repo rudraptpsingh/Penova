@@ -140,6 +140,15 @@ public enum FountainParser {
                 continue
             }
 
+            // Boneyard `/* ... */` — Fountain comments. Single-line form
+            // gets dropped silently; multi-line form would need a state
+            // machine but the exporter only emits single-line boneyards
+            // for /* Penova-Episode: ... */ delimiters today.
+            if trimmed.hasPrefix("/*") && trimmed.hasSuffix("*/") {
+                i += 1
+                continue
+            }
+
             if isSceneHeading(trimmed) {
                 flushActionInto(scene: &currentScene)
                 if let s = currentScene { doc.scenes.append(s) }
@@ -375,13 +384,6 @@ public enum FountainParser {
         return (key, value)
     }
 
-    /// Per fountain.io: continuation lines for a multi-line title-page
-    /// value start with a tab or three or more spaces.
-    private static func isContinuationLine(_ line: String) -> Bool {
-        if line.hasPrefix("\t") { return true }
-        if line.hasPrefix("   ") { return true }
-        return false
-    }
 }
 
 // MARK: - TitlePage extraction
@@ -483,7 +485,46 @@ public enum FountainImporter {
             // when the parsed title is empty so we don't end up with
             // an "Untitled" project.
             if tp.title.isEmpty { tp.title = title }
+            // Penova-namespaced title-page extensions — see spec §1.
+            if let copyright = doc.titlePage["penova-copyright"], !copyright.isEmpty {
+                tp.copyright = copyright
+            }
+            if let draftStage = doc.titlePage["penova-draft-stage"], !draftStage.isEmpty {
+                tp.draftStage = draftStage
+            }
+            if let notes = doc.titlePage["penova-notes"], !notes.isEmpty {
+                tp.notes = notes
+            }
             project.titlePage = tp
+
+            // Genre — comma-separated raw values.
+            if let genreCSV = doc.titlePage["penova-genre"], !genreCSV.isEmpty {
+                project.genre = genreCSV
+                    .components(separatedBy: ",")
+                    .compactMap { Genre(rawValue: $0.trimmingCharacters(in: .whitespaces)) }
+            }
+            // Status — defaults to .active when absent.
+            if let statusRaw = doc.titlePage["penova-status"],
+               let status = ProjectStatus(rawValue: statusRaw) {
+                project.status = status
+            }
+            // Logline (legacy `Notes:` key — distinct from `Penova-Notes:`).
+            if let notes = doc.titlePage["notes"], !notes.isEmpty {
+                project.logline = notes
+            }
+            // Lock state — flag, timestamp, and the per-scene number map.
+            if doc.titlePage["penova-locked"]?.lowercased() == "true" {
+                project.locked = true
+                if let lockedAtRaw = doc.titlePage["penova-locked-at"] {
+                    let f = ISO8601DateFormatter()
+                    f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                    project.lockedAt = f.date(from: lockedAtRaw)
+                }
+                if let json = doc.titlePage["penova-locked-numbers"]?.data(using: .utf8),
+                   let map = try? JSONDecoder().decode([String: Int].self, from: json) {
+                    project.lockedSceneNumbers = map
+                }
+            }
         }
         context.insert(project)
 
@@ -503,6 +544,16 @@ public enum FountainImporter {
             scene.episode = episode
             episode.scenes.append(scene)
             context.insert(scene)
+
+            // Apply Penova-namespaced scene-level metadata (see spec §2):
+            // beat / actNumber / bookmarked are first-class fields on
+            // ScriptScene; sceneNumber + timeRaw + unknown are tolerated
+            // for forward-compat but not yet surfaced in the model.
+            if let meta = doc.sceneMeta[idx] {
+                scene.beatType = meta.beat
+                scene.actNumber = meta.actNumber
+                scene.bookmarked = meta.bookmarked
+            }
 
             var order = 0
             let headingEl = SceneElement(kind: .heading, text: parsed.heading, order: order)

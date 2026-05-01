@@ -13,24 +13,33 @@
 > is what dominates; the Penova extensions are metadata sprinkled in
 > places the standard already permits ignored values.
 
-Penova stores screenplays in a SwiftData document graph today. That works
-on Apple platforms. It will not work on Windows. To make Penova portable
-without forcing a future Windows team to re-derive every modeling
-decision, **Fountain plain-text is being promoted to the canonical
-interchange format** between platforms — and, eventually, the source of
-truth at rest if the user opts into "Fountain folder mode."
+Penova stores screenplays in a SwiftData document graph today. That's
+fine for the in-memory and Apple-store-of-record paths, but it's a
+proprietary binary format opaque to every other tool. **Fountain
+plain-text is being promoted to Penova's canonical interchange
+format** — the format we round-trip through to talk to other tools,
+to power "Fountain folder mode" for users who want their scripts on
+disk as readable files, and to give every future platform port a
+working contract instead of reverse-engineered Swift type
+definitions.
 
 The choice of plain-text Fountain (rather than a proprietary binary
-format) buys three things:
+format) buys four things:
 
-1. **Windows portability.** A future Windows port reads the same files
-   Mac/iOS write — no separate binary format to re-implement.
+1. **Tool interop.** Highland, Slugline, Beat, KIT Scenarist, Final
+   Draft (via FDX bridge) all read or import Fountain. A Penova user
+   can hand off a script to a collaborator using a different tool
+   with zero conversion friction.
 2. **Git-diffability.** Writers who keep their scripts in Git see
-   meaningful line-by-line diffs across revisions.
-3. **Interop.** Highland, Slugline, Beat, KIT Scenarist, Final Draft
-   (via FDX bridge) all read or import Fountain. A Penova user can
-   hand off a script to a collaborator using a different tool with
-   zero conversion friction.
+   meaningful line-by-line diffs across revisions, not a binary blob
+   diff.
+3. **Long-term archival.** Plain text outlives any specific
+   application's lifecycle. A `.fountain` file written today opens
+   in any text editor in 2050.
+4. **Cross-platform portability.** Whether Penova ships an Android
+   port, a Linux port, a web reader, or anything else later, that
+   port reads the same files Mac/iOS write — no separate binary
+   format to re-implement.
 
 This document is the contract. Anyone porting Penova to a new platform
 should be able to read this and a working `.fountain` file, and produce
@@ -327,7 +336,9 @@ extension parsing). Implementation rolls out across multiple PRs:
 - **Phase 3** (later): "Fountain folder mode" — Settings toggle that
   switches Penova from SwiftData-as-source-of-truth to Fountain-as-
   source-of-truth, with SwiftData becoming an indexing/cache layer.
-- **Phase 4**: Windows port. Reads the same spec.
+  Unlocks "edit your Penova scripts on iPad / Mac via iCloud Drive"
+  for free.
+- **Phase 4**: Whatever new platform ships next. Reads the same spec.
 
 ## Why not just use `.fdx`?
 

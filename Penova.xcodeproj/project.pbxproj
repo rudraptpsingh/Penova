@@ -118,6 +118,7 @@
 		BBF1845432661A2201274093 /* The-Last-Birthday-Card.pdf in Resources */ = {isa = PBXBuildFile; fileRef = F38B82D5B70DC76F1E3AF1F3 /* The-Last-Birthday-Card.pdf */; };
 		BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */; };
 		BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D5339999C19B127E5F30696 /* Inter-Regular.ttf */; };
+		BDD43D34DCB3FCBC095DCC33 /* FountainImporterRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACEB0FEE449CEF21663BD58E /* FountainImporterRoundTripTests.swift */; };
 		BDE1311061C22D760C53F5D0 /* PenovaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19317ED789EE4031C852A9D1 /* PenovaLog.swift */; };
 		BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */; };
 		C8D43C249B526F471087DCC4 /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */; };
@@ -283,6 +284,7 @@
 		A62015E6995BA625579B1DD0 /* PenovaMacFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacFeedback.swift; sourceTree = "<group>"; };
 		A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
+		ACEB0FEE449CEF21663BD58E /* FountainImporterRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainImporterRoundTripTests.swift; sourceTree = "<group>"; };
 		AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFlowView.swift; sourceTree = "<group>"; };
 		AE7B232CCCE173DCAFA5D0C6 /* SearchAndCharacterReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchAndCharacterReportTests.swift; sourceTree = "<group>"; };
 		B69266B4165396AF3BE61060 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -423,6 +425,7 @@
 				01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */,
 				5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */,
 				9C50635F643D4F21A4828F71 /* FountainExporterTests.swift */,
+				ACEB0FEE449CEF21663BD58E /* FountainImporterRoundTripTests.swift */,
 				C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */,
 				DE8B8A33B4AEA01C01A267D0 /* FountainRoundTripTests.swift */,
 				7EC2B9E84602406B10D017E5 /* HabitTrackerTests.swift */,
@@ -1100,6 +1103,7 @@
 				A242B55E8EFA2B83319160F0 /* FinalDraftXMLWriterDeepTests.swift in Sources */,
 				F51ED583A2CCBC90CD9D2BD8 /* FinalDraftXMLWriterTests.swift in Sources */,
 				91AC40D63534A515A18C2FC8 /* FountainExporterTests.swift in Sources */,
+				BDD43D34DCB3FCBC095DCC33 /* FountainImporterRoundTripTests.swift in Sources */,
 				7B81B947626453E7EFD8A9EF /* FountainParserTests.swift in Sources */,
 				AFDAE0EA65484E2108E2DD45 /* FountainRoundTripTests.swift in Sources */,
 				7D83FA7554BE2F090E878885 /* HabitTrackerTests.swift in Sources */,
