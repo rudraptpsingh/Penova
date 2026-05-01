@@ -86,8 +86,7 @@ struct LibrarySidebar: View {
             Divider().background(PenovaColor.ink4)
             newProjectButton
                 .padding(.horizontal, 12)
-                .padding(.top, 12)
-                .padding(.bottom, 18)
+                .padding(.vertical, 12)
         }
         .background(PenovaColor.ink2)
         .accessibilityIdentifier(A11yID.sidebar)

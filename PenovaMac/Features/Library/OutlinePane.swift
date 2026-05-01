@@ -10,9 +10,20 @@
 import SwiftUI
 import PenovaKit
 
+enum OutlineSort: String, CaseIterable {
+    case order, location, time, beat, pages
+}
+
 struct OutlinePane: View {
     let projects: [Project]
     @Binding var selectedScene: ScriptScene?
+    /// Single-click drill-in callback — flip viewMode to editor when
+    /// a row is clicked. Outline is a navigator, not a destination.
+    var onOpenScene: ((ScriptScene) -> Void)? = nil
+
+    @State private var sort: OutlineSort = .order
+    @State private var sortAscending: Bool = true
+    @State private var hoveredID: String?
 
     var body: some View {
         ScrollView {
@@ -52,17 +63,13 @@ struct OutlinePane: View {
 
     private var tableHeader: some View {
         HStack(spacing: 0) {
-            cell("#",         width: 40)
-            cell("Heading",   width: nil)
-            cell("Location",  width: 200)
-            cell("Time",      width: 90)
-            cell("Beat",      width: 110)
-            cell("Pages",     width: 70, alignment: .trailing)
+            sortableHeader("#",        sort: .order,    width: 40)
+            sortableHeader("Heading",  sort: .order,    width: nil)
+            sortableHeader("Location", sort: .location, width: 200)
+            sortableHeader("Time",     sort: .time,     width: 90)
+            sortableHeader("Beat",     sort: .beat,     width: 110)
+            sortableHeader("Pages",    sort: .pages,    width: 70, alignment: .trailing)
         }
-        .font(PenovaFont.labelTiny)
-        .tracking(PenovaTracking.labelTiny)
-        .foregroundStyle(PenovaColor.snow4)
-        .textCase(.uppercase)
         .padding(.vertical, 8)
         .background(
             Rectangle().fill(PenovaColor.ink4).frame(height: 1),
@@ -70,38 +77,86 @@ struct OutlinePane: View {
         )
     }
 
+    private func sortableHeader(
+        _ title: String,
+        sort target: OutlineSort,
+        width: CGFloat?,
+        alignment: Alignment = .leading
+    ) -> some View {
+        let isActive = sort == target
+        return Button(action: {
+            if sort == target {
+                sortAscending.toggle()
+            } else {
+                sort = target
+                sortAscending = true
+            }
+        }) {
+            HStack(spacing: 4) {
+                if alignment == .trailing { Spacer() }
+                Text(title)
+                    .font(PenovaFont.labelTiny)
+                    .tracking(PenovaTracking.labelTiny)
+                    .foregroundStyle(isActive ? PenovaColor.snow : PenovaColor.snow4)
+                    .textCase(.uppercase)
+                if isActive {
+                    Image(systemName: sortAscending ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(PenovaColor.amber)
+                }
+                if alignment == .leading { Spacer() }
+            }
+            .frame(width: width)
+            .frame(maxWidth: width == nil ? .infinity : nil, alignment: alignment)
+            .padding(.horizontal, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     private func row(for scene: ScriptScene) -> some View {
         let isSelected = scene.id == selectedScene?.id
-        return HStack(spacing: 0) {
-            cell("\(scene.order + 1)", width: 40,
-                 font: .custom("RobotoMono-Medium", size: 11),
-                 color: PenovaColor.snow4)
-            cell(scene.heading, width: nil,
-                 font: .custom("RobotoMono-Medium", size: 12),
-                 color: PenovaColor.snow,
-                 transform: .uppercase)
-            cell(scene.locationName, width: 200,
-                 font: PenovaFont.body,
-                 color: PenovaColor.snow2)
-            cell(scene.time.display, width: 90,
-                 font: .custom("RobotoMono-Medium", size: 11),
-                 color: PenovaColor.snow3)
-            beatCell(scene.beatType, width: 110)
-            cell(pageEstimate(for: scene), width: 70,
-                 font: .custom("RobotoMono-Medium", size: 11),
-                 color: PenovaColor.snow3,
-                 alignment: .trailing)
+        let isHovered  = hoveredID == scene.id
+        return Button(action: {
+            selectedScene = scene
+            onOpenScene?(scene)
+        }) {
+            HStack(spacing: 0) {
+                cell("\(scene.order + 1)", width: 40,
+                     font: .custom("RobotoMono-Medium", size: 11),
+                     color: PenovaColor.snow4)
+                cell(scene.heading, width: nil,
+                     font: .custom("RobotoMono-Medium", size: 12),
+                     color: PenovaColor.snow,
+                     transform: .uppercase)
+                cell(scene.locationName, width: 200,
+                     font: PenovaFont.body,
+                     color: PenovaColor.snow2)
+                cell(scene.time.display, width: 90,
+                     font: .custom("RobotoMono-Medium", size: 11),
+                     color: PenovaColor.snow3)
+                beatCell(scene.beatType, width: 110)
+                cell(pageEstimate(for: scene), width: 70,
+                     font: .custom("RobotoMono-Medium", size: 11),
+                     color: PenovaColor.snow3,
+                     alignment: .trailing)
+            }
+            .padding(.vertical, 12)
+            .background(
+                isSelected
+                ? PenovaColor.ink3
+                : (isHovered ? PenovaColor.ink2 : Color.clear)
+            )
+            .background(
+                Rectangle().fill(PenovaColor.ink4).frame(height: 0.5),
+                alignment: .bottom
+            )
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 12)
-        .background(
-            (isSelected ? PenovaColor.ink3 : Color.clear)
-        )
-        .background(
-            Rectangle().fill(PenovaColor.ink4).frame(height: 0.5),
-            alignment: .bottom
-        )
-        .contentShape(Rectangle())
-        .onTapGesture { selectedScene = scene }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            hoveredID = hovering ? scene.id : (hoveredID == scene.id ? nil : hoveredID)
+        }
     }
 
     private func cell(
@@ -157,7 +212,36 @@ struct OutlinePane: View {
     }
 
     private var allScenes: [ScriptScene] {
-        projects.flatMap(\.activeEpisodesOrdered).flatMap(\.scenesOrdered)
+        let raw = projects.flatMap(\.activeEpisodesOrdered).flatMap(\.scenesOrdered)
+        let sorted: [ScriptScene]
+        switch sort {
+        case .order:
+            sorted = raw
+        case .location:
+            sorted = raw.sorted { $0.locationName < $1.locationName }
+        case .time:
+            sorted = raw.sorted { $0.time.rawValue < $1.time.rawValue }
+        case .beat:
+            sorted = raw.sorted {
+                ($0.beatType?.rawValue ?? "~") < ($1.beatType?.rawValue ?? "~")
+            }
+        case .pages:
+            sorted = raw.sorted { pageDouble(for: $0) < pageDouble(for: $1) }
+        }
+        return sortAscending ? sorted : sorted.reversed()
+    }
+
+    private func pageDouble(for scene: ScriptScene) -> Double {
+        let lines = scene.elements.reduce(0.0) { acc, el in
+            switch el.kind {
+            case .heading, .character: return acc + 1
+            case .parenthetical: return acc + 0.6
+            case .dialogue: return acc + Double(max(1, el.text.count / 35))
+            case .action: return acc + Double(max(1, el.text.count / 60))
+            case .transition, .actBreak: return acc + 1.5
+            }
+        }
+        return lines / 55.0
     }
 
     private func pageEstimate(for scene: ScriptScene) -> String {

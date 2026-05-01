@@ -84,33 +84,38 @@ struct LibraryWindowView: View {
     }
 
     private var baseShell: some View {
-        NavigationSplitView(columnVisibility: $sidebarVisibility) {
-            LibrarySidebar(
-                projects: projects,
-                selectedScene: $selectedScene,
-                activeSmart: $activeSmart
-            )
-            .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
-        } detail: {
-            HStack(spacing: 0) {
-                centerPane
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: 0) {
+            NavigationSplitView(columnVisibility: $sidebarVisibility) {
+                LibrarySidebar(
+                    projects: projects,
+                    selectedScene: $selectedScene,
+                    activeSmart: $activeSmart
+                )
+                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
+            } detail: {
+                HStack(spacing: 0) {
+                    centerPane
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                if inspectorVisible && !focusMode {
-                    Divider().background(PenovaColor.ink4)
-                    SceneInspector(scene: selectedScene)
-                        .frame(width: 300)
+                    if inspectorVisible && !focusMode {
+                        Divider().background(PenovaColor.ink4)
+                        SceneInspector(scene: selectedScene)
+                            .frame(width: 300)
+                    }
                 }
             }
-        }
-        .navigationTitle(navigationTitle)
-        .background(PenovaColor.ink0)
-        .toolbar {
-            if !focusMode {
-                toolbarContent
+            .navigationTitle(navigationTitle)
+            .toolbar {
+                if !focusMode {
+                    toolbarContent
+                }
             }
-        }
-        .safeAreaInset(edge: .bottom) {
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Status bar lives BELOW the split view as a peer so it
+            // applies to both sidebar and detail simultaneously. Using
+            // safeAreaInset on the NavigationSplitView only insets the
+            // detail column on macOS.
             if !focusMode {
                 StatusBar(
                     pages: pageEstimate,
@@ -119,6 +124,7 @@ struct LibraryWindowView: View {
                 )
             }
         }
+        .background(PenovaColor.ink0)
         .overlay(alignment: .bottom) {
             if focusMode { focusPill }
         }
@@ -283,7 +289,7 @@ struct LibraryWindowView: View {
                 projects: projects,
                 onSelectScene: { scene in
                     selectedScene = scene
-                    activeSmart = nil   // exit smart-group mode
+                    activeSmart = nil
                     viewMode = .editor
                 }
             )
@@ -292,9 +298,23 @@ struct LibraryWindowView: View {
             case .editor:
                 ScriptEditorPane(scene: selectedScene)
             case .cards:
-                IndexCardsPane(projects: projects, selectedScene: $selectedScene)
+                IndexCardsPane(
+                    projects: projects,
+                    selectedScene: $selectedScene,
+                    onOpenScene: { scene in
+                        selectedScene = scene
+                        viewMode = .editor
+                    }
+                )
             case .outline:
-                OutlinePane(projects: projects, selectedScene: $selectedScene)
+                OutlinePane(
+                    projects: projects,
+                    selectedScene: $selectedScene,
+                    onOpenScene: { scene in
+                        selectedScene = scene
+                        viewMode = .editor
+                    }
+                )
             }
         }
     }

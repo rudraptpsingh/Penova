@@ -15,6 +15,12 @@ import UniformTypeIdentifiers
 struct IndexCardsPane: View {
     let projects: [Project]
     @Binding var selectedScene: ScriptScene?
+    /// Called when the user double-clicks (or single-clicks, see below)
+    /// a card to drill into the editor. The parent flips viewMode →
+    /// .editor and selects the scene. Single-click still updates the
+    /// inspector via selectedScene; the explicit drill-in is what
+    /// actually navigates.
+    var onOpenScene: ((ScriptScene) -> Void)? = nil
     @Environment(\.modelContext) private var context
 
     @State private var draggingSceneID: String?
@@ -31,10 +37,15 @@ struct IndexCardsPane: View {
                 }
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(allScenes, id: \.id) { scene in
-                        SceneCard(scene: scene, isSelected: scene.id == selectedScene?.id)
-                            .opacity(draggingSceneID == scene.id ? 0.35 : 1)
-                            .onTapGesture { selectedScene = scene }
-                            .onDrag {
+                        Button(action: {
+                            selectedScene = scene
+                            onOpenScene?(scene)
+                        }) {
+                            SceneCard(scene: scene, isSelected: scene.id == selectedScene?.id)
+                                .opacity(draggingSceneID == scene.id ? 0.35 : 1)
+                        }
+                        .buttonStyle(.plain)
+                        .onDrag {
                                 draggingSceneID = scene.id
                                 PenovaLog.editor.info("drag start: scene \(scene.id, privacy: .public)")
                                 return NSItemProvider(object: scene.id as NSString)
