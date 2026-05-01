@@ -39,6 +39,7 @@
 		2EB07CF0CED7937F23376C75 /* dialogue.fountain in Resources */ = {isa = PBXBuildFile; fileRef = D31FF06575E08CEC125B2E1A /* dialogue.fountain */; };
 		31582675706C3DC7DBD72022 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */; };
 		32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B759711443F2E63064750D1E /* EditorLogicTests.swift */; };
+		3420160178E02A6A89BB5175 /* RealScriptEndToEndTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD36CDDCDA2B99E93D8608A /* RealScriptEndToEndTests.swift */; };
 		34C7BD445A5450DFFFAC0F1D /* SceneHeadingParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */; };
 		3C20137B3653DC6AF84B10DE /* UndoSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B241B0D3C8FC692E706211E /* UndoSupportTests.swift */; };
 		41EA258C0DAC979563D37DD1 /* CRUDEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4524546DE98F2547731BEF /* CRUDEdgeCaseTests.swift */; };
@@ -293,6 +294,7 @@
 		B92DE02B22A72F718E7EA08B /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
 		BA7679894C47D022D747EE1A /* PDFTitlePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTitlePageTests.swift; sourceTree = "<group>"; };
 		BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
+		BDD36CDDCDA2B99E93D8608A /* RealScriptEndToEndTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealScriptEndToEndTests.swift; sourceTree = "<group>"; };
 		C04E709DEF18EDC665A04F17 /* PDFScreenplayParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParser.swift; sourceTree = "<group>"; };
 		C303CD56BA9A30D36DFD75BB /* PenovaKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PenovaKit; path = PenovaKit; sourceTree = SOURCE_ROOT; };
 		C39ADE4E5B85D0541A7286D9 /* PDFScreenplayParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParserTests.swift; sourceTree = "<group>"; };
@@ -440,6 +442,7 @@
 				BA7679894C47D022D747EE1A /* PDFTitlePageTests.swift */,
 				F33A5DC6442F562365DC14DA /* PenovaFountainDialectTests.swift */,
 				D06E1633EEA1A73230CCAF90 /* ProductionReportsTests.swift */,
+				BDD36CDDCDA2B99E93D8608A /* RealScriptEndToEndTests.swift */,
 				E2D00A628D777DD5EA2FFDDC /* ReorderAndStatusTests.swift */,
 				7B884AA3C58CCD3B8C61079C /* RevisionColorTests.swift */,
 				80EE7053F2E2CC6DF4F630FA /* RevisionPageTests.swift */,
@@ -1118,6 +1121,7 @@
 				922AA94B3C52863499E8CAB2 /* PageLockingTests.swift in Sources */,
 				5F8C1E32FD417D0153C4EA82 /* PenovaFountainDialectTests.swift in Sources */,
 				83D8EA1A6A5D77D3D8FD871A /* ProductionReportsTests.swift in Sources */,
+				3420160178E02A6A89BB5175 /* RealScriptEndToEndTests.swift in Sources */,
 				916EEA4BD42E8AAE07AE0292 /* ReorderAndStatusTests.swift in Sources */,
 				7CFBB0FEE76E58D3F306A81F /* RevisionColorTests.swift in Sources */,
 				E8C491EEAB2DFBC36E0C1787 /* RevisionPageTests.swift in Sources */,
