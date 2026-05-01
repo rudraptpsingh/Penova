@@ -224,6 +224,26 @@ public final class Project {
         }
         return liveNumber
     }
+
+    // MARK: - Revision sequencing
+
+    /// Next 1-based round number for a new revision (max existing + 1).
+    /// Always strictly increases — distinct from color, which wraps.
+    public func nextRevisionRoundNumber() -> Int {
+        (revisions.map(\.roundNumber).max() ?? 0) + 1
+    }
+
+    /// Next color in the WGA sequence after the most-recent revision.
+    /// First revision in a project is always White.
+    public func nextRevisionColor() -> RevisionColor {
+        // Pick the most recently-saved revision's color and step.
+        // (Sort by createdAt descending so re-ordering by hand in
+        // the UI doesn't flip the next color.)
+        if let last = revisions.sorted(by: { $0.createdAt > $1.createdAt }).first {
+            return last.color.next
+        }
+        return .white
+    }
 }
 
 // MARK: - Episode
@@ -428,6 +448,42 @@ public extension WritingDay {
 // Cascade: deleting a Project deletes all its revisions. A revision
 // without a project is meaningless, so the cascade is correct.
 
+/// WGA-standard revision color sequence. White is the original
+/// shooting draft; each subsequent revision steps to the next color.
+/// After Cherry, productions either restart at White (often called
+/// "second white") or use double pages — Penova restarts the cycle,
+/// matching Final Draft's default.
+public enum RevisionColor: String, Codable, CaseIterable, Sendable {
+    case white, blue, pink, yellow, green, goldenrod, buff, salmon, cherry
+
+    /// Display label used in the UI ("White", "Blue", …).
+    public var display: String { rawValue.capitalized }
+
+    /// Approximate paper-stock RGB used by the renderer for the
+    /// page-color stripe in the right margin. Tuned to be readable
+    /// on the dark UI but recognisable as the WGA stock color.
+    public var marginRGB: (r: Double, g: Double, b: Double) {
+        switch self {
+        case .white:     return (0.97, 0.97, 0.97)
+        case .blue:      return (0.62, 0.78, 0.95)
+        case .pink:      return (1.00, 0.76, 0.85)
+        case .yellow:    return (1.00, 0.96, 0.55)
+        case .green:     return (0.66, 0.93, 0.69)
+        case .goldenrod: return (0.95, 0.79, 0.42)
+        case .buff:      return (0.96, 0.93, 0.78)
+        case .salmon:    return (1.00, 0.69, 0.62)
+        case .cherry:    return (0.95, 0.43, 0.43)
+        }
+    }
+
+    /// Step to the next color, wrapping after Cherry to White.
+    public var next: RevisionColor {
+        let all = RevisionColor.allCases
+        let idx = all.firstIndex(of: self) ?? 0
+        return all[(idx + 1) % all.count]
+    }
+}
+
 @Model
 public final class Revision {
     @Attribute(.unique) public var id: ID
@@ -440,13 +496,36 @@ public final class Revision {
     public var wordCountAtSave: Int
     public var createdAt: Date
 
+    /// WGA revision color. Stored as the rawValue (`"blue"` etc.) so
+    /// SwiftData treats it as an attribute. Defaults to `.white` for
+    /// the first revision in a project. Added in v1.2 — existing
+    /// stores tolerate the new property without a migration thanks
+    /// to the default.
+    public var colorRaw: String = RevisionColor.white.rawValue
+
+    /// 1-based position of this revision in the project's sequence —
+    /// independent of color (which wraps after cherry). Surfaced in
+    /// the title page footer ("Revised, Rev #4") and used to break
+    /// ties when two revisions share a color due to wraparound.
+    public var roundNumber: Int = 1
+
+    /// Typed accessor for `colorRaw`. Falls back to `.white` if the
+    /// stored value is somehow unrecognised (forward-compat against
+    /// future enum entries we might add).
+    public var color: RevisionColor {
+        get { RevisionColor(rawValue: colorRaw) ?? .white }
+        set { colorRaw = newValue.rawValue }
+    }
+
     public init(
         label: String,
         note: String = "",
         fountainSnapshot: String,
         authorName: String,
         sceneCountAtSave: Int,
-        wordCountAtSave: Int
+        wordCountAtSave: Int,
+        color: RevisionColor = .white,
+        roundNumber: Int = 1
     ) {
         self.id = UUID().uuidString
         self.label = label
@@ -456,6 +535,8 @@ public final class Revision {
         self.sceneCountAtSave = sceneCountAtSave
         self.wordCountAtSave = wordCountAtSave
         self.createdAt = .now
+        self.colorRaw = color.rawValue
+        self.roundNumber = roundNumber
     }
 }
 
