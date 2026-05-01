@@ -18,6 +18,7 @@
 import SwiftUI
 import SwiftData
 import Combine
+import PenovaKit
 
 struct GlobalSearchView: View {
     @Environment(\.dismiss) private var dismiss

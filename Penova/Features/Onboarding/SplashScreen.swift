@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import PenovaKit
 
 struct SplashScreen: View {
     @State private var appear = false

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import PenovaKit
 
 struct FountainImportPicker: View {
     @Environment(\.dismiss) private var dismiss

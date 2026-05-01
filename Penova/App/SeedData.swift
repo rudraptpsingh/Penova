@@ -14,6 +14,7 @@
 
 import Foundation
 import SwiftData
+import PenovaKit
 
 enum SeedData {
     private static let didSeedKey = "penova.didSeedDemo.v2"

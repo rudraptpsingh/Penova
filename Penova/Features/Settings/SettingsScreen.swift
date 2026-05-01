@@ -10,6 +10,7 @@
 import SwiftUI
 import SwiftData
 import AVFoundation
+import PenovaKit
 
 struct SettingsScreen: View {
     @Environment(\.modelContext) private var context

@@ -14,6 +14,7 @@ import SwiftUI
 import SwiftData
 import AVFoundation
 import Speech
+import PenovaKit
 
 struct VoiceCaptureSheet: View {
     @Environment(\.modelContext) private var context

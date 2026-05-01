@@ -18,6 +18,7 @@
 //
 
 import Foundation
+import PenovaKit
 
 struct ParsedSceneHeading {
     let location: SceneLocation?

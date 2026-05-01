@@ -38,6 +38,7 @@
 
 import Foundation
 import UIKit
+import PenovaKit
 
 enum ScriptPDFRenderer {
 

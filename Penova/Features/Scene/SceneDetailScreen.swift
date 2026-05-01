@@ -11,6 +11,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct SceneDetailScreen: View {
     @Environment(\.modelContext) private var context

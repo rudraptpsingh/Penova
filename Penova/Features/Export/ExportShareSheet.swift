@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import PenovaKit
 
 public enum ExportFormat: String, Codable, CaseIterable {
     case pdf, fdx, fountain

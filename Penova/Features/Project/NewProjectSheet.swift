@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct NewProjectSheet: View {
     @Environment(\.modelContext) private var context

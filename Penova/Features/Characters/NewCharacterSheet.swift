@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct NewCharacterSheet: View {
     @Environment(\.modelContext) private var context

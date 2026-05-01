@@ -11,6 +11,7 @@ import Testing
 import Foundation
 import SwiftData
 import CoreGraphics
+import PenovaKit
 @testable import Penova
 
 @MainActor

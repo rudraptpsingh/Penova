@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct ScriptsTabScreen: View {
     @Environment(\.modelContext) private var context

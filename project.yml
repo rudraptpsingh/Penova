@@ -3,8 +3,13 @@ options:
   bundleIdPrefix: com.rudrapratapsingh
   deploymentTarget:
     iOS: "17.0"
+    macOS: "14.0"
   createIntermediateGroups: true
   generateEmptyDirectories: true
+
+packages:
+  PenovaKit:
+    path: PenovaKit
 
 settings:
   base:
@@ -23,11 +28,10 @@ targets:
     sources:
       - path: Penova/App
       - path: Penova/Features
-      - path: PenovaSpec
-        includes:
-          - "*.swift"
       - path: Penova/Resources
         buildPhase: resources
+    dependencies:
+      - package: PenovaKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.rudrapratapsingh.penova
