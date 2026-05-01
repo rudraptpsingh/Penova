@@ -56,6 +56,8 @@ struct LibraryWindowView: View {
                 exportVisible: $exportSheetVisible,
                 newProjectVisible: $newProjectVisible,
                 projects: projects,
+                exportTarget: currentExportEpisode,
+                titlePageProject: currentProject,
                 onSelectScene: { selectedScene = $0 },
                 onProjectCreated: { project in
                     if let firstScene = project.activeEpisodesOrdered.first?.scenesOrdered.first {
@@ -149,6 +151,24 @@ struct LibraryWindowView: View {
 
     private var totalSceneCount: Int {
         projects.reduce(0) { $0 + $1.totalSceneCount }
+    }
+
+    /// The episode the export sheet should target — the currently
+    /// selected scene's episode, falling back to the first episode of
+    /// the first project. Picks the project's biggest episode if no
+    /// selection so a fresh launch exports something meaningful.
+    private var currentExportEpisode: Episode? {
+        if let ep = selectedScene?.episode { return ep }
+        guard let project = projects.first else { return nil }
+        let episodes = project.activeEpisodesOrdered
+        return episodes.max(by: { $0.scenes.count < $1.scenes.count })
+            ?? episodes.first
+    }
+
+    /// The project the title-page editor should open against — the
+    /// currently selected scene's project, or the first project.
+    private var currentProject: Project? {
+        selectedScene?.episode?.project ?? projects.first
     }
 
     private var pageEstimate: String {
@@ -343,6 +363,8 @@ private struct SheetsAndOverlays: ViewModifier {
     @Binding var exportVisible: Bool
     @Binding var newProjectVisible: Bool
     let projects: [Project]
+    let exportTarget: Episode?
+    let titlePageProject: Project?
     let onSelectScene: (ScriptScene) -> Void
     let onProjectCreated: (Project) -> Void
 
@@ -358,14 +380,14 @@ private struct SheetsAndOverlays: ViewModifier {
                 }
             }
             .sheet(isPresented: $titlePageVisible) {
-                if let firstProject = projects.first {
-                    TitlePageEditorSheet(project: firstProject)
+                if let project = titlePageProject {
+                    TitlePageEditorSheet(project: project)
                         .frame(width: 920, height: 540)
                 }
             }
             .sheet(isPresented: $exportVisible) {
-                if let firstEp = projects.first?.activeEpisodesOrdered.first {
-                    MacExportSheet(episode: firstEp)
+                if let episode = exportTarget {
+                    MacExportSheet(episode: episode)
                         .frame(width: 600)
                 }
             }
@@ -406,9 +428,9 @@ private struct StatusBar: View {
         }
         .font(.system(size: 11))
         .padding(.horizontal, 16)
-        .padding(.vertical, 6)
+        .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
-        .background(PenovaColor.ink2)
+        .background(PenovaColor.ink1)
         .overlay(Rectangle().fill(PenovaColor.ink4).frame(height: 1), alignment: .top)
     }
 }

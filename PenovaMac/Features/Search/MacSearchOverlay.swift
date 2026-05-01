@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import AppKit
 import PenovaKit
 
 struct MacSearchOverlay: View {
@@ -26,11 +27,17 @@ struct MacSearchOverlay: View {
 
     var body: some View {
         ZStack {
-            // Dim backdrop
-            Rectangle()
-                .fill(.black.opacity(0.55))
+            // Dim backdrop. The Color rather than Rectangle is intentional:
+            // it intercepts every keystroke that would otherwise leak through
+            // to the views behind us, while .focusable on Color and the
+            // window-level focus assignment below grab keyboard focus away
+            // from any TextField in the parent before our search input
+            // appears.
+            Color.black.opacity(0.55)
                 .ignoresSafeArea()
+                .contentShape(Rectangle())
                 .onTapGesture { dismiss() }
+                .focusable()
 
             VStack {
                 Spacer().frame(height: 80)
@@ -40,8 +47,18 @@ struct MacSearchOverlay: View {
         }
         .accessibilityIdentifier(A11yID.searchOverlay)
         .onAppear {
-            fieldFocused = true
             activeIndex = 0
+            // Force the search field to first responder. We bounce focus
+            // through nil first because @FocusState alone won't yank focus
+            // off another TextField that already had it (e.g. the
+            // inspector's Location field) when an overlay appears mid-flow.
+            fieldFocused = false
+            DispatchQueue.main.async {
+                if let window = NSApp.keyWindow {
+                    window.makeFirstResponder(nil)
+                }
+                fieldFocused = true
+            }
         }
     }
 
