@@ -17,6 +17,13 @@ struct PenovaMacApp: App {
     let container: ModelContainer
 
     init() {
+        // --smoke: run the end-to-end smoke harness and exit. No UI.
+        if CommandLine.arguments.contains("--smoke") {
+            registerCustomFonts()
+            let failures = SmokeTest.run()
+            exit(failures == 0 ? 0 : 1)
+        }
+
         // Register bundled custom fonts (Inter, Roboto Mono, Playfair Display)
         // so SwiftUI's `Font.custom(...)` resolves on macOS the same way it
         // does on iOS via Info.plist UIAppFonts.

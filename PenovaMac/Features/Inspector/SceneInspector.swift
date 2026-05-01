@@ -247,8 +247,12 @@ struct SceneInspector: View {
 
 struct FlowChips: View {
     let items: [String]
+    /// Single-selection index. If `multiSelectIndices` is set this is ignored.
     let selectedIndex: Int
     var swatches: [Color]? = nil
+    /// Optional multi-selection set. When non-nil, every index in this set
+    /// renders as selected.
+    var multiSelectIndices: Set<Int>? = nil
     let onTap: (Int) -> Void
 
     var body: some View {
@@ -260,7 +264,10 @@ struct FlowChips: View {
     }
 
     private func chip(idx: Int, label: String) -> some View {
-        let isSelected = idx == selectedIndex
+        let isSelected: Bool = {
+            if let multi = multiSelectIndices { return multi.contains(idx) }
+            return idx == selectedIndex
+        }()
         return Button(action: { onTap(idx) }) {
             HStack(spacing: 6) {
                 if let swatches, idx < swatches.count {

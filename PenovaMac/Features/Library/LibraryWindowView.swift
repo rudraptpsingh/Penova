@@ -44,6 +44,8 @@ struct LibraryWindowView: View {
     @State private var searchVisible: Bool = false
     @State private var titlePageEditorVisible: Bool = false
     @State private var exportSheetVisible: Bool = false
+    @State private var newProjectVisible: Bool = false
+    @State private var pendingExportFormat: MacExportFormat = .pdf
 
     var body: some View {
         baseShell
@@ -52,8 +54,15 @@ struct LibraryWindowView: View {
                 searchVisible: $searchVisible,
                 titlePageVisible: $titlePageEditorVisible,
                 exportVisible: $exportSheetVisible,
+                newProjectVisible: $newProjectVisible,
                 projects: projects,
-                onSelectScene: { selectedScene = $0 }
+                onSelectScene: { selectedScene = $0 },
+                onProjectCreated: { project in
+                    if let firstScene = project.activeEpisodesOrdered.first?.scenesOrdered.first {
+                        selectedScene = firstScene
+                        activeSmart = nil
+                    }
+                }
             ))
             .background(hiddenShortcuts)
             .onAppear {
@@ -63,6 +72,12 @@ struct LibraryWindowView: View {
                         .flatMap(\.scenesOrdered)
                         .first
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaNewProject)) { _ in
+                newProjectVisible = true
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaNewScene)) { _ in
+                newScene()
             }
     }
 
@@ -166,15 +181,24 @@ struct LibraryWindowView: View {
         }
 
         ToolbarItemGroup(placement: .secondaryAction) {
-            Button(action: { /* print */ }) {
+            Button(action: printCurrentProject) {
                 Label("Print", systemImage: "printer")
             }
             .keyboardShortcut("p", modifiers: .command)
 
             Menu {
-                Button("Export PDF…") {}.keyboardShortcut("e", modifiers: .command)
-                Button("Export Final Draft (FDX)…") {}
-                Button("Export Fountain…") {}
+                Button("Export PDF…") {
+                    pendingExportFormat = .pdf
+                    exportSheetVisible = true
+                }
+                Button("Export Final Draft (FDX)…") {
+                    pendingExportFormat = .fdx
+                    exportSheetVisible = true
+                }
+                Button("Export Fountain…") {
+                    pendingExportFormat = .fountain
+                    exportSheetVisible = true
+                }
             } label: {
                 Label("Export", systemImage: "square.and.arrow.up")
             }
@@ -269,18 +293,45 @@ struct LibraryWindowView: View {
     }
 
     private func newScene() {
-        guard let firstEp = projects.first?.activeEpisodesOrdered.first else { return }
-        let nextOrder = (firstEp.scenes.map(\.order).max() ?? -1) + 1
+        // Use the currently-selected scene's episode if possible; otherwise
+        // the first episode of the first project.
+        let targetEpisode: Episode? = selectedScene?.episode
+            ?? projects.first?.activeEpisodesOrdered.first
+        guard let episode = targetEpisode else {
+            // No project yet — open the new-project sheet instead
+            newProjectVisible = true
+            return
+        }
+        let nextOrder = (episode.scenes.map(\.order).max() ?? -1) + 1
         let scene = ScriptScene(
             locationName: "NEW LOCATION",
             location: .interior,
             time: .day,
             order: nextOrder
         )
-        scene.episode = firstEp
+        scene.episode = episode
         context.insert(scene)
         try? context.save()
         selectedScene = scene
+        activeSmart = nil
+        viewMode = .editor
+        PenovaLog.editor.info("New scene inserted in episode '\(episode.title, privacy: .public)' at order \(nextOrder)")
+    }
+
+    /// ⌘P: render the current project to a temporary PDF and open it
+    /// in Preview for the user to print/save. We can't drive the
+    /// system print panel headlessly, so this is the pragmatic v1 flow.
+    private func printCurrentProject() {
+        guard let project = selectedScene?.episode?.project ?? projects.first else { return }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("Penova-\(project.title)-\(UUID().uuidString.prefix(6)).pdf")
+        do {
+            try ScreenplayPDFRenderer.render(project: project, to: url)
+            NSWorkspace.shared.open(url)
+            PenovaLog.export.info("Print: opened PDF in Preview at \(url.lastPathComponent, privacy: .public)")
+        } catch {
+            PenovaLog.export.error("Print failed: \(error.localizedDescription, privacy: .public)")
+        }
     }
 }
 
@@ -290,8 +341,10 @@ private struct SheetsAndOverlays: ViewModifier {
     @Binding var searchVisible: Bool
     @Binding var titlePageVisible: Bool
     @Binding var exportVisible: Bool
+    @Binding var newProjectVisible: Bool
     let projects: [Project]
     let onSelectScene: (ScriptScene) -> Void
+    let onProjectCreated: (Project) -> Void
 
     func body(content: Content) -> some View {
         content
@@ -315,6 +368,9 @@ private struct SheetsAndOverlays: ViewModifier {
                     MacExportSheet(episode: firstEp)
                         .frame(width: 600)
                 }
+            }
+            .sheet(isPresented: $newProjectVisible) {
+                MacNewProjectSheet(onCreated: onProjectCreated)
             }
     }
 }
