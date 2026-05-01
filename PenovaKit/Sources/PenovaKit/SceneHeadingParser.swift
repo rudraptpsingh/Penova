@@ -18,15 +18,19 @@
 //
 
 import Foundation
-import PenovaKit
+public struct ParsedSceneHeading {
+    public let location: SceneLocation?
+    public let locationName: String
+    public let time: SceneTimeOfDay?
 
-struct ParsedSceneHeading {
-    let location: SceneLocation?
-    let locationName: String
-    let time: SceneTimeOfDay?
+    public init(location: SceneLocation?, locationName: String, time: SceneTimeOfDay?) {
+        self.location = location
+        self.locationName = locationName
+        self.time = time
+    }
 }
 
-enum SceneHeadingParser {
+public enum SceneHeadingParser {
 
     // Regex: ^(INT\.|EXT\.|INT\./EXT\.|EST\.)\s+(.+?)(?:\s+-\s+(.+))?$
     // NSRegularExpression needs double-escaped backslashes in the source
@@ -34,7 +38,7 @@ enum SceneHeadingParser {
     // the same as the canonical uppercase form.
     private static let pattern = #"^(INT\./EXT\.|INT\.|EXT\.|EST\.)\s+(.+?)(?:\s+-\s+(.+))?$"#
 
-    static func parse(_ raw: String) -> ParsedSceneHeading {
+    public static func parse(_ raw: String) -> ParsedSceneHeading {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return ParsedSceneHeading(location: nil, locationName: "", time: nil)
