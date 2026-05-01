@@ -2,39 +2,85 @@
 //  LibraryWindowView.swift
 //  Penova for Mac
 //
-//  Top of the Mac window. Hosts the three-pane shell: sidebar (library
-//  tree) / center (editor or alternate views) / inspector. For now this
-//  is a thin stub that proves the target builds and shows the design
-//  tokens; subsequent commits flesh out each pane.
+//  Three-pane shell: library sidebar / editor / inspector. Hosts the
+//  toolbar (New Scene, Print, Export, view toggle) and the status bar
+//  with live page count + sync indicator. The editor pane swaps between
+//  Editor / Index Cards / Outline based on `viewMode`.
 //
 
 import SwiftUI
 import SwiftData
 import PenovaKit
 
+enum CenterViewMode: String, CaseIterable, Identifiable {
+    case editor, cards, outline
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .editor: return "Editor"
+        case .cards:  return "Index Cards"
+        case .outline: return "Outline"
+        }
+    }
+    var symbol: String {
+        switch self {
+        case .editor:  return "doc.text"
+        case .cards:   return "rectangle.grid.2x2"
+        case .outline: return "list.bullet.rectangle"
+        }
+    }
+}
+
 struct LibraryWindowView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \Project.updatedAt, order: .reverse) private var projects: [Project]
 
     @State private var selectedScene: ScriptScene?
-    @State private var sidebarVisible: NavigationSplitViewVisibility = .all
+    @State private var sidebarVisibility: NavigationSplitViewVisibility = .all
+    @State private var viewMode: CenterViewMode = .editor
+    @State private var inspectorVisible: Bool = true
+    @State private var focusMode: Bool = false
 
     var body: some View {
-        NavigationSplitView(columnVisibility: $sidebarVisible) {
-            LibrarySidebarPlaceholder(
+        NavigationSplitView(columnVisibility: $sidebarVisibility) {
+            LibrarySidebar(
                 projects: projects,
                 selectedScene: $selectedScene
             )
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
-        } content: {
-            EditorPanePlaceholder(scene: selectedScene)
-                .navigationSplitViewColumnWidth(min: 480, ideal: 720)
         } detail: {
-            InspectorPanePlaceholder(scene: selectedScene)
-                .navigationSplitViewColumnWidth(min: 240, ideal: 300, max: 360)
+            HStack(spacing: 0) {
+                centerPane
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if inspectorVisible && !focusMode {
+                    Divider().background(PenovaColor.ink4)
+                    SceneInspector(scene: selectedScene)
+                        .frame(width: 300)
+                }
+            }
         }
-        .navigationTitle(selectedScene?.heading ?? "Penova")
+        .navigationTitle(navigationTitle)
         .background(PenovaColor.ink0)
+        .toolbar {
+            if !focusMode {
+                toolbarContent
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if !focusMode {
+                StatusBar(
+                    pages: pageEstimate,
+                    isSynced: true,
+                    sceneCount: totalSceneCount
+                )
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if focusMode {
+                focusPill
+            }
+        }
         .onAppear {
             if selectedScene == nil {
                 selectedScene = projects
@@ -44,190 +90,191 @@ struct LibraryWindowView: View {
             }
         }
     }
-}
 
-// MARK: - Placeholders (to be replaced)
+    // MARK: - Navigation title
 
-private struct LibrarySidebarPlaceholder: View {
-    let projects: [Project]
-    @Binding var selectedScene: ScriptScene?
+    private var navigationTitle: String {
+        guard let scene = selectedScene else { return "Penova" }
+        if let ep = scene.episode, let proj = ep.project {
+            return "\(proj.title) — \(ep.title) — \(scene.heading)"
+        }
+        return scene.heading
+    }
 
-    var body: some View {
-        List(selection: Binding(
-            get: { selectedScene?.id },
-            set: { id in
-                guard let id else { return }
-                for p in projects {
-                    for ep in p.activeEpisodesOrdered {
-                        for s in ep.scenesOrdered where s.id == id {
-                            selectedScene = s
-                            return
-                        }
-                    }
+    private var totalSceneCount: Int {
+        projects.reduce(0) { $0 + $1.totalSceneCount }
+    }
+
+    private var pageEstimate: String {
+        guard let scene = selectedScene else { return "—" }
+        // Crude estimate: ~55 lines per page, action ~1 line, dialogue ~1.5
+        let lines = scene.elements.reduce(0.0) { acc, el in
+            switch el.kind {
+            case .heading, .character: return acc + 1
+            case .parenthetical: return acc + 0.6
+            case .dialogue: return acc + Double(max(1, el.text.count / 35))
+            case .action: return acc + Double(max(1, el.text.count / 60))
+            case .transition, .actBreak: return acc + 1.5
+            }
+        }
+        let pages = lines / 55.0
+        return String(format: "%.1f pp", pages)
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            Button(action: newScene) {
+                Label("New Scene", systemImage: "plus")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(PenovaColor.amber)
+            .keyboardShortcut("n", modifiers: [.command, .shift])
+        }
+
+        ToolbarItemGroup(placement: .secondaryAction) {
+            Button(action: { /* print */ }) {
+                Label("Print", systemImage: "printer")
+            }
+            .keyboardShortcut("p", modifiers: .command)
+
+            Menu {
+                Button("Export PDF…") {}.keyboardShortcut("e", modifiers: .command)
+                Button("Export Final Draft (FDX)…") {}
+                Button("Export Fountain…") {}
+            } label: {
+                Label("Export", systemImage: "square.and.arrow.up")
+            }
+        }
+
+        ToolbarItem(placement: .principal) {
+            Picker("", selection: $viewMode) {
+                ForEach(CenterViewMode.allCases) { mode in
+                    Label(mode.label, systemImage: mode.symbol).tag(mode)
                 }
             }
-        )) {
-            Section("Smart") {
-                Label("All Scenes", systemImage: "rectangle.stack")
+            .pickerStyle(.segmented)
+            .labelStyle(.titleOnly)
+            .frame(width: 280)
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: { focusMode.toggle() }) {
+                Label("Focus Mode", systemImage: focusMode ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+            }
+            .keyboardShortcut("f", modifiers: [.command, .control])
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: { inspectorVisible.toggle() }) {
+                Label("Toggle Inspector", systemImage: "sidebar.right")
+            }
+            .keyboardShortcut("0", modifiers: [.command, .option])
+        }
+    }
+
+    // MARK: - Center pane (editor / cards / outline)
+
+    @ViewBuilder
+    private var centerPane: some View {
+        switch viewMode {
+        case .editor:
+            ScriptEditorPane(scene: selectedScene)
+        case .cards:
+            IndexCardsPane(projects: projects, selectedScene: $selectedScene)
+        case .outline:
+            OutlinePane(projects: projects, selectedScene: $selectedScene)
+        }
+    }
+
+    // MARK: - Focus mode pill
+
+    private var focusPill: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "scope")
+                .foregroundStyle(PenovaColor.amber)
+                .font(.system(size: 11))
+            Text("Focus")
+                .font(PenovaFont.bodySmall)
+                .foregroundStyle(PenovaColor.snow3)
+            Text("·").foregroundStyle(PenovaColor.ink5)
+            Text(pageEstimate)
+                .font(.custom("RobotoMono-Medium", size: 11))
+                .foregroundStyle(PenovaColor.snow)
+            Text("·").foregroundStyle(PenovaColor.ink5)
+            Button(action: { focusMode = false }) {
+                HStack(spacing: 6) {
+                    Text("Exit").foregroundStyle(PenovaColor.snow4)
+                    Text("⎋")
+                        .font(.custom("RobotoMono-Medium", size: 10))
+                        .padding(.horizontal, 5).padding(.vertical, 2)
+                        .background(PenovaColor.ink3)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                .font(PenovaFont.bodySmall)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 8)
+        .background(.regularMaterial)
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(PenovaColor.ink4, lineWidth: 1))
+        .padding(.bottom, 24)
+        .keyboardShortcut(.escape)
+    }
+
+    private func newScene() {
+        guard let firstEp = projects.first?.activeEpisodesOrdered.first else { return }
+        let nextOrder = (firstEp.scenes.map(\.order).max() ?? -1) + 1
+        let scene = ScriptScene(
+            locationName: "NEW LOCATION",
+            location: .interior,
+            time: .day,
+            order: nextOrder
+        )
+        scene.episode = firstEp
+        context.insert(scene)
+        try? context.save()
+        selectedScene = scene
+    }
+}
+
+// MARK: - Status bar
+
+private struct StatusBar: View {
+    let pages: String
+    let isSynced: Bool
+    let sceneCount: Int
+
+    var body: some View {
+        HStack(spacing: 16) {
+            HStack(spacing: 6) {
+                Text("Pages")
+                    .foregroundStyle(PenovaColor.snow4)
+                Text(pages)
                     .foregroundStyle(PenovaColor.snow2)
-                Label("Bookmarked", systemImage: "bookmark")
-                    .foregroundStyle(PenovaColor.snow2)
+                    .fontWeight(.medium)
             }
-            ForEach(projects) { project in
-                Section(project.title) {
-                    ForEach(project.activeEpisodesOrdered) { episode in
-                        DisclosureGroup {
-                            ForEach(episode.scenesOrdered) { scene in
-                                Label(scene.heading, systemImage: "doc.text")
-                                    .lineLimit(1)
-                                    .tag(scene.id)
-                            }
-                        } label: {
-                            Label(episode.title, systemImage: "folder")
-                                .foregroundStyle(PenovaColor.snow)
-                        }
-                    }
-                }
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(isSynced ? PenovaColor.jade : PenovaColor.amber)
+                    .frame(width: 6, height: 6)
+                Text(isSynced ? "Synced" : "Syncing")
+                    .foregroundStyle(PenovaColor.snow4)
             }
+            Spacer()
+            Text("\(sceneCount) scenes")
+                .foregroundStyle(PenovaColor.snow4)
+            Text("Penova v0.1.0")
+                .foregroundStyle(PenovaColor.snow4)
         }
-        .listStyle(.sidebar)
+        .font(.system(size: 11))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity)
         .background(PenovaColor.ink2)
-        .scrollContentBackground(.hidden)
-    }
-}
-
-private struct EditorPanePlaceholder: View {
-    let scene: ScriptScene?
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                if let scene {
-                    ScriptPagePlaceholder(scene: scene)
-                        .padding(.vertical, 40)
-                        .frame(maxWidth: .infinity)
-                } else {
-                    Text("Select a scene")
-                        .font(PenovaFont.title)
-                        .foregroundStyle(PenovaColor.snow3)
-                        .frame(maxWidth: .infinity, minHeight: 320)
-                }
-            }
-        }
-        .background(PenovaColor.ink0)
-    }
-}
-
-/// Renders the script paper in the same Roboto-Mono / cream-on-black look
-/// as the mockups. Read-only for v1 scaffold; real editor lands in a later
-/// commit.
-private struct ScriptPagePlaceholder: View {
-    let scene: ScriptScene
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(scene.heading)
-                .font(.custom("RobotoMono-Medium", size: 14))
-                .fontWeight(.semibold)
-                .padding(.bottom, 12)
-                .textCase(.uppercase)
-            ForEach(scene.elementsOrdered) { el in
-                ElementRow(element: el)
-            }
-        }
-        .padding(.horizontal, 80)
-        .padding(.vertical, 64)
-        .frame(width: 640)
-        .background(PenovaColor.paper)
-        .foregroundStyle(Color(red: 0.10, green: 0.08, blue: 0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 2))
-        .shadow(color: .black.opacity(0.45), radius: 30, x: 0, y: 20)
-        .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
-    }
-}
-
-private struct ElementRow: View {
-    let element: SceneElement
-
-    var body: some View {
-        let mono = Font.custom("RobotoMono-Medium", size: 14)
-        let leading: CGFloat = {
-            switch element.kind {
-            case .heading, .action, .actBreak: return 0
-            case .character:                   return 480 * 0.36
-            case .parenthetical:               return 480 * 0.28
-            case .dialogue:                    return 480 * 0.18
-            case .transition:                  return 0
-            }
-        }()
-        let trailing: CGFloat = element.kind == .dialogue ? 480 * 0.16 : 0
-        let isUpper = [SceneElementKind.heading, .character, .transition].contains(element.kind)
-        let italic = element.kind == .parenthetical
-
-        HStack {
-            if element.kind == .transition { Spacer() }
-            Text(element.text)
-                .font(mono)
-                .italic(italic)
-                .textCase(isUpper ? .uppercase : nil)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: 480 - leading - trailing, alignment: .leading)
-                .padding(.leading, leading)
-                .padding(.trailing, trailing)
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-private struct InspectorPanePlaceholder: View {
-    let scene: ScriptScene?
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                if let scene {
-                    Group {
-                        sectionLabel("Heading")
-                        Text(scene.heading)
-                            .font(.custom("RobotoMono-Medium", size: 13))
-                            .foregroundStyle(PenovaColor.snow)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
-                            .background(PenovaColor.ink3)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                        sectionLabel("Beat")
-                        Text(scene.beatType?.display ?? "—")
-                            .font(PenovaFont.bodyMedium)
-                            .foregroundStyle(PenovaColor.snow2)
-
-                        sectionLabel("Bookmarked")
-                        Text(scene.bookmarked ? "Yes" : "No")
-                            .font(PenovaFont.bodyMedium)
-                            .foregroundStyle(PenovaColor.snow2)
-
-                        sectionLabel("Elements")
-                        Text("\(scene.elements.count)")
-                            .font(PenovaFont.title)
-                            .foregroundStyle(PenovaColor.snow)
-                    }
-                } else {
-                    Text("No scene selected")
-                        .font(PenovaFont.body)
-                        .foregroundStyle(PenovaColor.snow4)
-                }
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .background(PenovaColor.ink2)
-    }
-
-    private func sectionLabel(_ text: String) -> some View {
-        Text(text)
-            .font(PenovaFont.labelCaps)
-            .tracking(PenovaTracking.labelCaps)
-            .foregroundStyle(PenovaColor.snow4)
-            .padding(.bottom, 4)
+        .overlay(Rectangle().fill(PenovaColor.ink4).frame(height: 1), alignment: .top)
     }
 }
