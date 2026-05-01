@@ -41,7 +41,7 @@
     <key>SUFeedURL</key>
     <string>https://penova.app/appcast.xml</string>
     <key>SUPublicEDKey</key>
-    <string>{{SPARKLE_PUBLIC_ED_KEY}}</string>
+    <string>yP9aQOzOfa5LhYiexRhE52NGCqqYez/2qWizjuj/XSc=</string>
     <key>SUEnableAutomaticChecks</key>
     <true/>
     <key>SUScheduledCheckInterval</key>
