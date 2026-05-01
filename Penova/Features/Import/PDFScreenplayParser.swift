@@ -71,14 +71,27 @@ public enum PDFScreenplayParser {
         // records when there's a space + period adjacency
         // ("INT. KITCHEN" → "INT." + "KITCHEN"), which would otherwise
         // break scene-heading detection on real Hollywood scripts.
+        // Drop chrome (page numbers, scene-number gutters, "(MORE)"
+        // markers, top/bottom margin furniture) BEFORE merging same-y
+        // lines. Otherwise a left-gutter scene number ("1.") would
+        // merge with a body heading at the same baseline and pull the
+        // merged line's x left into the gutter — corrupting later
+        // column inference.
+        var dropped = 0
         var allLines: [PDFLine] = []
         for p in 0..<source.pageCount {
-            allLines.append(contentsOf: mergeSameYLines(source.lines(onPage: p)))
+            let raw = source.lines(onPage: p)
+            var keep: [PDFLine] = []
+            keep.reserveCapacity(raw.count)
+            for line in raw {
+                if isChrome(line) { dropped += 1; continue }
+                keep.append(line)
+            }
+            allLines.append(contentsOf: mergeSameYLines(keep))
         }
 
-        // Drop chrome: page numbers, headers/footers, "(MORE)" markers,
-        // top-of-page CONT'D markers we'll re-stitch later.
-        var dropped = 0
+        // Second chrome pass after merge — catches any pattern that
+        // only becomes visible once same-y fragments are joined.
         var bodyLines: [PDFLine] = []
         bodyLines.reserveCapacity(allLines.count)
         for line in allLines {
@@ -199,6 +212,15 @@ public enum PDFScreenplayParser {
         if matches(trimmed, pattern: pageNumberRegex) { return true }
         let romanRegex = #"^[ivxlcdm]{1,5}\.?$"#
         if matches(trimmed.lowercased(), pattern: romanRegex) && trimmed.count <= 5 { return true }
+
+        // Scene-number gutter pair, drawn at both the left and right
+        // margins of the heading line ("1.", "12.", "A12", or paired
+        // forms like "1. 1.", "12 12", "A12 A12"). PDFKit's
+        // selectionsByLine often glues the two gutter markers into a
+        // single short line at left-gutter x. Drop them so the merge
+        // pass doesn't pull the body heading's x into the gutter zone.
+        let sceneNumGutter = #"^[A-Z]?[0-9]{1,4}[A-Z]?\.?(\s+[A-Z]?[0-9]{1,4}[A-Z]?\.?)?$"#
+        if matches(trimmed, pattern: sceneNumGutter) { return true }
 
         // Continuation chrome.
         if trimmed.uppercased() == "(MORE)" { return true }

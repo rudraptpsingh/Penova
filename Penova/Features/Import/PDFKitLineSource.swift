@@ -3,16 +3,13 @@
 //  Penova
 //
 //  Production adapter that turns a real `PDFDocument` into a stream of
-//  `PDFLine`s. We use `PDFPage.string` for the line text, then ask
-//  PDFKit for the bounding box of each character to recover the line's
-//  left edge in PDF user space.
-//
-//  Why character-level bounds: the PDF spec doesn't carry "line"
-//  semantics — text shows up as a stream of placed glyphs. PDFKit
-//  reconstructs lines for us in `string`, but the only way to get
-//  geometry back out is via `characterBounds(at:)`. We sample one or
-//  two chars per line (first non-space + last non-space) and that's
-//  enough to know where the line starts.
+//  `PDFLine`s. We let PDFKit do the line segmentation for us via
+//  `PDFSelection.selectionsByLine()` — each returned selection is one
+//  visual line whose `bounds(for: page)` gives us its rect in PDF
+//  user space. This is robust to glyph ordering quirks that broke the
+//  earlier index-arithmetic approach (where the running character offset
+//  could fall out of sync with PDFKit's internal indexing for some
+//  lines, returning `CGRect.null` and collapsing them all to y=pageHeight).
 //
 
 import Foundation
@@ -30,35 +27,74 @@ public struct PDFKitLineSource: PDFLineSource {
 
     public func lines(onPage index: Int) -> [PDFLine] {
         guard let page = document.page(at: index) else { return [] }
-        guard let pageString = page.string, !pageString.isEmpty else { return [] }
 
         let pageRect = page.bounds(for: .mediaBox)
         let pageHeight = pageRect.height
 
-        var out: [PDFLine] = []
-        out.reserveCapacity(64)
+        // Build a selection over the entire page, then ask PDFKit to
+        // split it into one selection per visual line.
+        guard let pageString = page.string, !pageString.isEmpty else { return [] }
+        let length = (pageString as NSString).length
+        guard length > 0,
+              let pageSelection = page.selection(for: NSRange(location: 0, length: length))
+        else {
+            return fallbackLines(on: page, pageHeight: pageHeight, pageIndex: index)
+        }
 
-        // Walk pageString line by line. For each non-empty line, ask
-        // PDFKit for the left edge of its first non-space character and
-        // its top y. PDFKit indexes chars across the whole page string
-        // with newline characters counted in the index, so we can keep
-        // a running offset.
+        let lineSelections = pageSelection.selectionsByLine()
+        if lineSelections.isEmpty {
+            return fallbackLines(on: page, pageHeight: pageHeight, pageIndex: index)
+        }
+
+        var out: [PDFLine] = []
+        out.reserveCapacity(lineSelections.count)
+        for lineSel in lineSelections {
+            let raw = lineSel.string ?? ""
+            let trimmed = raw
+                .replacingOccurrences(of: "[\\s]+$", with: "", options: .regularExpression)
+            guard !trimmed.isEmpty else { continue }
+
+            let bounds = lineSel.bounds(for: page)
+            // Right-aligned text occasionally reports a null/empty rect.
+            // Skip those lines rather than collapse them to a fake y —
+            // the parser would otherwise merge them via mergeSameYLines
+            // and lose them entirely.
+            guard !bounds.isNull, !bounds.isEmpty else { continue }
+
+            out.append(PDFLine(
+                text: trimmed,
+                x: bounds.origin.x,
+                yTop: bounds.origin.y + bounds.height,
+                pageHeight: pageHeight,
+                pageIndex: index
+            ))
+        }
+
+        // PDF origin is bottom-left, so larger y is higher on the page.
+        // selectionsByLine() generally returns lines in reading order
+        // already, but sort defensively in case of multi-column layouts.
+        return out.sorted { $0.yTop > $1.yTop }
+    }
+
+    /// Last-resort path used when PDFKit refuses to return a page-wide
+    /// selection (rare, but observed on PDFs with unusual content
+    /// streams). Walks `page.string` line by line and asks for the
+    /// bounds of each line's first non-whitespace character. Lines whose
+    /// bounds come back null are dropped rather than placed at a
+    /// fake y where the parser would merge them.
+    private func fallbackLines(on page: PDFPage, pageHeight: CGFloat, pageIndex: Int) -> [PDFLine] {
+        guard let pageString = page.string, !pageString.isEmpty else { return [] }
+        let charCount = (pageString as NSString).length
+        var out: [PDFLine] = []
         var offset = 0
-        let scalars = pageString
-        let lines = scalars.split(separator: "\n", omittingEmptySubsequences: false)
-        for line in lines {
+        for line in pageString.split(separator: "\n", omittingEmptySubsequences: false) {
             let lineText = String(line)
-            // Trim trailing whitespace; preserve leading because we
-            // re-derive the indent from PDF coordinates anyway.
             let trimmedTrailing = lineText
                 .replacingOccurrences(of: "[\\s]+$", with: "", options: .regularExpression)
-
             if trimmedTrailing.isEmpty {
-                offset += lineText.utf16.count + 1   // +1 for the newline
+                offset += (lineText as NSString).length + 1
                 continue
             }
-
-            // Find the offset of the first non-whitespace char on this line.
             var firstNonSpaceLocal = 0
             for (i, ch) in lineText.unicodeScalars.enumerated() {
                 if !CharacterSet.whitespaces.contains(ch) {
@@ -66,34 +102,19 @@ public struct PDFKitLineSource: PDFLineSource {
                     break
                 }
             }
-            let firstIdx = offset + firstNonSpaceLocal
-
-            // characterBounds(at:) is bounded; guard against off-by-one.
-            let charCount = pageString.utf16.count
-            let safeIdx = min(firstIdx, charCount - 1)
-            let bounds = page.characterBounds(at: safeIdx)
-            // PDFKit returns CGRect.null for empty/invalid ranges — fall
-            // back to "use the whole page" bounds so x defaults to 0
-            // rather than skipping the line entirely.
-            let x = bounds.isNull || bounds.isEmpty ? 0 : bounds.origin.x
-            let yTop = bounds.isNull || bounds.isEmpty
-                ? pageHeight
-                : bounds.origin.y + bounds.height
-
-            out.append(PDFLine(
-                text: trimmedTrailing,
-                x: x,
-                yTop: yTop,
-                pageHeight: pageHeight,
-                pageIndex: index
-            ))
-
-            offset += lineText.utf16.count + 1
+            let firstIdx = min(offset + firstNonSpaceLocal, charCount - 1)
+            let bounds = page.characterBounds(at: firstIdx)
+            if !bounds.isNull, !bounds.isEmpty {
+                out.append(PDFLine(
+                    text: trimmedTrailing,
+                    x: bounds.origin.x,
+                    yTop: bounds.origin.y + bounds.height,
+                    pageHeight: pageHeight,
+                    pageIndex: pageIndex
+                ))
+            }
+            offset += (lineText as NSString).length + 1
         }
-
-        // Sort by y descending (PDF origin is bottom-left, so larger y
-        // is higher on the page). PDFKit usually returns lines already
-        // in reading order, but we sort defensively.
         return out.sorted { $0.yTop > $1.yTop }
     }
 }
