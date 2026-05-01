@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0411ED290830BB56E472DE2E /* PenovaKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7760500F46C4641D7074B00A /* PenovaKit */; };
 		0558212BAB6B626A87C40DCE /* ScriptPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */; };
 		056B1BA8D0402D0E3F469539 /* PDFLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C423322938B1FD02C34C1B /* PDFLayoutTests.swift */; };
 		05CB5087FA61CF1AA1279F4C /* AppFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */; };
@@ -16,11 +17,15 @@
 		15CBDE9031EE185AAE07D1F1 /* VoiceCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */; };
 		26CFFF1E938FBA5E7D494F5D /* PDFPageBreakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C96D74995B8C328443109F9 /* PDFPageBreakTests.swift */; };
 		284884FFE3AD913EBC5470DD /* EditorLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BC2A2EF1C4A439085F2265 /* EditorLogic.swift */; };
+		2B6989BE67DE7B010A4183DB /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E07C94B3CE06C0D97AC5EC52 /* Inter-SemiBold.ttf */; };
+		2D552732A137B6D9E01EFFFE /* LibraryWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ED3E399DCC78C094F80D1 /* LibraryWindowView.swift */; };
+		31582675706C3DC7DBD72022 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */; };
 		32D9431B9CCFFDDF810DDAB8 /* EditorLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B759711443F2E63064750D1E /* EditorLogicTests.swift */; };
 		34C7BD445A5450DFFFAC0F1D /* SceneHeadingParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */; };
 		41EA258C0DAC979563D37DD1 /* CRUDEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4524546DE98F2547731BEF /* CRUDEdgeCaseTests.swift */; };
 		45303C6FD7E32611E6895DFF /* DesignSystemGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC376E071873F871BF16D1 /* DesignSystemGallery.swift */; };
 		4DC274E8363B8E0B21D539BA /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77473BD2458260CD0DC78303 /* SeedData.swift */; };
+		4F5665867EECA543740A3794 /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */; };
 		60353FCE2B1B2736F4A0327E /* MeasurePageCountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */; };
 		65AC2666F3FB5D7A6BFDE537 /* CharacterDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */; };
 		69190BB81A070D08F3251619 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */; };
@@ -28,6 +33,7 @@
 		6DAF2A5656E5286EA2CE1DEA /* ProjectDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */; };
 		6DC007852CF55E8E8331A675 /* FinalDraftXMLWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DA878972EDF053342BB04A /* FinalDraftXMLWriter.swift */; };
 		73134856768E274B337D3FDA /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8CB50832240858F20B0320BA /* PlayfairDisplay.ttf */; };
+		789D7B7E9F60458A947F8372 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0A833C6BB6A28B4740F4741C /* Inter-Medium.ttf */; };
 		7B23584A9B6C26C0D8984C36 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 25D486CD1D488EE931D32996 /* Inter-Bold.ttf */; };
 		7B81B947626453E7EFD8A9EF /* FountainParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */; };
 		7EF3CE1DE43D0695BF4B4E61 /* ScenePDFContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C74CF473DAD618D971CC56E /* ScenePDFContentTests.swift */; };
@@ -36,7 +42,9 @@
 		88F6DF7D512568D43C137C61 /* Inter-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A8BDD3E1DCF8D15F59CABE9F /* Inter-OFL.txt */; };
 		89D5691A4D926B8A36B212BC /* FountainParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751CB664AE7C442930E4CF1E /* FountainParser.swift */; };
 		8AF45CF5D8A835ABF579E109 /* RobotoMono-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */; };
+		8D738F930FC826A11E790B6F /* RobotoMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5E9B54B721434D499688F496 /* RobotoMono-Medium.ttf */; };
 		916EEA4BD42E8AAE07AE0292 /* ReorderAndStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D00A628D777DD5EA2FFDDC /* ReorderAndStatusTests.swift */; };
+		922C18DAC021EE66F7C5DABC /* PenovaMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */; };
 		922ED698C5CE9FD4CDC4DF88 /* NewSceneSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */; };
 		960B361F049C22AC5F8905BB /* NewCharacterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */; };
 		97CB3E4DD1327708132C3259 /* PenovaKit in Frameworks */ = {isa = PBXBuildFile; productRef = D5C1939D3C4FC1EAAA56C020 /* PenovaKit */; };
@@ -53,6 +61,9 @@
 		AFDAE0EA65484E2108E2DD45 /* FountainRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8B8A33B4AEA01C01A267D0 /* FountainRoundTripTests.swift */; };
 		B8172462B32AC9F3A7940A93 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */; };
 		BC57586436ECD32B0C711FDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */; };
+		BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D5339999C19B127E5F30696 /* Inter-Regular.ttf */; };
+		BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */; };
+		C8D43C249B526F471087DCC4 /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */; };
 		CB65D7D98B9E6753BF99F52C /* SceneHeadingParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EE177C0EF6FB7B5BCC8814 /* SceneHeadingParser.swift */; };
 		CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */; };
 		D43068233BC7C0D981FC490B /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */; };
@@ -84,9 +95,12 @@
 		0088C3BF1FC17748F0C1F7D3 /* NewCharacterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCharacterSheet.swift; sourceTree = "<group>"; };
 		01FFB374D0A49467BD6D6FE6 /* FinalDraftXMLWriterDeepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalDraftXMLWriterDeepTests.swift; sourceTree = "<group>"; };
 		02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScreen.swift; sourceTree = "<group>"; };
+		0A833C6BB6A28B4740F4741C /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
 		0AD5C1FB0523638BB0CBC44D /* FountainExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainExporter.swift; sourceTree = "<group>"; };
 		0C174318333423CB299A2A6C /* ExportShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportShareSheet.swift; sourceTree = "<group>"; };
+		0D5339999C19B127E5F30696 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		0DFD9D9E14428E256DFA8441 /* SessionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceTests.swift; sourceTree = "<group>"; };
+		0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleLibrary.swift; sourceTree = "<group>"; };
 		100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenesTabScreen.swift; sourceTree = "<group>"; };
 		172CACD48B8CA9B61E3EFE75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		18DA878972EDF053342BB04A /* FinalDraftXMLWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalDraftXMLWriter.swift; sourceTree = "<group>"; };
@@ -103,23 +117,29 @@
 		386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCaptureSheet.swift; sourceTree = "<group>"; };
 		3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaApp.swift; sourceTree = "<group>"; };
 		49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptPDFRenderer.swift; sourceTree = "<group>"; };
+		4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacApp.swift; sourceTree = "<group>"; };
 		53F0831EB94C9C9471297ABF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		56CF28C1A5CE83380A448E33 /* NewSceneSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSceneSheet.swift; sourceTree = "<group>"; };
 		5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalDraftXMLWriterTests.swift; sourceTree = "<group>"; };
 		5C74CF473DAD618D971CC56E /* ScenePDFContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenePDFContentTests.swift; sourceTree = "<group>"; };
+		5E9B54B721434D499688F496 /* RobotoMono-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Medium.ttf"; sourceTree = "<group>"; };
 		5FF2D48D683C1E3C0124F948 /* FountainImportPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainImportPicker.swift; sourceTree = "<group>"; };
+		61D16A60309038240D2F3927 /* PenovaMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PenovaMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C96D74995B8C328443109F9 /* PDFPageBreakTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPageBreakTests.swift; sourceTree = "<group>"; };
 		7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDetailScreen.swift; sourceTree = "<group>"; };
 		74F61AB5FEF81FAA0110A6FC /* ProjectDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailScreen.swift; sourceTree = "<group>"; };
 		751CB664AE7C442930E4CF1E /* FountainParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainParser.swift; sourceTree = "<group>"; };
 		763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataCRUDTests.swift; sourceTree = "<group>"; };
 		77473BD2458260CD0DC78303 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
+		78A0B0D4B3BCC3DB31669AB1 /* PenovaMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PenovaMac.entitlements; sourceTree = "<group>"; };
 		80956E613FA97F2234F7D02F /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		8C0A7A64681635BBE97E67C6 /* Penova.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Penova.entitlements; sourceTree = "<group>"; };
 		8CB50832240858F20B0320BA /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayfairDisplay.ttf; sourceTree = "<group>"; };
 		9393E2105ADFFAA9F5B6EAFF /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		949E0C9EEA7AA70FB8A69256 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
+		9734E0B100C1FDEBEC477D1C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		978D6DFC08C6404283F4CA0A /* EpisodeDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeDetailScreen.swift; sourceTree = "<group>"; };
+		9F8ED3E399DCC78C094F80D1 /* LibraryWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryWindowView.swift; sourceTree = "<group>"; };
 		A0D48F047FDBBA1EA36E4BB1 /* GlobalSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSearchView.swift; sourceTree = "<group>"; };
 		A1C423322938B1FD02C34C1B /* PDFLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutTests.swift; sourceTree = "<group>"; };
 		A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
@@ -128,6 +148,7 @@
 		AE7B232CCCE173DCAFA5D0C6 /* SearchAndCharacterReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchAndCharacterReportTests.swift; sourceTree = "<group>"; };
 		B759711443F2E63064750D1E /* EditorLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorLogicTests.swift; sourceTree = "<group>"; };
 		BA7679894C47D022D747EE1A /* PDFTitlePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTitlePageTests.swift; sourceTree = "<group>"; };
+		BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
 		C303CD56BA9A30D36DFD75BB /* PenovaKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PenovaKit; path = PenovaKit; sourceTree = SOURCE_ROOT; };
 		C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainParserTests.swift; sourceTree = "<group>"; };
 		CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -135,9 +156,11 @@
 		D0C16A6B0183760ACD3CD49D /* PlayfairDisplay-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "PlayfairDisplay-OFL.txt"; sourceTree = "<group>"; };
 		D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RobotoMono-OFL.txt"; sourceTree = "<group>"; };
+		DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayfairDisplay.ttf; sourceTree = "<group>"; };
 		DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProjectSheet.swift; sourceTree = "<group>"; };
 		DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PenovaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE8B8A33B4AEA01C01A267D0 /* FountainRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainRoundTripTests.swift; sourceTree = "<group>"; };
+		E07C94B3CE06C0D97AC5EC52 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		E0BC2A2EF1C4A439085F2265 /* EditorLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorLogic.swift; sourceTree = "<group>"; };
 		E2D00A628D777DD5EA2FFDDC /* ReorderAndStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReorderAndStatusTests.swift; sourceTree = "<group>"; };
 		E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFRenderSmokeTests.swift; sourceTree = "<group>"; };
@@ -145,6 +168,7 @@
 		E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurePageCountTests.swift; sourceTree = "<group>"; };
 		EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailScreen.swift; sourceTree = "<group>"; };
 		FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
+		FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
 		FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEpisodeSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -157,6 +181,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D047CFEB5D2CA3BC8E69906C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0411ED290830BB56E472DE2E /* PenovaKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -166,6 +198,13 @@
 				3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */,
 			);
 			path = Scripts;
+			sourceTree = "<group>";
+		};
+		21A01391E7C9486D918CF8AF /* Inspector */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Inspector;
 			sourceTree = "<group>";
 		};
 		22026E0C65BA51EC2A922EE2 /* Packages */ = {
@@ -217,12 +256,45 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		402EECE80CAD6F3BA2D4634A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				44322770DB8072793E68A20A /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		44322770DB8072793E68A20A /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */,
+				0A833C6BB6A28B4740F4741C /* Inter-Medium.ttf */,
+				0D5339999C19B127E5F30696 /* Inter-Regular.ttf */,
+				E07C94B3CE06C0D97AC5EC52 /* Inter-SemiBold.ttf */,
+				DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */,
+				5E9B54B721434D499688F496 /* RobotoMono-Medium.ttf */,
+				BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		4A55ACE94D2CF36F55D664B8 /* Search */ = {
 			isa = PBXGroup;
 			children = (
 				A0D48F047FDBBA1EA36E4BB1 /* GlobalSearchView.swift */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		5021BDE0A26001D87A743C61 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				9734E0B100C1FDEBEC477D1C /* Info.plist */,
+				78A0B0D4B3BCC3DB31669AB1 /* PenovaMac.entitlements */,
+				4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */,
+				0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 		508F5F3427E71B408FE3228F /* Resources */ = {
@@ -233,6 +305,14 @@
 				FCCD3BFDD1ECD25EA3DDC6C1 /* Fonts */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		57FB91B8CC0485D6671C71E2 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				9F8ED3E399DCC78C094F80D1 /* LibraryWindowView.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 		5B7A06C19E7DF05C4B001ADF /* Export */ = {
@@ -254,6 +334,13 @@
 			path = Scenes;
 			sourceTree = "<group>";
 		};
+		6DAA8A4EA06633B149DFEEA5 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
 		73BBEF8A56BF78600D42DE56 /* Project */ = {
 			isa = PBXGroup;
 			children = (
@@ -268,6 +355,7 @@
 			isa = PBXGroup;
 			children = (
 				E84EA7836B350608A4B2B035 /* Penova.app */,
+				61D16A60309038240D2F3927 /* PenovaMac.app */,
 				DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */,
 			);
 			name = Products;
@@ -325,6 +413,7 @@
 			children = (
 				22026E0C65BA51EC2A922EE2 /* Packages */,
 				AF65C8DC1B0372E714FC35AC /* Penova */,
+				DDDEF499141C6F7DDB00336B /* PenovaMac */,
 				2EFDCE078CCDECE3E4F83B3B /* PenovaTests */,
 				7659BBC34F303C07322E11DC /* Products */,
 			);
@@ -357,6 +446,16 @@
 			path = Gallery;
 			sourceTree = "<group>";
 		};
+		D37AE740D65B050C8BD8B27E /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				6DAA8A4EA06633B149DFEEA5 /* Editor */,
+				21A01391E7C9486D918CF8AF /* Inspector */,
+				57FB91B8CC0485D6671C71E2 /* Library */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		DBF84439CC8E4D61FC8A8386 /* Import */ = {
 			isa = PBXGroup;
 			children = (
@@ -364,6 +463,16 @@
 				751CB664AE7C442930E4CF1E /* FountainParser.swift */,
 			);
 			path = Import;
+			sourceTree = "<group>";
+		};
+		DDDEF499141C6F7DDB00336B /* PenovaMac */ = {
+			isa = PBXGroup;
+			children = (
+				5021BDE0A26001D87A743C61 /* App */,
+				D37AE740D65B050C8BD8B27E /* Features */,
+				402EECE80CAD6F3BA2D4634A /* Resources */,
+			);
+			path = PenovaMac;
 			sourceTree = "<group>";
 		};
 		E82EB8D49DE76E044DA506E3 /* Characters */ = {
@@ -448,6 +557,26 @@
 			productReference = E84EA7836B350608A4B2B035 /* Penova.app */;
 			productType = "com.apple.product-type.application";
 		};
+		6F92A9D852B92BAD04179889 /* PenovaMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 59D95BA9A60088E18EC0A2AA /* Build configuration list for PBXNativeTarget "PenovaMac" */;
+			buildPhases = (
+				9BD4D25DB4E542A3A69516E7 /* Sources */,
+				C625512B36B22E2FD2967E26 /* Resources */,
+				D047CFEB5D2CA3BC8E69906C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PenovaMac;
+			packageProductDependencies = (
+				7760500F46C4641D7074B00A /* PenovaKit */,
+			);
+			productName = PenovaMac;
+			productReference = 61D16A60309038240D2F3927 /* PenovaMac.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -458,6 +587,10 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					4346D55D19BD2F63304DED35 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					6F92A9D852B92BAD04179889 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
@@ -481,6 +614,7 @@
 			projectRoot = "";
 			targets = (
 				4346D55D19BD2F63304DED35 /* Penova */,
+				6F92A9D852B92BAD04179889 /* PenovaMac */,
 				27C74FFA1B5191C73F444DBE /* PenovaTests */,
 			);
 		};
@@ -503,6 +637,20 @@
 				DF778C848CC79E275A935009 /* RobotoMono-Medium.ttf in Resources */,
 				8AF45CF5D8A835ABF579E109 /* RobotoMono-OFL.txt in Resources */,
 				D43068233BC7C0D981FC490B /* RobotoMono-Regular.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C625512B36B22E2FD2967E26 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				31582675706C3DC7DBD72022 /* Inter-Bold.ttf in Resources */,
+				789D7B7E9F60458A947F8372 /* Inter-Medium.ttf in Resources */,
+				BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */,
+				2B6989BE67DE7B010A4183DB /* Inter-SemiBold.ttf in Resources */,
+				C8D43C249B526F471087DCC4 /* PlayfairDisplay.ttf in Resources */,
+				8D738F930FC826A11E790B6F /* RobotoMono-Medium.ttf in Resources */,
+				4F5665867EECA543740A3794 /* RobotoMono-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,6 +678,16 @@
 				9F8CC214502FCE62ED6B0F4D /* SearchAndCharacterReportTests.swift in Sources */,
 				86E5E00F795CD2967D14DDA0 /* SessionPersistenceTests.swift in Sources */,
 				D5B6C1D6E07B42A741EB79F5 /* SwiftDataCRUDTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9BD4D25DB4E542A3A69516E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D552732A137B6D9E01EFFFE /* LibraryWindowView.swift in Sources */,
+				922C18DAC021EE66F7C5DABC /* PenovaMacApp.swift in Sources */,
+				BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -641,7 +799,6 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -738,12 +895,36 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.10;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		89B2F481C074F04A75E5AD7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PenovaMac/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
+				PRODUCT_NAME = Penova;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -813,6 +994,31 @@
 			};
 			name = Debug;
 		};
+		FCE9138C16065FED0D23B858 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PenovaMac/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
+				PRODUCT_NAME = Penova;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -821,6 +1027,15 @@
 			buildConfigurations = (
 				43E21F0CCCE8F5C03ECE5D50 /* Debug */,
 				138AA27EC2547B6C5D48A9AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		59D95BA9A60088E18EC0A2AA /* Build configuration list for PBXNativeTarget "PenovaMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FCE9138C16065FED0D23B858 /* Debug */,
+				89B2F481C074F04A75E5AD7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -853,6 +1068,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7760500F46C4641D7074B00A /* PenovaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PenovaKit;
+		};
 		D5C1939D3C4FC1EAAA56C020 /* PenovaKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PenovaKit;
