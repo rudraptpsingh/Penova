@@ -1,0 +1,19 @@
+# Cloudflare Pages headers config.
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+# DMG downloads — correct content type so Safari/Firefox/Chrome show
+# the standard "save as" dialog instead of trying to render it.
+/releases/*.dmg
+  Content-Type: application/x-apple-diskimage
+  Content-Disposition: attachment
+
+# Sparkle appcast feed — explicit XML content type and short cache
+# (5 min) so update checks pick up new releases quickly.
+/appcast.xml
+  Content-Type: application/rss+xml; charset=utf-8
+  Cache-Control: public, max-age=300
+
+# Static images — long cache. Pages auto-rebuild URLs on edit, so
+# this is safe.
+/img/*
+  Cache-Control: public, max-age=86400, immutable
