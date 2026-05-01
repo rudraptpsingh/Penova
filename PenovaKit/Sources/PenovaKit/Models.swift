@@ -248,6 +248,13 @@ public final class Project {
         revisions.sorted { $0.createdAt > $1.createdAt }
     }
 
+    /// The revision currently being authored. Returns the most-recent
+    /// revision (which is the one new edits get stamped against). Nil
+    /// if the project has no revisions yet.
+    public var activeRevision: Revision? {
+        revisions.sorted { $0.createdAt > $1.createdAt }.first
+    }
+
     // MARK: - Title page accessor
 
     /// Structured title-page accessor. Lazily hydrates from the legacy
@@ -443,6 +450,13 @@ public final class SceneElement {
     public var order: Int
     /// Name of the speaking character (for dialogue/parenthetical blocks).
     public var characterName: String?
+    /// ID of the revision during which this element was last edited or
+    /// inserted. nil = pre-revision content (the "white" original).
+    /// Stored as the Revision.id rawValue so SwiftData treats it as a
+    /// plain attribute. Drives the "starred line" mark in the right
+    /// margin of revision PDF pages. Defaults to nil for backwards
+    /// compatibility with v1.0 stores.
+    public var lastRevisedRevisionID: String?
 
     public init(kind: SceneElementKind, text: String, order: Int, characterName: String? = nil) {
         self.id = UUID().uuidString
@@ -557,18 +571,38 @@ public extension WritingDay {
 
 /// WGA-standard revision color sequence. White is the original
 /// shooting draft; each subsequent revision steps to the next color.
-/// After Cherry, productions either restart at White (often called
-/// "second white") or use double pages — Penova restarts the cycle,
-/// matching Final Draft's default.
+/// After Cherry the industry continues with Tan, Ivory, then
+/// "Double White / Double Blue / …" — the same paper-stock colors
+/// re-walked with a "Double" qualifier to disambiguate. Penova
+/// follows the canonical Final Draft / Movie Magic Screenwriter
+/// rotation through `doubleCherry`, then wraps back to White.
 public enum RevisionColor: String, Codable, CaseIterable, Sendable {
     case white, blue, pink, yellow, green, goldenrod, buff, salmon, cherry
+    case tan, ivory
+    case doubleWhite, doubleBlue, doublePink, doubleYellow, doubleGreen
+    case doubleGoldenrod, doubleBuff, doubleSalmon, doubleCherry
 
-    /// Display label used in the UI ("White", "Blue", …).
-    public var display: String { rawValue.capitalized }
+    /// Display label used in the UI ("White", "Double Blue", …).
+    public var display: String {
+        switch self {
+        case .doubleWhite:     return "Double White"
+        case .doubleBlue:      return "Double Blue"
+        case .doublePink:      return "Double Pink"
+        case .doubleYellow:    return "Double Yellow"
+        case .doubleGreen:     return "Double Green"
+        case .doubleGoldenrod: return "Double Goldenrod"
+        case .doubleBuff:      return "Double Buff"
+        case .doubleSalmon:    return "Double Salmon"
+        case .doubleCherry:    return "Double Cherry"
+        default:               return rawValue.capitalized
+        }
+    }
 
     /// Approximate paper-stock RGB used by the renderer for the
     /// page-color stripe in the right margin. Tuned to be readable
-    /// on the dark UI but recognisable as the WGA stock color.
+    /// on the dark UI but recognisable as the WGA stock color. The
+    /// "Double" pages reuse the original color — convention is the
+    /// same paper stock; the qualifier just marks the second pass.
     public var marginRGB: (r: Double, g: Double, b: Double) {
         switch self {
         case .white:     return (0.97, 0.97, 0.97)
@@ -580,10 +614,21 @@ public enum RevisionColor: String, Codable, CaseIterable, Sendable {
         case .buff:      return (0.96, 0.93, 0.78)
         case .salmon:    return (1.00, 0.69, 0.62)
         case .cherry:    return (0.95, 0.43, 0.43)
+        case .tan:       return (0.84, 0.78, 0.62)
+        case .ivory:     return (0.99, 0.96, 0.85)
+        case .doubleWhite:     return (0.97, 0.97, 0.97)
+        case .doubleBlue:      return (0.62, 0.78, 0.95)
+        case .doublePink:      return (1.00, 0.76, 0.85)
+        case .doubleYellow:    return (1.00, 0.96, 0.55)
+        case .doubleGreen:     return (0.66, 0.93, 0.69)
+        case .doubleGoldenrod: return (0.95, 0.79, 0.42)
+        case .doubleBuff:      return (0.96, 0.93, 0.78)
+        case .doubleSalmon:    return (1.00, 0.69, 0.62)
+        case .doubleCherry:    return (0.95, 0.43, 0.43)
         }
     }
 
-    /// Step to the next color, wrapping after Cherry to White.
+    /// Step to the next color, wrapping after `doubleCherry` back to White.
     public var next: RevisionColor {
         let all = RevisionColor.allCases
         let idx = all.firstIndex(of: self) ?? 0

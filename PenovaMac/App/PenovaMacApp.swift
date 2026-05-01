@@ -285,6 +285,13 @@ struct PenovaMacApp: App {
                 Button("Unlock Script…") {
                     NotificationCenter.default.post(name: .penovaUnlockScript, object: nil)
                 }
+
+                Divider()
+
+                Button("Start New Revision…") {
+                    NotificationCenter.default.post(name: .penovaStartNewRevision, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: [.command, .option])
             }
         }
     }
@@ -296,6 +303,7 @@ extension Notification.Name {
     static let penovaShowReports          = Notification.Name("penova.showReports")
     static let penovaLockScript           = Notification.Name("penova.lockScript")
     static let penovaUnlockScript         = Notification.Name("penova.unlockScript")
+    static let penovaStartNewRevision     = Notification.Name("penova.startNewRevision")
     static let penovaDeleteFocusedElement = Notification.Name("penova.deleteFocusedElement")
     static let penovaInsertLineAbove      = Notification.Name("penova.insertLineAbove")
     static let penovaInsertLineBelow      = Notification.Name("penova.insertLineBelow")

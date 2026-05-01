@@ -37,7 +37,11 @@ public enum ScreenplayPDFRenderer {
                           userInfo: [NSLocalizedDescriptionKey: "Could not create PDF context"])
         }
 
-        var state = LayoutState(mode: .draw(ctx))
+        // First pass: plan element-to-page assignment so the draw
+        // pass can decorate revision pages (stripe + slug + asterisks)
+        // up-front, before the page's text is laid down.
+        let plan = makeRevisionPlan(project: project)
+        var state = LayoutState(mode: .draw(ctx), plan: plan, project: project)
         layout(project: project, state: &state)
         ctx.closePDF()
         return url
@@ -53,11 +57,70 @@ public enum ScreenplayPDFRenderer {
         return state.scriptPageNumber
     }
 
+    // MARK: - Revision plan (test seam)
+
+    /// Mapping each `SceneElement.id` to the 1-based script-page index
+    /// it lands on, plus the set of pages flagged as revision pages
+    /// (i.e. containing at least one element stamped with the project's
+    /// active revision id). Computed by replaying layout in a planning
+    /// mode that records placements without touching a CG context.
+    public struct RevisionPlan: Equatable {
+        public var pageByElement: [String: Int]
+        public var revisionPages: Set<Int>
+        public var activeRevisionID: String?
+
+        public init(
+            pageByElement: [String: Int] = [:],
+            revisionPages: Set<Int> = [],
+            activeRevisionID: String? = nil
+        ) {
+            self.pageByElement = pageByElement
+            self.revisionPages = revisionPages
+            self.activeRevisionID = activeRevisionID
+        }
+    }
+
+    /// Walk layout in plan mode and return per-element page mappings
+    /// + the set of pages that should render revision indicators
+    /// (stripe + slug + asterisks). Indicators are suppressed when the
+    /// project has no active revision or isn't `locked` — those are
+    /// production conventions, not draft conventions.
+    public static func makeRevisionPlan(project: Project) -> RevisionPlan {
+        let activeID = project.activeRevision?.id
+        var planMap: [String: Int] = [:]
+        var state = LayoutState(mode: .plan(captureID: { id, page in
+            planMap[id] = page
+        }))
+        layout(project: project, state: &state)
+        var revisionPages: Set<Int> = []
+        if project.locked, let activeID {
+            for episode in project.activeEpisodesOrdered {
+                for scene in episode.scenesOrdered {
+                    for el in scene.elementsOrdered {
+                        if el.lastRevisedRevisionID == activeID,
+                           let page = planMap[el.id] {
+                            revisionPages.insert(page)
+                        }
+                    }
+                }
+            }
+        }
+        return RevisionPlan(
+            pageByElement: planMap,
+            revisionPages: revisionPages,
+            activeRevisionID: activeID
+        )
+    }
+
     // MARK: - Layout walker
 
     enum RenderMode {
         case draw(CGContext)
         case measure
+        /// Plan pass: walk layout without touching a CG context, calling
+        /// `captureID` each time an element is placed so the caller can
+        /// build a per-element page map.
+        case plan(captureID: (String, Int) -> Void)
     }
 
     struct LayoutState {
@@ -67,14 +130,22 @@ public enum ScreenplayPDFRenderer {
         var onTitlePage: Bool
         var drewAnyContent: Bool
         var hasOpenPage: Bool
+        /// Pre-computed page-to-revision mapping. Only populated in
+        /// `.draw` mode — the plan/measure passes don't need it.
+        let plan: RevisionPlan?
+        /// Project reference so page-start hooks can pull title /
+        /// active revision metadata for the slug + stripe.
+        let project: Project?
 
-        init(mode: RenderMode) {
+        init(mode: RenderMode, plan: RevisionPlan? = nil, project: Project? = nil) {
             self.mode = mode
             self.y = ScreenplayLayoutSpec.Margins.top
             self.scriptPageNumber = 0
             self.onTitlePage = true
             self.drewAnyContent = false
             self.hasOpenPage = false
+            self.plan = plan
+            self.project = project
         }
 
         var isDrawing: Bool {
@@ -95,8 +166,18 @@ public enum ScreenplayPDFRenderer {
             onTitlePage = false
             scriptPageNumber += 1
             y = ScreenplayLayoutSpec.Margins.top
-            if scriptPageNumber >= 2, case .draw(let ctx) = mode {
-                ScreenplayPDFRenderer.drawPageNumber(scriptPageNumber, in: ctx)
+            if case .draw(let ctx) = mode {
+                if scriptPageNumber >= 2 {
+                    ScreenplayPDFRenderer.drawPageNumber(scriptPageNumber, in: ctx)
+                }
+                // Revision indicators (stripe + header slug) — drawn at
+                // page start so subsequent text overlays them. Asterisks
+                // are stamped per-element inside drawElement / drawScene.
+                if let plan, plan.revisionPages.contains(scriptPageNumber),
+                   let project, let rev = project.activeRevision {
+                    ScreenplayPDFRenderer.drawRevisionStripe(rev: rev, in: ctx)
+                    ScreenplayPDFRenderer.drawRevisionSlug(project: project, rev: rev, in: ctx)
+                }
             }
         }
 
@@ -122,6 +203,120 @@ public enum ScreenplayPDFRenderer {
             width: 30,
             alignment: .right
         )
+    }
+
+    // MARK: - Revision indicators
+
+    /// Width of the right-margin colored stripe drawn on revision
+    /// pages. ~6pt — enough to be unmissable when the page is held
+    /// next to a clean one, narrow enough not to crowd the page-number
+    /// column.
+    private static let revisionStripeWidth: CGFloat = 6
+    /// X origin of the right-margin asterisk gutter — sits between
+    /// the script's text column and the colored stripe on its right.
+    private static let revisionAsteriskX: CGFloat =
+        ScreenplayLayoutSpec.pageWidth - ScreenplayLayoutSpec.Margins.right + 12
+
+    /// Right-margin color stripe — full page height, ~6pt wide,
+    /// painted in the active revision's `marginRGB`. Drawn at page
+    /// start so subsequent text overlays cleanly on top.
+    fileprivate static func drawRevisionStripe(rev: Revision, in ctx: CGContext) {
+        let rgb = rev.color.marginRGB
+        ctx.saveGState()
+        ctx.setFillColor(red: CGFloat(rgb.r), green: CGFloat(rgb.g),
+                         blue: CGFloat(rgb.b), alpha: 1.0)
+        let stripeX = ScreenplayLayoutSpec.pageWidth - revisionStripeWidth
+        ctx.fill(CGRect(x: stripeX, y: 0,
+                        width: revisionStripeWidth,
+                        height: ScreenplayLayoutSpec.pageHeight))
+        ctx.restoreGState()
+    }
+
+    /// Header slug rendered at the top of every revision page,
+    /// vertically aligned with the page number, right-aligned, italic
+    /// 8pt. Format: "Blue Revision — 12 Mar 2026 — PROJECT TITLE".
+    fileprivate static func drawRevisionSlug(project: Project, rev: Revision, in ctx: CGContext) {
+        let df = DateFormatter()
+        df.dateFormat = "dd MMM yyyy"
+        let slug = "\(rev.color.display) Revision \u{2014} \(df.string(from: rev.createdAt)) \u{2014} \(project.title.uppercased())"
+        // Box stretches across most of the page width but right-aligns,
+        // sitting at y=36 (same row as the page number) but to the
+        // LEFT of it so they don't collide.
+        let boxWidth: CGFloat = 360
+        let boxX = ScreenplayLayoutSpec.pageWidth - ScreenplayLayoutSpec.Margins.right - 40 - boxWidth
+        drawItalicLine(
+            ctx: ctx,
+            text: slug,
+            topLeftX: boxX,
+            topLeftY: 36,
+            width: boxWidth,
+            alignment: .right,
+            fontSize: 8
+        )
+    }
+
+    /// Stamp a single `*` in the right margin at the given Y. Sits in
+    /// the gutter between the text column's right edge and the colored
+    /// stripe so it's visually obvious without overlapping either.
+    fileprivate static func drawAsterisk(in ctx: CGContext, topLeftY: CGFloat) {
+        drawSingleLine(
+            ctx: ctx,
+            text: "*",
+            topLeftX: revisionAsteriskX,
+            topLeftY: topLeftY,
+            width: 12,
+            alignment: .left,
+            fontSize: ScreenplayLayoutSpec.bodyFontSize,
+            bold: true
+        )
+    }
+
+    /// Italic single-line draw — used for the header slug. Mirrors
+    /// `drawSingleLine` but resolves a Courier-Oblique font.
+    private static func drawItalicLine(
+        ctx: CGContext,
+        text: String,
+        topLeftX: CGFloat,
+        topLeftY: CGFloat,
+        width: CGFloat,
+        alignment: HAlign,
+        fontSize: CGFloat
+    ) {
+        let font = CTFontCreateWithName("Courier-Oblique" as CFString, fontSize, nil)
+        var alignVal: CTTextAlignment = {
+            switch alignment {
+            case .left: return .left
+            case .center: return .center
+            case .right: return .right
+            }
+        }()
+        var settings = [CTParagraphStyleSetting]()
+        withUnsafeMutablePointer(to: &alignVal) { alignPtr in
+            settings.append(CTParagraphStyleSetting(
+                spec: .alignment,
+                valueSize: MemoryLayout<CTTextAlignment>.size,
+                value: alignPtr
+            ))
+        }
+        let style = settings.withUnsafeBufferPointer { buffer in
+            CTParagraphStyleCreate(buffer.baseAddress, buffer.count)
+        }
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: CGColor(red: 0, green: 0, blue: 0, alpha: 1),
+            .paragraphStyle: style,
+        ]
+        let attr = NSAttributedString(string: text, attributes: attrs) as CFAttributedString
+        let height = ceil(fontSize * 1.4) + 2
+        let cgY = ScreenplayLayoutSpec.pageHeight - topLeftY - height
+        let path = CGPath(rect: CGRect(x: topLeftX, y: cgY, width: width, height: height), transform: nil)
+        let attrLen = CFAttributedStringGetLength(attr)
+        let framesetter = CTFramesetterCreateWithAttributedString(attr)
+        let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: 0, length: attrLen), path, nil)
+        ctx.saveGState()
+        ctx.textMatrix = .identity
+        CTFrameDraw(frame, ctx)
+        ctx.restoreGState()
     }
 
     private static func layout(project: Project, state: inout LayoutState) {
@@ -356,12 +551,86 @@ public enum ScreenplayPDFRenderer {
         state.y += ScreenplayLayoutSpec.line
         state.drewAnyContent = true
 
+        // Build a consolidation map: per-element flag for whether to
+        // SUPPRESS its own asterisk because it's covered by a single
+        // mark above the speaker cue.  WGA convention: when a single
+        // dialogue block (CHARACTER + PARENTHETICAL/DIALOGUE rows) has
+        // 3+ consecutive starred rows, draw one asterisk by the cue
+        // and skip per-row marks for the rest of the block.
+        let suppressed = consolidationSuppressionMap(
+            scene: scene,
+            activeRevisionID: state.plan?.activeRevisionID
+        )
+
         for el in scene.elementsOrdered {
-            drawElement(el, state: &state)
+            drawElement(el, state: &state, suppressOwnAsterisk: suppressed.contains(el.id))
         }
     }
 
-    private static func drawElement(_ el: SceneElement, state: inout LayoutState) {
+    /// Test-only seam onto `consolidationSuppressionMap`. Lets unit
+    /// tests assert the WGA "3+ starred lines collapse to a single
+    /// cue-level mark" rule without standing up a full PDF render.
+    public static func testSuppressionMap(
+        scene: ScriptScene,
+        activeRevisionID: String?
+    ) -> Set<String> {
+        consolidationSuppressionMap(scene: scene, activeRevisionID: activeRevisionID)
+    }
+
+    /// Walk a scene's element list and find any character-led dialogue
+    /// blocks where 3+ consecutive elements are starred against the
+    /// active revision. Returns the set of element IDs whose own
+    /// asterisks should be suppressed because the leading CHARACTER
+    /// cue carries one for the whole block. Empty set when there's no
+    /// active revision or no qualifying block.
+    private static func consolidationSuppressionMap(
+        scene: ScriptScene,
+        activeRevisionID: String?
+    ) -> Set<String> {
+        guard let activeRevisionID else { return [] }
+        var suppress: Set<String> = []
+        let elements = scene.elementsOrdered
+        var i = 0
+        while i < elements.count {
+            let el = elements[i]
+            if el.kind == .character {
+                // Walk forward over the contiguous dialogue block.
+                var j = i
+                var blockEnd = i
+                while j < elements.count {
+                    let k = elements[j].kind
+                    if j == i, k == .character {
+                        blockEnd = j
+                        j += 1; continue
+                    }
+                    if k == .parenthetical || k == .dialogue {
+                        blockEnd = j
+                        j += 1
+                    } else {
+                        break
+                    }
+                }
+                let block = Array(elements[i...blockEnd])
+                let starred = block.filter { $0.lastRevisedRevisionID == activeRevisionID }
+                if starred.count >= 3 {
+                    // Suppress the per-row asterisks for every element
+                    // EXCEPT the leading character cue (which keeps its
+                    // single mark to flag the whole block).
+                    for el in block where el.kind != .character {
+                        suppress.insert(el.id)
+                    }
+                }
+                i = blockEnd + 1
+            } else {
+                i += 1
+            }
+        }
+        return suppress
+    }
+
+    private static func drawElement(_ el: SceneElement,
+                                    state: inout LayoutState,
+                                    suppressOwnAsterisk: Bool = false) {
         let indent: CGFloat
         let width: CGFloat
         switch el.kind {
@@ -388,6 +657,12 @@ public enum ScreenplayPDFRenderer {
             state.nextPage()
         }
 
+        // Plan mode: capture which page this element ended up on.
+        if case .plan(let capture) = state.mode {
+            capture(el.id, state.scriptPageNumber)
+        }
+
+        let elementTopY = state.y
         if case .draw(let ctx) = state.mode {
             let height = drawWrapped(
                 ctx: ctx,
@@ -397,6 +672,17 @@ public enum ScreenplayPDFRenderer {
                 width: width,
                 alignment: el.kind == .transition ? .right : .left
             )
+            // Per-element asterisk: stamp ONE `*` next to the first
+            // visual line if this element was edited during the active
+            // revision, the page is a revision page, and the
+            // consolidation rule isn't suppressing this row's mark.
+            if !suppressOwnAsterisk,
+               let plan = state.plan,
+               let activeID = plan.activeRevisionID,
+               el.lastRevisedRevisionID == activeID,
+               plan.revisionPages.contains(state.scriptPageNumber) {
+                drawAsterisk(in: ctx, topLeftY: elementTopY)
+            }
             state.y += height
         } else {
             state.y += needed

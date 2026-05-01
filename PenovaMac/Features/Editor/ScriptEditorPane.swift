@@ -150,14 +150,24 @@ struct PaperPage: View {
         if normalised != el.text {
             el.text = normalised
         }
+        stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
     }
 
     private func cycleKind(for el: SceneElement) {
         el.kind = EditorLogic.tabCycle(from: el.kind)
+        stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
+    }
+
+    /// Stamp the active revision id on `el` if the project currently
+    /// has a revision in flight. Drives the per-element "starred"
+    /// markers in the right margin of revision PDF pages.
+    private func stampRevision(on el: SceneElement) {
+        guard let rev = scene.episode?.project?.activeRevision else { return }
+        el.lastRevisedRevisionID = rev.id
     }
 
     private func appendAfter(_ anchor: SceneElement?) {
@@ -170,6 +180,7 @@ struct PaperPage: View {
            let lastChar = scene.elementsOrdered.last(where: { $0.kind == .character })?.text {
             newEl.characterName = lastChar
         }
+        stampRevision(on: newEl)
         context.insert(newEl)
         scene.updatedAt = .now
         try? context.save()
@@ -197,6 +208,7 @@ struct PaperPage: View {
         }
         let newEl = SceneElement(kind: kind, text: "", order: target)
         newEl.scene = scene
+        stampRevision(on: newEl)
         context.insert(newEl)
         scene.updatedAt = .now
         try? context.save()
@@ -238,6 +250,7 @@ struct PaperPage: View {
 
     private func changeKind(of el: SceneElement, to kind: SceneElementKind) {
         el.kind = kind
+        stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
     }
@@ -315,6 +328,9 @@ private struct EditableElementRow: View {
                               let kind = SceneElementKind(rawValue: raw)
                         else { return }
                         element.kind = kind
+                        if let rev = element.scene?.episode?.project?.activeRevision {
+                            element.lastRevisedRevisionID = rev.id
+                        }
                         element.scene?.updatedAt = .now
                         try? context.save()
                         PenovaLog.editor.info("⌘-shortcut set kind: \(raw, privacy: .public)")

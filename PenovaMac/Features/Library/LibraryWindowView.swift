@@ -127,6 +127,9 @@ struct LibraryWindowView: View {
                     unlockConfirmVisible = true
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaStartNewRevision)) { _ in
+                startNewRevisionOnCurrentProject()
+            }
     }
 
     private var baseShell: some View {
@@ -502,6 +505,37 @@ struct LibraryWindowView: View {
         guard let p = currentProject else { return }
         p.unlock()
         try? context.save()
+    }
+
+    /// Snapshot the project state into a new Revision row, advancing
+    /// the WGA color cycle by one. Triggered from the Production
+    /// menu's "Start New Revision…" command (⌘⌥R). Subsequent edits
+    /// will stamp `lastRevisedRevisionID` on this revision so the PDF
+    /// renderer flags the changed pages.
+    private func startNewRevisionOnCurrentProject() {
+        guard let p = currentProject else { return }
+        let nextColor = p.nextRevisionColor()
+        let snapshot = FountainExporter.export(project: p)
+        let wordCount = snapshot
+            .split(whereSeparator: { $0.isWhitespace || $0.isNewline })
+            .filter { !$0.isEmpty }
+            .count
+        let storedAuthor = UserDefaults.standard
+            .string(forKey: "penova.auth.fullName") ?? ""
+        let rev = Revision(
+            label: "\(nextColor.display) Revision",
+            fountainSnapshot: snapshot,
+            authorName: storedAuthor,
+            sceneCountAtSave: p.totalSceneCount,
+            wordCountAtSave: wordCount,
+            color: nextColor,
+            roundNumber: p.nextRevisionRoundNumber()
+        )
+        rev.project = p
+        p.revisions.append(rev)
+        context.insert(rev)
+        try? context.save()
+        PenovaLog.editor.info("New revision started: \(nextColor.display, privacy: .public)")
     }
 
     /// ⌘P: render the current project to a temporary PDF and open it

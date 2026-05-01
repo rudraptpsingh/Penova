@@ -297,6 +297,7 @@ struct SceneDetailScreen: View {
 
         let new = SceneElement(kind: kind, text: "", order: 0)
         new.scene = scene
+        stampRevision(on: new)
         context.insert(new)
         scene.elements.append(new)
 
@@ -345,14 +346,23 @@ struct SceneDetailScreen: View {
         if kind == .character || kind == .transition || kind == .heading {
             el.text = el.text.uppercased()
         }
+        stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
+    }
+
+    /// If the project has a revision in flight, stamp `el` so the PDF
+    /// renderer flags it on the next revision page render.
+    private func stampRevision(on el: SceneElement) {
+        guard let rev = scene.episode?.project?.activeRevision else { return }
+        el.lastRevisedRevisionID = rev.id
     }
 
     private func insertAtCursor(_ glyph: String, into el: SceneElement) {
         // We don't have true cursor access through @Bindable/TextField, so
         // we append. For most punctuation this is what the writer wants.
         el.text.append(glyph)
+        stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
     }
@@ -401,6 +411,7 @@ struct SceneDetailScreen: View {
         default:
             break
         }
+        stampRevision(on: el)
         scene.updatedAt = .now
         try? context.save()
         HabitTracker.record(scene: scene, in: context)
