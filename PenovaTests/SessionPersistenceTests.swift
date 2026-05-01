@@ -8,7 +8,7 @@
 
 import Testing
 import Foundation
-import PenovaKit
+@testable import PenovaKit
 @testable import Penova
 
 // Keys live in OnboardingScreen as @AppStorage; we duplicate them here since

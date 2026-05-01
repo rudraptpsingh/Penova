@@ -17,14 +17,13 @@
 //
 
 import Foundation
-import PenovaKit
 
-enum FinalDraftXMLWriter {
+public enum FinalDraftXMLWriter {
 
     // MARK: - Public
 
     /// Returns the .fdx XML document for the given project, as a String.
-    static func xml(for project: Project) -> String {
+    public static func xml(for project: Project) -> String {
         var out = ""
         out.reserveCapacity(4096)
         out += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -56,7 +55,7 @@ enum FinalDraftXMLWriter {
     }
 
     /// Writes the .fdx document to a temporary file and returns its URL.
-    static func write(project: Project) throws -> URL {
+    public static func write(project: Project) throws -> URL {
         let xmlString = xml(for: project)
         let url = temporaryURL(for: project)
         try? FileManager.default.removeItem(at: url)
@@ -104,7 +103,7 @@ enum FinalDraftXMLWriter {
     // MARK: - Escaping
 
     /// Escapes the five XML predefined entities: & < > " '
-    static func escape(_ s: String) -> String {
+    public static func escape(_ s: String) -> String {
         var out = ""
         out.reserveCapacity(s.count)
         for ch in s {

@@ -14,7 +14,7 @@
 import Testing
 import Foundation
 import SwiftData
-import PenovaKit
+@testable import PenovaKit
 @testable import Penova
 
 @MainActor

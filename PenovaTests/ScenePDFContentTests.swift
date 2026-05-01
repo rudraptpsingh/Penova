@@ -11,7 +11,7 @@ import Foundation
 import SwiftData
 import CoreGraphics
 import PDFKit
-import PenovaKit
+@testable import PenovaKit
 @testable import Penova
 
 @MainActor
