@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    Template consumed by tools/upload-ios-testflight.sh. The script
+    substitutes {{TEAM_ID}} with $PENOVA_TEAM_ID at build time.
+
+    Distribution method: app-store
+        Produces an .ipa that can be uploaded to App Store Connect via
+        Transporter or `xcrun altool`. Once it processes (~15 min) it
+        becomes available to TestFlight internal testers and can be
+        promoted to the public beta or App Review from the web console.
+-->
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>signingStyle</key>
+    <string>automatic</string>
+    <key>teamID</key>
+    <string>{{TEAM_ID}}</string>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>uploadBitcode</key>
+    <false/>
+    <key>destination</key>
+    <string>export</string>
+    <key>generateAppStoreInformation</key>
+    <true/>
+</dict>
+</plist>

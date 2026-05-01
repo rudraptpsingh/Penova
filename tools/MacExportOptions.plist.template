@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    Template consumed by tools/notarize-mac.sh. The script substitutes
+    {{TEAM_ID}} with $PENOVA_TEAM_ID at build time so this file can
+    stay checked in without anyone's team ID landing in git history.
+
+    Distribution method: developer-id
+        Suitable for direct download from a website (NOT the Mac App
+        Store). The exported .app is then notarized by tools/notarize-mac.sh
+        before being packaged into a DMG.
+-->
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>developer-id</string>
+    <key>signingStyle</key>
+    <string>automatic</string>
+    <key>signingCertificate</key>
+    <string>Developer ID Application</string>
+    <key>teamID</key>
+    <string>{{TEAM_ID}}</string>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>destination</key>
+    <string>export</string>
+</dict>
+</plist>

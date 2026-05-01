@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Sparkle update feed for Penova for Mac.
+
+    Hosted at https://penova.app/appcast.xml — must match SUFeedURL in
+    PenovaMac/App/Info.plist exactly. Each release adds an <item> block
+    above the previous one (newest first). Generate the block by running
+    `tools/sign-update.sh build/Penova.dmg --version X.Y.Z` after
+    notarize-mac.sh and paste it in.
+
+    The <enclosure> sparkle:edSignature attribute is what gates trust:
+    the user's installed app refuses to install any update whose
+    signature doesn't verify against SUPublicEDKey in its Info.plist.
+-->
+<rss version="2.0"
+     xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Penova for Mac</title>
+        <link>https://penova.app/appcast.xml</link>
+        <description>Auto-update feed for Penova for Mac.</description>
+        <language>en</language>
+        <!-- New <item> blocks go here, newest first. -->
+    </channel>
+</rss>
