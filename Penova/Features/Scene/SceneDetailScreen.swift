@@ -43,7 +43,7 @@ struct SceneDetailScreen: View {
                         ForEach(scene.elementsOrdered) { el in
                             SceneElementInlineRow(
                                 element: el,
-                                characters: projectCharacters,
+                                cuePool: cuePool,
                                 focused: $focused,
                                 onSubmit: { handleReturn(on: el) },
                                 onCycleKind: { cycleKind(of: el) },
@@ -263,6 +263,17 @@ struct SceneDetailScreen: View {
         scene.episode?.project?.characters ?? []
     }
 
+    /// Frequency-sorted character cue pool for autocomplete: includes
+    /// every name typed elsewhere in the project plus any registered
+    /// `ScriptCharacter`. Computed lazily via `AutocompleteService` so
+    /// SwiftData updates flow through @Bindable.
+    private var cuePool: [String] {
+        guard let project = scene.episode?.project else {
+            return projectCharacters.map { $0.name.uppercased() }
+        }
+        return AutocompleteService.characterCues(in: project)
+    }
+
     private func element(id: String) -> SceneElement? {
         scene.elements.first(where: { $0.id == id })
     }
@@ -410,7 +421,11 @@ struct SceneDetailScreen: View {
 
 struct SceneElementInlineRow: View {
     @Bindable var element: SceneElement
-    let characters: [ScriptCharacter]
+    /// Pool of distinct character cues for autocomplete: registered
+    /// `ScriptCharacter` records + every cue typed elsewhere in the
+    /// project (uppercased, frequency-sorted). Strings keep the row
+    /// view decoupled from SwiftData.
+    let cuePool: [String]
     var focused: FocusState<String?>.Binding
     let onSubmit: () -> Void
     let onCycleKind: () -> Void
@@ -534,22 +549,23 @@ struct SceneElementInlineRow: View {
         }
     }
 
-    // MARK: - Character autocomplete (ported from SceneElementEditor)
+    // MARK: - Character autocomplete
 
-    private var characterMatches: [ScriptCharacter] {
+    private var characterMatches: [String] {
         let query = element.text.trimmingCharacters(in: .whitespaces).uppercased()
-        if query.isEmpty { return characters }
-        return characters.filter { $0.name.uppercased().contains(query) }
+        if query.isEmpty { return cuePool }
+        return EditorLogic.suggestions(query: query, in: cuePool)
+            .filter { $0 != query }   // hide exact-match self
     }
 
     private var suggestionStrip: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: PenovaSpace.xs) {
-                ForEach(characterMatches.prefix(8)) { ch in
+                ForEach(characterMatches.prefix(8), id: \.self) { name in
                     Button {
-                        element.text = ch.name.uppercased()
+                        element.text = name
                     } label: {
-                        Text(ch.name.uppercased())
+                        Text(name)
                             .font(PenovaFont.monoScript)
                             .foregroundStyle(PenovaColor.snow)
                             .padding(.horizontal, PenovaSpace.s)
