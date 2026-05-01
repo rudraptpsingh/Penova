@@ -97,7 +97,11 @@ public enum CharacterRole: String, Codable, CaseIterable {
 
 @Model
 public final class Project {
-    @Attribute(.unique) public var id: ID
+    /// CloudKit-compatible: no @Attribute(.unique). Uniqueness is guaranteed
+    /// by `init` generating a fresh UUID; CloudKit cannot enforce uniqueness
+    /// across devices anyway, so the schema-level constraint was redundant
+    /// and would have blocked enabling sync.
+    public var id: ID
     public var title: String
     public var logline: String
     public var genre: [Genre]
@@ -151,7 +155,7 @@ public final class Project {
 
 @Model
 public final class Episode {
-    @Attribute(.unique) public var id: ID
+    public var id: ID
     public var project: Project?
     public var title: String
     public var order: Int
@@ -180,7 +184,7 @@ public final class Episode {
 
 @Model
 public final class ScriptScene {
-    @Attribute(.unique) public var id: ID
+    public var id: ID
     public var episode: Episode?
     public var heading: String
     public var location: SceneLocation
@@ -230,7 +234,7 @@ public final class ScriptScene {
 
 @Model
 public final class SceneElement {
-    @Attribute(.unique) public var id: ID
+    public var id: ID
     public var scene: ScriptScene?
     public var kind: SceneElementKind
     public var text: String
@@ -251,7 +255,7 @@ public final class SceneElement {
 
 @Model
 public final class ScriptCharacter {
-    @Attribute(.unique) public var id: ID
+    public var id: ID
     /// Projects this character belongs to. Many-to-many: a single character
     /// can appear in multiple projects (e.g. shared across a series of films
     /// or a spin-off). Inverse is declared on `Project.characters`.
