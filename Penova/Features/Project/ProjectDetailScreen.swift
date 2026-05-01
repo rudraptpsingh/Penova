@@ -26,6 +26,7 @@ struct ProjectDetailScreen: View {
     @State private var pendingEpisodeDelete: Episode?
     @State private var showLockConfirm = false
     @State private var showUnlockConfirm = false
+    @State private var showTitlePage = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -112,6 +113,9 @@ struct ProjectDetailScreen: View {
                             }
                         }
                         Divider()
+                        Button { showTitlePage = true } label: {
+                            Label("Edit title page", systemImage: "doc.text")
+                        }
                         Button { showEdit = true } label: {
                             Label("Edit project", systemImage: "pencil")
                         }
@@ -138,6 +142,10 @@ struct ProjectDetailScreen: View {
         .sheet(isPresented: $showEdit) {
             NewProjectSheet(editing: project)
                 .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showTitlePage) {
+            TitlePageEditorScreen(project: project)
                 .presentationDragIndicator(.visible)
         }
         .sheet(item: $pendingEpisodeEdit) { ep in

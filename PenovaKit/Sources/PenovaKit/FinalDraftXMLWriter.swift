@@ -28,6 +28,7 @@ public enum FinalDraftXMLWriter {
         out.reserveCapacity(4096)
         out += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         out += "<FinalDraft DocumentType=\"Script\" Template=\"No\" Version=\"5\">\n"
+        out += titlePageBlock(for: project)
         out += "  <Content>\n"
 
         for episode in project.activeEpisodesOrdered {
@@ -61,6 +62,84 @@ public enum FinalDraftXMLWriter {
         try? FileManager.default.removeItem(at: url)
         try xmlString.data(using: .utf8)?.write(to: url, options: .atomic)
         return url
+    }
+
+    // MARK: - Title page block
+    //
+    // Final Draft uses <HeaderAndFooter> inside <TitlePage>: the Header
+    // gets centered title/credit/author/source paragraphs, the Footer
+    // gets left-aligned contact lines. The element is skipped entirely
+    // when the title page is empty so existing fixtures that don't
+    // expect the block keep parsing.
+
+    private static func titlePageBlock(for project: Project) -> String {
+        let tp = project.titlePage
+        let title  = tp.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let credit = tp.credit.trimmingCharacters(in: .whitespacesAndNewlines)
+        let author = tp.author.trimmingCharacters(in: .whitespacesAndNewlines)
+        let source = tp.source.trimmingCharacters(in: .whitespacesAndNewlines)
+        let contact = tp.contact.trimmingCharacters(in: .whitespacesAndNewlines)
+        let draftDate = tp.draftDate.trimmingCharacters(in: .whitespacesAndNewlines)
+        let draftStage = tp.draftStage.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Skip the whole block if everything's empty.
+        if title.isEmpty && credit.isEmpty && author.isEmpty
+            && source.isEmpty && contact.isEmpty
+            && draftDate.isEmpty && draftStage.isEmpty {
+            return ""
+        }
+
+        var out = "  <TitlePage>\n"
+        out += "    <HeaderAndFooter>\n"
+
+        // Header — centered title block.
+        out += "      <Header>\n"
+        if !title.isEmpty {
+            out += centeredParagraph(title.uppercased())
+        }
+        if !credit.isEmpty {
+            out += centeredParagraph(credit)
+        }
+        if !author.isEmpty {
+            out += centeredParagraph(author)
+        }
+        if !source.isEmpty {
+            for line in source.components(separatedBy: "\n") {
+                out += centeredParagraph(line)
+            }
+        }
+        out += "      </Header>\n"
+
+        // Footer — left-aligned contact + right-aligned draft stage/date.
+        out += "      <Footer>\n"
+        if !contact.isEmpty {
+            for line in contact.components(separatedBy: "\n") {
+                out += leftParagraph(line)
+            }
+        }
+        if !draftStage.isEmpty {
+            out += rightParagraph(draftStage)
+        }
+        if !draftDate.isEmpty {
+            out += rightParagraph(draftDate)
+        }
+        out += "      </Footer>\n"
+
+        out += "    </HeaderAndFooter>\n"
+        out += "  </TitlePage>\n"
+        return out
+    }
+
+    private static func centeredParagraph(_ text: String) -> String {
+        "        <Paragraph Type=\"None\" Alignment=\"Center\"><Text>\(escape(text))</Text></Paragraph>\n"
+    }
+
+    private static func leftParagraph(_ text: String) -> String {
+        "        <Paragraph Type=\"None\" Alignment=\"Left\"><Text>\(escape(text))</Text></Paragraph>\n"
+    }
+
+    private static func rightParagraph(_ text: String) -> String {
+        "        <Paragraph Type=\"None\" Alignment=\"Right\"><Text>\(escape(text))</Text></Paragraph>\n"
     }
 
     // MARK: - Paragraph rendering

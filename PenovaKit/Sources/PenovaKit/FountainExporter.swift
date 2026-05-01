@@ -14,18 +14,32 @@ public enum FountainExporter {
     /// Produce a Fountain string for the given project.
     public static func export(project: Project) -> String {
         var out = ""
-        // Minimal title page.
-        out += "Title: \(project.title)\n"
+        // Title page — emit all 6 documented Fountain keys when
+        // present (Title, Credit, Author, Source, Draft date, Contact).
+        // Empty values are skipped. Multi-line values (Contact, Source,
+        // Notes) get their continuation lines indented by 3 spaces per
+        // the fountain.io spec.
+        let tp = project.titlePage
+        let storedAuthor = UserDefaults.standard.string(forKey: "penova.auth.fullName") ?? ""
+
+        let title = trimmedOrEmpty(tp.title.isEmpty ? project.title : tp.title)
+        let credit = trimmedOrEmpty(tp.credit)
+        // Author: explicit field wins, fall back to the signed-in
+        // identity so v1.0 projects without a stored author still
+        // emit one.
+        let author = trimmedOrEmpty(tp.author.isEmpty ? storedAuthor : tp.author)
+        let source = trimmedOrEmpty(tp.source)
+        let draftDate = trimmedOrEmpty(tp.draftDate)
+        let contact = trimmedOrEmpty(tp.contact.isEmpty ? project.contactBlock : tp.contact)
+
+        if !title.isEmpty       { out += emitKey("Title",      value: title) }
+        if !credit.isEmpty      { out += emitKey("Credit",     value: credit) }
+        if !author.isEmpty      { out += emitKey("Author",     value: author) }
+        if !source.isEmpty      { out += emitKey("Source",     value: source) }
+        if !draftDate.isEmpty   { out += emitKey("Draft date", value: draftDate) }
+        if !contact.isEmpty     { out += emitKey("Contact",    value: contact) }
         if !project.logline.isEmpty {
-            out += "Notes: \(project.logline)\n"
-        }
-        let author = UserDefaults.standard.string(forKey: "penova.auth.fullName") ?? ""
-        if !author.trimmingCharacters(in: .whitespaces).isEmpty {
-            out += "Author: \(author)\n"
-        }
-        let contact = project.contactBlock.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !contact.isEmpty {
-            out += "Contact: \(contact.replacingOccurrences(of: "\n", with: ", "))\n"
+            out += emitKey("Notes", value: project.logline)
         }
         out += "\n"  // blank line ends the title page
 
@@ -68,6 +82,27 @@ public enum FountainExporter {
             }
         }
         return out
+    }
+
+    /// Emit a Fountain title-page key with multi-line continuation
+    /// support. The first line follows the colon; subsequent lines are
+    /// indented 3 spaces (per fountain.io spec) so the parser can tell
+    /// them apart from a fresh key line.
+    private static func emitKey(_ key: String, value: String) -> String {
+        let lines = value
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+            .components(separatedBy: "\n")
+        guard let first = lines.first else { return "" }
+        var out = "\(key): \(first)\n"
+        for cont in lines.dropFirst() {
+            out += "   \(cont)\n"
+        }
+        return out
+    }
+
+    private static func trimmedOrEmpty(_ s: String) -> String {
+        s.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Write a Fountain export to a temporary .fountain file and return the URL.

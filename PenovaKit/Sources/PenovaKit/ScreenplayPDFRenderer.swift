@@ -151,43 +151,145 @@ public enum ScreenplayPDFRenderer {
         guard case .draw(let ctx) = state.mode else { return }
         ctx.beginPDFPage(nil)
         state.hasOpenPage = true
-        let centerY = ScreenplayLayoutSpec.pageHeight / 3
+
+        let tp = project.titlePage
+        let pageW = ScreenplayLayoutSpec.pageWidth
+        let pageH = ScreenplayLayoutSpec.pageHeight
+
+        // Title block — centered horizontally at ~1/3 down the page.
+        let centerY = pageH / 3
         drawSingleLine(
             ctx: ctx,
-            text: project.title.uppercased(),
+            text: tp.title.uppercased(),
             topLeftX: 0,
             topLeftY: centerY,
-            width: ScreenplayLayoutSpec.pageWidth,
+            width: pageW,
             alignment: .center,
             fontSize: 14,
             bold: true
         )
+        let credit = tp.credit.isEmpty ? "Written by" : tp.credit
         drawSingleLine(
             ctx: ctx,
-            text: "written by",
+            text: credit,
             topLeftX: 0,
             topLeftY: centerY + 48,
-            width: ScreenplayLayoutSpec.pageWidth,
-            alignment: .center
-        )
-        drawSingleLine(
-            ctx: ctx,
-            text: "Penova",
-            topLeftX: 0,
-            topLeftY: centerY + 76,
-            width: ScreenplayLayoutSpec.pageWidth,
+            width: pageW,
             alignment: .center,
-            bold: true
+            fontSize: 11
         )
-        if !project.contactBlock.isEmpty {
+        if !tp.author.isEmpty {
+            drawSingleLine(
+                ctx: ctx,
+                text: tp.author,
+                topLeftX: 0,
+                topLeftY: centerY + 64,
+                width: pageW,
+                alignment: .center,
+                fontSize: 11,
+                bold: true
+            )
+        }
+        if !tp.source.isEmpty {
             drawWrapped(
                 ctx: ctx,
-                text: project.contactBlock,
+                text: tp.source,
+                topLeftX: 72,
+                topLeftY: centerY + 100,
+                width: pageW - 144,
+                alignment: .center
+            )
+        }
+
+        // Bottom-left contact block.
+        let contact = tp.contact.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !contact.isEmpty {
+            drawWrapped(
+                ctx: ctx,
+                text: contact,
                 topLeftX: ScreenplayLayoutSpec.Margins.left,
-                topLeftY: ScreenplayLayoutSpec.pageHeight - 200,
+                topLeftY: pageH - 180,
                 width: 240
             )
         }
+
+        // Bottom-right draft stage / date — production drafts only,
+        // i.e. when the project is locked. Spec scripts get a clean
+        // footer.
+        if project.locked {
+            var footerY: CGFloat = pageH - 180
+            if !tp.draftStage.isEmpty {
+                drawSingleLine(
+                    ctx: ctx,
+                    text: tp.draftStage,
+                    topLeftX: pageW - ScreenplayLayoutSpec.Margins.right - 240,
+                    topLeftY: footerY,
+                    width: 240,
+                    alignment: .right,
+                    fontSize: 9
+                )
+                footerY += 14
+            }
+            if !tp.draftDate.isEmpty {
+                drawSingleLine(
+                    ctx: ctx,
+                    text: tp.draftDate,
+                    topLeftX: pageW - ScreenplayLayoutSpec.Margins.right - 240,
+                    topLeftY: footerY,
+                    width: 240,
+                    alignment: .right,
+                    fontSize: 9
+                )
+            }
+
+            // Revision history stack (above the contact block) — only
+            // emitted on locked production drafts. Each row is
+            // "<LABEL>          <date>" right-padded so the dates form
+            // a flush right column.
+            let entries = project.revisionHistoryEntries
+            if !entries.isEmpty {
+                let df = DateFormatter()
+                df.dateFormat = "d MMM yyyy"
+                let labelWidth: CGFloat = 200
+                let dateWidth: CGFloat = 96
+                var rowY = pageH - 180 - CGFloat(entries.count) * 14 - 20
+                for entry in entries {
+                    drawSingleLine(
+                        ctx: ctx,
+                        text: entry.label,
+                        topLeftX: ScreenplayLayoutSpec.Margins.left,
+                        topLeftY: rowY,
+                        width: labelWidth,
+                        alignment: .left,
+                        fontSize: 9
+                    )
+                    drawSingleLine(
+                        ctx: ctx,
+                        text: df.string(from: entry.date),
+                        topLeftX: ScreenplayLayoutSpec.Margins.left + labelWidth,
+                        topLeftY: rowY,
+                        width: dateWidth,
+                        alignment: .right,
+                        fontSize: 9
+                    )
+                    rowY += 14
+                }
+            }
+        }
+
+        // Copyright bottom-center, dim small type.
+        if !tp.copyright.isEmpty {
+            drawSingleLine(
+                ctx: ctx,
+                text: tp.copyright,
+                topLeftX: 0,
+                topLeftY: pageH - 48,
+                width: pageW,
+                alignment: .center,
+                fontSize: 8
+            )
+        }
+
         ctx.endPDFPage()
         state.hasOpenPage = false
     }

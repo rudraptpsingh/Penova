@@ -93,6 +93,67 @@ public enum CharacterRole: String, Codable, CaseIterable {
     public var display: String { rawValue.capitalized }
 }
 
+// MARK: - TitlePage (value type)
+
+/// Structured WGA-format title page. Stored as a Codable struct on
+/// `Project.titlePageData` — SwiftData treats Codable values as plain
+/// attributes, so adding/removing fields here doesn't require a manual
+/// migration. Defaults match the spec for the "Written by" credit so a
+/// freshly-hydrated project from a v1.0 store renders sensibly.
+public struct TitlePage: Codable, Equatable, Sendable {
+    public var title: String
+    /// "Written by", "Story by", "Adapted by", "Original story by" …
+    public var credit: String
+    public var author: String
+    /// "Based on the novel ..." — empty string means absent.
+    public var source: String
+    /// Free-form display string ("1 May 2026"). Empty = absent
+    /// (omitted on spec scripts per WGA convention).
+    public var draftDate: String
+    /// "Production Draft" / "Pink Revision" / "" (omit on specs).
+    public var draftStage: String
+    /// Multi-line plain text for the bottom-left contact block.
+    public var contact: String
+    /// "© 2026 Author Name"
+    public var copyright: String
+    /// Free-form notes the writer wants on the title page.
+    public var notes: String
+
+    public init(
+        title: String = "",
+        credit: String = "Written by",
+        author: String = "",
+        source: String = "",
+        draftDate: String = "",
+        draftStage: String = "",
+        contact: String = "",
+        copyright: String = "",
+        notes: String = ""
+    ) {
+        self.title = title
+        self.credit = credit
+        self.author = author
+        self.source = source
+        self.draftDate = draftDate
+        self.draftStage = draftStage
+        self.contact = contact
+        self.copyright = copyright
+        self.notes = notes
+    }
+}
+
+/// One row in the title-page revision-history stack. Computed from
+/// `Project.revisions` — not persisted independently.
+public struct RevisionEntry: Equatable, Sendable {
+    public var label: String   // "BLUE REVISION", "PRODUCTION DRAFT"
+    public var date: Date
+
+    public init(label: String, date: Date) {
+        self.label = label
+        self.date = date
+    }
+}
+
 // MARK: - Project
 
 @Model
@@ -136,6 +197,13 @@ public final class Project {
     /// it as a Codable attribute.
     public var lockedSceneNumbers: [String: Int]?
 
+    /// Structured title page (added in v1.1). Optional with no default
+    /// — existing v1.0 stores hydrate via the `titlePage` computed
+    /// accessor lazily on first read, then persist on next setter
+    /// call. SwiftData treats Codable optionals as a free migration;
+    /// no MigrationPlan needed.
+    public var titlePageData: TitlePage?
+
     @Relationship(deleteRule: .cascade, inverse: \Episode.project)
     public var episodes: [Episode] = []
 
@@ -178,6 +246,45 @@ public final class Project {
 
     public var revisionsByDate: [Revision] {
         revisions.sorted { $0.createdAt > $1.createdAt }
+    }
+
+    // MARK: - Title page accessor
+
+    /// Structured title-page accessor. Lazily hydrates from the legacy
+    /// `title` + `contactBlock` columns when `titlePageData` is nil so
+    /// projects from v1.0 stores keep rendering correctly without an
+    /// explicit migration. The setter writes the new value back to
+    /// `titlePageData` AND keeps the legacy fields in sync so any
+    /// renderer/exporter still reading `project.title` /
+    /// `project.contactBlock` sees the latest values.
+    public var titlePage: TitlePage {
+        get {
+            if let stored = titlePageData { return stored }
+            return TitlePage(
+                title: title,
+                credit: "Written by",
+                contact: contactBlock
+            )
+        }
+        set {
+            titlePageData = newValue
+            title = newValue.title
+            contactBlock = newValue.contact
+        }
+    }
+
+    /// Cumulative revision-history list for the title page footer.
+    /// Returns the revisions in chronological (oldest→newest) order
+    /// with their label and date. Used for production drafts only —
+    /// the renderer suppresses this block when the project isn't
+    /// production-locked.
+    public var revisionHistoryEntries: [RevisionEntry] {
+        revisions
+            .sorted { $0.createdAt < $1.createdAt }
+            .map { rev in
+                let label = "\(rev.color.display.uppercased()) REVISION"
+                return RevisionEntry(label: label, date: rev.createdAt)
+            }
     }
 
     // MARK: - Page locking

@@ -67,15 +67,24 @@ public enum FountainParser {
         let allLines = normalized.components(separatedBy: "\n")
 
         // Title page: at top of file, key: value pairs until a blank line.
+        // Continuation lines (indented 3+ spaces or a tab) get appended
+        // to the previous key's value, joined with newlines.
         var bodyStart = 0
         if let firstNonEmpty = allLines.firstIndex(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty }),
            isTitlePageLine(allLines[firstNonEmpty]) {
             var i = firstNonEmpty
+            var lastKey: String?
             while i < allLines.count {
                 let line = allLines[i]
                 if line.trimmingCharacters(in: .whitespaces).isEmpty { bodyStart = i + 1; break }
-                if let (k, v) = parseTitlePageLine(line) {
-                    doc.titlePage[k.lowercased()] = v
+                if isContinuationLine(line), let prevKey = lastKey {
+                    let cont = line.trimmingCharacters(in: .whitespaces)
+                    let prev = doc.titlePage[prevKey] ?? ""
+                    doc.titlePage[prevKey] = prev.isEmpty ? cont : prev + "\n" + cont
+                } else if let (k, v) = parseTitlePageLine(line) {
+                    let lk = k.lowercased()
+                    doc.titlePage[lk] = v
+                    lastKey = lk
                 }
                 i += 1
                 if i == allLines.count { bodyStart = i }
@@ -264,6 +273,34 @@ public enum FountainParser {
         let value = line[line.index(after: colonIdx)...].trimmingCharacters(in: .whitespaces)
         return (key, value)
     }
+
+    /// Per fountain.io: continuation lines for a multi-line title-page
+    /// value start with a tab or three or more spaces.
+    private static func isContinuationLine(_ line: String) -> Bool {
+        if line.hasPrefix("\t") { return true }
+        if line.hasPrefix("   ") { return true }
+        return false
+    }
+}
+
+// MARK: - TitlePage extraction
+
+public extension FountainParser.ParsedDocument {
+    /// Project-shaped TitlePage from the parsed key/value map. Keys
+    /// the parser doesn't recognise are dropped silently.
+    var titlePageStruct: TitlePage {
+        TitlePage(
+            title:     titlePage["title"]      ?? "",
+            credit:    titlePage["credit"]     ?? "Written by",
+            author:    titlePage["author"]     ?? titlePage["authors"] ?? "",
+            source:    titlePage["source"]     ?? "",
+            draftDate: titlePage["draft date"] ?? "",
+            draftStage: "",
+            contact:   titlePage["contact"]    ?? "",
+            copyright: titlePage["copyright"]  ?? "",
+            notes:     titlePage["notes"]      ?? ""
+        )
+    }
 }
 
 // MARK: - Heading → SceneLocation/locationName/time split
@@ -336,6 +373,17 @@ public enum FountainImporter {
         context: ModelContext
     ) -> Project {
         let project = Project(title: title)
+        // If the source carried a title-page block, hydrate it onto
+        // the project. The setter syncs `project.title` and
+        // `project.contactBlock` to keep legacy callers in sync.
+        if !doc.titlePage.isEmpty {
+            var tp = doc.titlePageStruct
+            // Caller may have passed an explicit title — preserve it
+            // when the parsed title is empty so we don't end up with
+            // an "Untitled" project.
+            if tp.title.isEmpty { tp.title = title }
+            project.titlePage = tp
+        }
         context.insert(project)
 
         let episode = Episode(title: "Pilot", order: 0)
