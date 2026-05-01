@@ -191,6 +191,12 @@ struct MacNewProjectSheet: View {
         scene.episode = episode
         context.insert(scene)
 
+        // Seed an empty action element so the editor has a row to focus
+        // on the moment the writer lands in it.
+        let starter = SceneElement(kind: .action, text: "", order: 0)
+        starter.scene = scene
+        context.insert(starter)
+
         try? context.save()
         PenovaLog.library.info("Created new project '\(trimmed, privacy: .public)' with starter episode + scene")
         onCreated(project)

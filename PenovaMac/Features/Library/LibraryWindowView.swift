@@ -194,8 +194,10 @@ struct LibraryWindowView: View {
         ToolbarItem(placement: .navigation) {
             Button(action: newScene) {
                 Label("New Scene", systemImage: "plus")
+                    .font(.system(size: 13, weight: .medium))
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
             .tint(PenovaColor.amber)
             .keyboardShortcut("n", modifiers: [.command, .shift])
         }
@@ -204,6 +206,7 @@ struct LibraryWindowView: View {
             Button(action: printCurrentProject) {
                 Label("Print", systemImage: "printer")
             }
+            .controlSize(.large)
             .keyboardShortcut("p", modifiers: .command)
 
             Menu {
@@ -222,6 +225,7 @@ struct LibraryWindowView: View {
             } label: {
                 Label("Export", systemImage: "square.and.arrow.up")
             }
+            .controlSize(.large)
         }
 
         ToolbarItem(placement: .principal) {
@@ -232,13 +236,15 @@ struct LibraryWindowView: View {
             }
             .pickerStyle(.segmented)
             .labelStyle(.titleOnly)
-            .frame(width: 280)
+            .controlSize(.large)
+            .frame(width: 320)
         }
 
         ToolbarItem(placement: .primaryAction) {
             Button(action: { focusMode.toggle() }) {
                 Label("Focus Mode", systemImage: focusMode ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
             }
+            .controlSize(.large)
             .keyboardShortcut("f", modifiers: [.command, .control])
         }
 
@@ -246,6 +252,7 @@ struct LibraryWindowView: View {
             Button(action: { inspectorVisible.toggle() }) {
                 Label("Toggle Inspector", systemImage: "sidebar.right")
             }
+            .controlSize(.large)
             .keyboardShortcut("0", modifiers: [.command, .option])
         }
     }
@@ -279,37 +286,40 @@ struct LibraryWindowView: View {
     // MARK: - Focus mode pill
 
     private var focusPill: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Image(systemName: "scope")
                 .foregroundStyle(PenovaColor.amber)
-                .font(.system(size: 11))
+                .font(.system(size: 13))
             Text("Focus")
-                .font(PenovaFont.bodySmall)
-                .foregroundStyle(PenovaColor.snow3)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(PenovaColor.snow)
             Text("·").foregroundStyle(PenovaColor.ink5)
             Text(pageEstimate)
-                .font(.custom("RobotoMono-Medium", size: 11))
+                .font(.custom("RobotoMono-Medium", size: 13))
                 .foregroundStyle(PenovaColor.snow)
             Text("·").foregroundStyle(PenovaColor.ink5)
             Button(action: { focusMode = false }) {
-                HStack(spacing: 6) {
-                    Text("Exit").foregroundStyle(PenovaColor.snow4)
-                    Text("⎋")
-                        .font(.custom("RobotoMono-Medium", size: 10))
-                        .padding(.horizontal, 5).padding(.vertical, 2)
+                HStack(spacing: 8) {
+                    Text("Exit")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(PenovaColor.snow2)
+                    Text("Esc")
+                        .font(.custom("RobotoMono-Medium", size: 11))
+                        .foregroundStyle(PenovaColor.snow3)
+                        .padding(.horizontal, 7).padding(.vertical, 3)
                         .background(PenovaColor.ink3)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
                 }
-                .font(PenovaFont.bodySmall)
             }
             .buttonStyle(.plain)
+            .keyboardShortcut(.escape, modifiers: [])
         }
-        .padding(.horizontal, 16).padding(.vertical, 8)
+        .padding(.horizontal, 18).padding(.vertical, 11)
         .background(.regularMaterial)
         .clipShape(Capsule())
         .overlay(Capsule().stroke(PenovaColor.ink4, lineWidth: 1))
-        .padding(.bottom, 24)
-        .keyboardShortcut(.escape)
+        .fixedSize()
+        .padding(.bottom, 28)
     }
 
     private func newScene() {
@@ -331,6 +341,11 @@ struct LibraryWindowView: View {
         )
         scene.episode = episode
         context.insert(scene)
+        // Starter action element so the editor focuses on something
+        // typable as soon as the writer lands.
+        let starter = SceneElement(kind: .action, text: "", order: 0)
+        starter.scene = scene
+        context.insert(starter)
         try? context.save()
         selectedScene = scene
         activeSmart = nil
