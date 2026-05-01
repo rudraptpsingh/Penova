@@ -109,6 +109,7 @@ private struct RevisionRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: PenovaSpace.s) {
             HStack(spacing: PenovaSpace.s) {
+                colorDot
                 Text(revision.label)
                     .font(PenovaFont.bodyLarge)
                     .foregroundStyle(PenovaColor.snow)
@@ -118,6 +119,10 @@ private struct RevisionRow: View {
                     .foregroundStyle(PenovaColor.snow3)
             }
             HStack(spacing: PenovaSpace.s) {
+                Text("\(revision.color.display) #\(revision.roundNumber)")
+                    .font(PenovaFont.bodySmall)
+                    .foregroundStyle(PenovaColor.snow3)
+                Text("·").font(PenovaFont.bodySmall).foregroundStyle(PenovaColor.snow4)
                 if !revision.authorName.isEmpty {
                     Text(revision.authorName)
                         .font(PenovaFont.bodySmall)
@@ -151,6 +156,18 @@ private struct RevisionRow: View {
         f.timeStyle = .short
         return f.string(from: revision.createdAt)
     }
+
+    /// 12pt circular swatch in the row's actual WGA stock color, with
+    /// a hairline border so White and Buff still register on the
+    /// dark UI.
+    private var colorDot: some View {
+        let rgb = revision.color.marginRGB
+        return Circle()
+            .fill(Color(.sRGB, red: rgb.r, green: rgb.g, blue: rgb.b, opacity: 1))
+            .frame(width: 12, height: 12)
+            .overlay(Circle().strokeBorder(PenovaColor.ink4, lineWidth: 1))
+            .accessibilityLabel("\(revision.color.display) revision")
+    }
 }
 
 // MARK: - Save sheet
@@ -163,9 +180,18 @@ private struct SaveRevisionSheet: View {
 
     @State private var label: String = ""
     @State private var note: String = ""
+    /// Default-initialised lazily on first appearance so we read the
+    /// up-to-date project state and don't pre-pick a stale color.
+    @State private var color: RevisionColor?
 
     private var canSave: Bool {
         !label.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    /// The color the user has chosen, or the project's WGA-next pick
+    /// if they haven't yet touched the picker.
+    private var resolvedColor: RevisionColor {
+        color ?? project.nextRevisionColor()
     }
 
     var body: some View {
@@ -177,6 +203,7 @@ private struct SaveRevisionSheet: View {
                         text: $label,
                         placeholder: nextDefaultLabel
                     )
+                    colorPicker
                     VStack(alignment: .leading, spacing: PenovaSpace.s) {
                         Text("Note (optional)")
                             .font(PenovaFont.labelCaps)
@@ -222,6 +249,67 @@ private struct SaveRevisionSheet: View {
         }
     }
 
+    /// WGA color picker. Pre-selects the project's next color in the
+    /// sequence; tapping any chip overrides. The chip ring uses each
+    /// color's `marginRGB` so the user sees the actual stock color.
+    private var colorPicker: some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.s) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Revision color")
+                    .font(PenovaFont.labelCaps)
+                    .tracking(PenovaTracking.labelCaps)
+                    .foregroundStyle(PenovaColor.snow3)
+                Spacer(minLength: 0)
+                Text(resolvedColor.display.uppercased())
+                    .font(PenovaFont.labelTiny)
+                    .tracking(PenovaTracking.labelTiny)
+                    .foregroundStyle(PenovaColor.snow3)
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: PenovaSpace.s) {
+                    ForEach(RevisionColor.allCases, id: \.self) { c in
+                        colorChip(c)
+                    }
+                }
+            }
+            // Hint copy to make the WGA semantics obvious to first-time users.
+            Text(colorHint)
+                .font(PenovaFont.bodySmall)
+                .foregroundStyle(PenovaColor.snow4)
+        }
+    }
+
+    private func colorChip(_ c: RevisionColor) -> some View {
+        let rgb = c.marginRGB
+        let stockColor = Color(.sRGB, red: rgb.r, green: rgb.g, blue: rgb.b, opacity: 1)
+        let isSelected = c == resolvedColor
+        return Button {
+            color = c
+        } label: {
+            Circle()
+                .fill(stockColor)
+                .frame(width: 32, height: 32)
+                .overlay(
+                    Circle()
+                        .strokeBorder(
+                            isSelected ? PenovaColor.amber : PenovaColor.ink4,
+                            lineWidth: isSelected ? 3 : 1
+                        )
+                )
+                .accessibilityLabel(c.display)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var colorHint: String {
+        let next = project.nextRevisionColor()
+        if next == .white {
+            return "First revision is always White (the original draft)."
+        }
+        return "WGA convention: production is currently on \(next.display) pages."
+    }
+
     private var nextDefaultLabel: String {
         let n = project.revisions.count + 1
         return "Revision \(n)"
@@ -243,7 +331,9 @@ private struct SaveRevisionSheet: View {
             fountainSnapshot: snapshot,
             authorName: auth.isSignedIn ? auth.fullName : "",
             sceneCountAtSave: project.totalSceneCount,
-            wordCountAtSave: wordCount
+            wordCountAtSave: wordCount,
+            color: resolvedColor,
+            roundNumber: project.nextRevisionRoundNumber()
         )
         rev.project = project
         project.revisions.append(rev)

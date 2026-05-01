@@ -44,8 +44,11 @@ struct LibraryWindowView: View {
     @State private var searchVisible: Bool = false
     @State private var titlePageEditorVisible: Bool = false
     @State private var exportSheetVisible: Bool = false
+    @State private var reportsSheetVisible: Bool = false
     @State private var newProjectVisible: Bool = false
     @State private var pendingExportFormat: MacExportFormat = .pdf
+    @State private var lockConfirmVisible: Bool = false
+    @State private var unlockConfirmVisible: Bool = false
 
     var body: some View {
         baseShell
@@ -66,6 +69,23 @@ struct LibraryWindowView: View {
                     }
                 }
             ))
+            .sheet(isPresented: $reportsSheetVisible) {
+                if let project = currentProject {
+                    MacReportsSheet(project: project)
+                }
+            }
+            .alert("Lock script for production?", isPresented: $lockConfirmVisible) {
+                Button("Cancel", role: .cancel) {}
+                Button("Lock") { lockCurrentProject() }
+            } message: {
+                Text("Scene numbers freeze at their current values. Adding, deleting, or reordering scenes after this won't renumber survivors. You can unlock anytime.")
+            }
+            .alert("Unlock script?", isPresented: $unlockConfirmVisible) {
+                Button("Cancel", role: .cancel) {}
+                Button("Unlock", role: .destructive) { unlockCurrentProject() }
+            } message: {
+                Text("Scene numbers will resume tracking the live scene order. Any production-stage references to the locked numbers will be lost.")
+            }
             .background(hiddenShortcuts)
             .onAppear {
                 if selectedScene == nil {
@@ -231,6 +251,30 @@ struct LibraryWindowView: View {
             .controlSize(.large)
             .keyboardShortcut("p", modifiers: .command)
 
+            Button(action: { reportsSheetVisible = true }) {
+                Label("Reports", systemImage: "tablecells")
+            }
+            .controlSize(.large)
+            .keyboardShortcut("r", modifiers: [.command, .shift])
+            .help("Scene, location, and cast breakdown reports.")
+
+            // Lock / Unlock script for production. Toggle reflects
+            // current `Project.locked` state for the active project.
+            Menu {
+                if currentProject?.locked == true {
+                    Button("Unlock script") { unlockConfirmVisible = true }
+                } else {
+                    Button("Lock script…") { lockConfirmVisible = true }
+                }
+            } label: {
+                Label(
+                    currentProject?.locked == true ? "Locked" : "Lock",
+                    systemImage: currentProject?.locked == true ? "lock.fill" : "lock"
+                )
+            }
+            .controlSize(.large)
+            .help("Freeze scene numbers for production. Unlock to resume live numbering.")
+
             Menu {
                 Button("Export PDF…") {
                     pendingExportFormat = .pdf
@@ -387,6 +431,18 @@ struct LibraryWindowView: View {
         activeSmart = nil
         viewMode = .editor
         PenovaLog.editor.info("New scene inserted in episode '\(episode.title, privacy: .public)' at order \(nextOrder)")
+    }
+
+    private func lockCurrentProject() {
+        guard let p = currentProject else { return }
+        p.lock()
+        try? context.save()
+    }
+
+    private func unlockCurrentProject() {
+        guard let p = currentProject else { return }
+        p.unlock()
+        try? context.save()
     }
 
     /// ⌘P: render the current project to a temporary PDF and open it
