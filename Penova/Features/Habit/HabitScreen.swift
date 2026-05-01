@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import PenovaKit
 
 struct HabitScreen: View {
     @Environment(\.modelContext) private var context

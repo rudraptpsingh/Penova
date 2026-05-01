@@ -11,6 +11,7 @@
 import Foundation
 import PDFKit
 import SwiftData
+import PenovaKit
 
 @MainActor
 public enum ScreenplayImporter {

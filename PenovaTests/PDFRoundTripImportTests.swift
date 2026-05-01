@@ -24,6 +24,7 @@ import Foundation
 import SwiftData
 import PDFKit
 @testable import Penova
+@testable import PenovaKit
 
 @MainActor
 private func makeContainer() throws -> ModelContainer {

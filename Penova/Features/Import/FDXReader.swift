@@ -23,6 +23,7 @@
 //
 
 import Foundation
+import PenovaKit
 
 public enum FDXReader {
 

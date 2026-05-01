@@ -11,6 +11,7 @@ import Testing
 import Foundation
 import SwiftData
 @testable import Penova
+@testable import PenovaKit
 
 @MainActor
 private func makeContainer() throws -> ModelContainer {

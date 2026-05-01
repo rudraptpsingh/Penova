@@ -29,16 +29,31 @@ public enum FountainParser {
     public struct ParsedScene: Equatable {
         public var heading: String
         public var elements: [ParsedElement]
+
+        public init(heading: String, elements: [ParsedElement] = []) {
+            self.heading = heading
+            self.elements = elements
+        }
     }
 
     public struct ParsedElement: Equatable {
         public var kind: SceneElementKind
         public var text: String
+
+        public init(kind: SceneElementKind, text: String) {
+            self.kind = kind
+            self.text = text
+        }
     }
 
     public struct ParsedDocument: Equatable {
         public var titlePage: [String: String] = [:]
         public var scenes: [ParsedScene] = []
+
+        public init(titlePage: [String: String] = [:], scenes: [ParsedScene] = []) {
+            self.titlePage = titlePage
+            self.scenes = scenes
+        }
     }
 
     // MARK: - Parse
