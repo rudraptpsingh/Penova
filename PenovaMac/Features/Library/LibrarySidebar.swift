@@ -85,7 +85,9 @@ struct LibrarySidebar: View {
 
             Divider().background(PenovaColor.ink4)
             newProjectButton
-                .padding(12)
+                .padding(.horizontal, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 18)
         }
         .background(PenovaColor.ink2)
         .accessibilityIdentifier(A11yID.sidebar)
@@ -329,14 +331,15 @@ struct LibrarySidebar: View {
         Button(action: {
             NotificationCenter.default.post(name: .penovaNewProject, object: nil)
         }) {
-            HStack(spacing: 6) {
+            HStack(spacing: 7) {
                 Image(systemName: "plus")
+                    .font(.system(size: 12, weight: .medium))
                 Text("New Project")
+                    .font(.system(size: 13, weight: .medium))
             }
-            .font(PenovaFont.bodyMedium)
-            .foregroundStyle(PenovaColor.snow3)
+            .foregroundStyle(PenovaColor.snow2)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+            .padding(.vertical, 11)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .strokeBorder(PenovaColor.ink5, style: StrokeStyle(lineWidth: 1, dash: [4]))
