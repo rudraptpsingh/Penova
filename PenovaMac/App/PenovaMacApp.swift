@@ -191,6 +191,15 @@ struct PenovaMacApp: App {
         .modelContainer(container)
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: false))
+        // Default size on first launch needs room for the 640pt paper
+        // PLUS the 260pt library sidebar PLUS the 300pt scene inspector
+        // PLUS some breathing room. 1280×820 lands the paper centred in
+        // the editor pane without horizontal scrolling — the user's
+        // first impression is "this looks like a script", not a clipped
+        // page. minWidth above still allows the user to drag the window
+        // narrower; the paper is now adaptive (idealWidth: 640, maxWidth:
+        // 640) so it gracefully shrinks rather than overflowing.
+        .defaultSize(width: 1280, height: 820)
         .commands {
             // Sparkle "Check for Updates…" — sits under the app menu
             // (Penova → Check for Updates…) per macOS convention. The

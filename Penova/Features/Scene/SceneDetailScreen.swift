@@ -279,8 +279,13 @@ struct SceneDetailScreen: View {
     }
 
     private func addFirstElement() {
-        let el = insertElement(kind: .heading, after: nil)
-        el.text = scene.heading
+        // The scene's heading is rendered separately by the parent view
+        // (`heading` at the top of the screen) — it lives on
+        // ScriptScene.heading, not as a SceneElement. Inserting a
+        // .heading element here previously duplicated the slug visually.
+        // Start writers on an empty .action row instead, which is the
+        // first thing every scene actually wants.
+        let el = insertElement(kind: .action, after: nil)
         try? context.save()
         DispatchQueue.main.async { focused = el.id }
     }
@@ -571,9 +576,13 @@ struct SceneElementInlineRow: View {
 
     private var leadingPadding: CGFloat {
         guard rowWidth > 0 else { return 0 }
-        // Account for the badge width + spacing subtracted already — we
-        // use remaining row width * ladder fraction.
-        let usable = rowWidth - 60 // rough badge + spacing
+        // Reserve the badge's column width only when the badge is
+        // actually rendered. After v1.1.2 the kindBadge only shows on
+        // the focused row; subtracting a constant 60pt regardless of
+        // focus shifted the WGA indent columns left on every unfocused
+        // row, breaking the screenplay layout the spec promises.
+        let badgeReservation: CGFloat = isFocused ? 60 : 0
+        let usable = rowWidth - badgeReservation
         switch element.kind {
         case .character:     return usable * Ladder.characterIndent
         case .dialogue:      return usable * Ladder.dialogueIndent

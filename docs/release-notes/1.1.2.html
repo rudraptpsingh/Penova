@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Penova 1.1.2 — release notes</title>
+<style>
+  body { background: #0b0a08; color: #efe9db;
+         font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+         font-size: 14px; line-height: 1.55; margin: 24px; }
+  h1 { font-size: 22px; margin: 0 0 16px; color: #fff; }
+  h2 { font-size: 16px; margin: 24px 0 8px; color: #f0a94a; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .date { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+          font-size: 11px; color: #948e80; letter-spacing: 0.06em;
+          text-transform: uppercase; margin-bottom: 18px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+         font-size: 12.5px; background: #1a1a17; padding: 1px 5px;
+         border-radius: 3px; color: #d4cebe; }
+  strong { color: #fff; }
+</style>
+</head>
+<body>
+<h1>Penova 1.1.2</h1>
+<div class="date">2 May 2026 · macOS 14+</div>
+
+<h2>Visible polish</h2>
+<ul>
+  <li><strong>Element-kind chip</strong> ("ACTION" / "TRANSITION" / etc.) now appears <em>only</em> on the focused row. Unfocused rows render like an actual screenplay — transitions right-aligned ALL CAPS, dialogue indented, no inline editor widgets. The chip stays available on the focused row so you can tap to cycle the row's kind.</li>
+  <li><strong>Indent ladder fix</strong> — the iOS editor's character / dialogue / parenthetical columns now sit at the WGA-correct positions on unfocused rows (was shifted ~60pt left because the badge slot was being subtracted even when nothing was rendering there).</li>
+  <li><strong>Default Mac window size</strong> bumped to 1280×820 so the 640pt paper page fits naturally between the library sidebar and the scene inspector — no more horizontal scrolling on first launch. Paper now also adapts gracefully when you drag the window narrower.</li>
+  <li><strong>Empty-scene flow</strong> — tapping "Start writing" on a brand-new scene previously inserted a duplicate scene-heading row. Now starts you on an empty action row, which is what the next thing you'd type was anyway.</li>
+</ul>
+
+<h2>Editor stability</h2>
+<ul>
+  <li><strong>Mac line-delete renumbering</strong> — repeated insert-above + delete sequences could leave duplicate <code>order</code> values among scene elements; ForEach then reordered rows non-deterministically between reloads. Delete now compacts orders to a contiguous 0..N-1 sequence so this can't happen.</li>
+</ul>
+
+<h2>App Store readiness</h2>
+<ul>
+  <li>Both targets now declare <code>LSApplicationCategoryType: public.app-category.productivity</code> — App Store Connect required for submission, and Finder shows the right category in Get Info.</li>
+  <li>New <code>PrivacyInfo.xcprivacy</code> manifest on the Mac target (mirrors the iOS one). Required for any future Mac App Store submission and good hygiene for direct-distribution.</li>
+  <li>SIL Open Font License headers (Inter, Roboto Mono, Playfair Display) now ship with the Mac bundle alongside the iOS one.</li>
+</ul>
+
+<p style="margin-top: 32px; color: #5e5a52; font-size: 12px;">
+  Feedback or bug reports — <a href="mailto:rudra.ptp.singh@gmail.com" style="color: #f0a94a;">rudra.ptp.singh@gmail.com</a>
+  · <a href="tel:+919956340651" style="color: #f0a94a;">+91 99563 40651</a>
+  · <a href="https://wa.me/919956340651" style="color: #f0a94a;">WhatsApp</a>.
+</p>
+</body>
+</html>

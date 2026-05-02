@@ -92,8 +92,10 @@
 		A59363BB5C3DE4F3BD51E4A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53F0831EB94C9C9471297ABF /* Assets.xcassets */; };
 		A5E29C51C287C972F469FC6B /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */; };
 		A6E6D549D31EC32D0F1C3B40 /* ScreenshotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF3C6C14728D73932A79E0E /* ScreenshotMode.swift */; };
+		A918DD3010C868D4084DDC15 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 77EBF4B81BE8E2C132250153 /* PrivacyInfo.xcprivacy */; };
 		AB1B1DB6D66A34370C194C98 /* SceneDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7121DFFFC589844BCD2E9656 /* SceneDetailScreen.swift */; };
 		ACBE9219A28BE43EACA816A8 /* ScreenplayImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35A66ED78DAFBEB273371D0 /* ScreenplayImporter.swift */; };
+		AE4761F226E31ECD6CA00BA7 /* PlayfairDisplay-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = F4487B36419B95FB10E4069C /* PlayfairDisplay-OFL.txt */; };
 		AEB6496287E2AB90F38BA9D4 /* CharactersTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E07CE581CF6EC1F2DD0F682 /* CharactersTabScreen.swift */; };
 		AEC78FAC7C174237B4CA0A6C /* OnboardingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CE112CA5F6DADCBC0654CE /* OnboardingScreen.swift */; };
 		AFDAE0EA65484E2108E2DD45 /* FountainRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8B8A33B4AEA01C01A267D0 /* FountainRoundTripTests.swift */; };
@@ -113,6 +115,7 @@
 		D9696A8E089D5E9CCA8856EA /* ScriptsTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3732A21AEA40367C7470BB0D /* ScriptsTabScreen.swift */; };
 		DBE6C529C87142E9E99B0B4D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9326E15607D7A357A2BEDDB3 /* README.md */; };
 		DF778C848CC79E275A935009 /* RobotoMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 370B8E31B601FA355C655840 /* RobotoMono-Medium.ttf */; };
+		E0A81B2A36165C132E708835 /* RobotoMono-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4BFF0866438F7160888DB3BB /* RobotoMono-OFL.txt */; };
 		E25B5584856EFCF695FF9F4A /* PDFRenderSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B6F00F8EE34E7B4ED47E22 /* PDFRenderSmokeTests.swift */; };
 		E33B2E2C309A68CC3113131E /* SmokeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28337EE4F750D2DABD9149E8 /* SmokeTest.swift */; };
 		E49332F8FD6A9E8525EA297D /* TitlePageEditorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AA22194E78C257064E49601 /* TitlePageEditorScreen.swift */; };
@@ -121,6 +124,7 @@
 		EC0FE37E44AEC0C693E9E9EA /* PenovaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */; };
 		EF10AD4FB1EB99795AA890C9 /* ExportShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C174318333423CB299A2A6C /* ExportShareSheet.swift */; };
 		F00E8E2F2147EF7E80C40364 /* RevisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA593BC6043FE8663310F8F3 /* RevisionTests.swift */; };
+		F062BE68755C4781001AC0F1 /* Inter-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = B92DE02B22A72F718E7EA08B /* Inter-OFL.txt */; };
 		F364BA6E265C32EE075427BF /* PlayfairDisplay-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = D0C16A6B0183760ACD3CD49D /* PlayfairDisplay-OFL.txt */; };
 		F38BC3613DF870B47C1379AA /* GlobalSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D48F047FDBBA1EA36E4BB1 /* GlobalSearchView.swift */; };
 		F51ED583A2CCBC90CD9D2BD8 /* FinalDraftXMLWriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C63CE9703BFA3D23C302F9A /* FinalDraftXMLWriterTests.swift */; };
@@ -192,6 +196,7 @@
 		49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptPDFRenderer.swift; sourceTree = "<group>"; };
 		4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacApp.swift; sourceTree = "<group>"; };
 		4B241B0D3C8FC692E706211E /* UndoSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoSupportTests.swift; sourceTree = "<group>"; };
+		4BFF0866438F7160888DB3BB /* RobotoMono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RobotoMono-OFL.txt"; sourceTree = "<group>"; };
 		500E278B51BC1A7EFED0CFE1 /* MacNewProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacNewProjectSheet.swift; sourceTree = "<group>"; };
 		5246196E669041E4598BA092 /* AutocompleteServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutocompleteServiceTests.swift; sourceTree = "<group>"; };
 		53F0831EB94C9C9471297ABF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -214,6 +219,7 @@
 		75D535B826FEAC645DCAE572 /* PenovaMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PenovaMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		763E28331EFE77AA60778E56 /* SwiftDataCRUDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataCRUDTests.swift; sourceTree = "<group>"; };
 		77473BD2458260CD0DC78303 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
+		77EBF4B81BE8E2C132250153 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		78A0B0D4B3BCC3DB31669AB1 /* PenovaMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PenovaMac.entitlements; sourceTree = "<group>"; };
 		7B884AA3C58CCD3B8C61079C /* RevisionColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionColorTests.swift; sourceTree = "<group>"; };
 		7EC2B9E84602406B10D017E5 /* HabitTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitTrackerTests.swift; sourceTree = "<group>"; };
@@ -245,6 +251,7 @@
 		B69266B4165396AF3BE61060 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B759711443F2E63064750D1E /* EditorLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorLogicTests.swift; sourceTree = "<group>"; };
 		B8956F6146A39EB44E23DE0C /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
+		B92DE02B22A72F718E7EA08B /* Inter-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inter-OFL.txt"; sourceTree = "<group>"; };
 		BA7679894C47D022D747EE1A /* PDFTitlePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTitlePageTests.swift; sourceTree = "<group>"; };
 		BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
 		C04E709DEF18EDC665A04F17 /* PDFScreenplayParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParser.swift; sourceTree = "<group>"; };
@@ -272,6 +279,7 @@
 		E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurePageCountTests.swift; sourceTree = "<group>"; };
 		EA593BC6043FE8663310F8F3 /* RevisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionTests.swift; sourceTree = "<group>"; };
 		EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailScreen.swift; sourceTree = "<group>"; };
+		F4487B36419B95FB10E4069C /* PlayfairDisplay-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "PlayfairDisplay-OFL.txt"; sourceTree = "<group>"; };
 		F704CDBE88326205A4E3B30B /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
 		FCF0744C83E40EF04482F5F7 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
 		FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
@@ -424,6 +432,7 @@
 			isa = PBXGroup;
 			children = (
 				B69266B4165396AF3BE61060 /* Assets.xcassets */,
+				77EBF4B81BE8E2C132250153 /* PrivacyInfo.xcprivacy */,
 				44322770DB8072793E68A20A /* Fonts */,
 			);
 			path = Resources;
@@ -434,10 +443,13 @@
 			children = (
 				FDC58A3451C8A687494E0E8D /* Inter-Bold.ttf */,
 				0A833C6BB6A28B4740F4741C /* Inter-Medium.ttf */,
+				B92DE02B22A72F718E7EA08B /* Inter-OFL.txt */,
 				0D5339999C19B127E5F30696 /* Inter-Regular.ttf */,
 				E07C94B3CE06C0D97AC5EC52 /* Inter-SemiBold.ttf */,
+				F4487B36419B95FB10E4069C /* PlayfairDisplay-OFL.txt */,
 				DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */,
 				5E9B54B721434D499688F496 /* RobotoMono-Medium.ttf */,
+				4BFF0866438F7160888DB3BB /* RobotoMono-OFL.txt */,
 				BAA130554538A5B7A20E77B3 /* RobotoMono-Regular.ttf */,
 			);
 			path = Fonts;
@@ -962,10 +974,14 @@
 				51D11D515746C0291CC23DC0 /* Assets.xcassets in Resources */,
 				31582675706C3DC7DBD72022 /* Inter-Bold.ttf in Resources */,
 				789D7B7E9F60458A947F8372 /* Inter-Medium.ttf in Resources */,
+				F062BE68755C4781001AC0F1 /* Inter-OFL.txt in Resources */,
 				BD30635423F68E1BB6969664 /* Inter-Regular.ttf in Resources */,
 				2B6989BE67DE7B010A4183DB /* Inter-SemiBold.ttf in Resources */,
+				AE4761F226E31ECD6CA00BA7 /* PlayfairDisplay-OFL.txt in Resources */,
 				C8D43C249B526F471087DCC4 /* PlayfairDisplay.ttf in Resources */,
+				A918DD3010C868D4084DDC15 /* PrivacyInfo.xcprivacy in Resources */,
 				8D738F930FC826A11E790B6F /* RobotoMono-Medium.ttf in Resources */,
+				E0A81B2A36165C132E708835 /* RobotoMono-OFL.txt in Resources */,
 				4F5665867EECA543740A3794 /* RobotoMono-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1309,7 +1325,7 @@
 				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 111;
+				CURRENT_PROJECT_VERSION = 112;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1320,7 +1336,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
 				PRODUCT_NAME = Penova;
 				SDKROOT = macosx;
@@ -1335,7 +1351,7 @@
 				CODE_SIGN_ENTITLEMENTS = Penova/App/Penova.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 111;
+				CURRENT_PROJECT_VERSION = 112;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Penova/App/Info.plist;
@@ -1349,7 +1365,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
 				PRODUCT_NAME = Penova;
 				SDKROOT = iphoneos;
@@ -1368,7 +1384,7 @@
 				CODE_SIGN_ENTITLEMENTS = Penova/App/Penova.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 111;
+				CURRENT_PROJECT_VERSION = 112;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Penova/App/Info.plist;
@@ -1382,7 +1398,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova;
 				PRODUCT_NAME = Penova;
 				SDKROOT = iphoneos;
@@ -1454,7 +1470,7 @@
 				CODE_SIGN_ENTITLEMENTS = PenovaMac/App/PenovaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 111;
+				CURRENT_PROJECT_VERSION = 112;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1465,7 +1481,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rudrapratapsingh.penova.mac;
 				PRODUCT_NAME = Penova;
 				SDKROOT = macosx;
