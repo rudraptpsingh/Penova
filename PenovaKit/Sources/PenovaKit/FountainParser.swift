@@ -46,13 +46,32 @@ public enum FountainParser {
         }
     }
 
+    /// Penova-namespaced metadata attached to a scene via `[[Penova: ...]]`
+    /// note syntax. See `docs/spec/penova-fountain.md` §2 for the full set
+    /// of supported keys.
+    public struct ParsedSceneMeta: Equatable {
+        public var beat: BeatType?
+        public var actNumber: Int?
+        public var bookmarked: Bool = false
+        public var sceneNumber: Int?
+        public var timeRaw: String?
+        /// Forward-compat: anything we didn't recognize. Round-trips
+        /// untouched on re-export so a v1.2 reader doesn't lose data
+        /// from a v1.3-authored file.
+        public var unknown: [String: String] = [:]
+    }
+
     public struct ParsedDocument: Equatable {
         public var titlePage: [String: String] = [:]
         public var scenes: [ParsedScene] = []
+        public var sceneMeta: [Int: ParsedSceneMeta] = [:]
 
-        public init(titlePage: [String: String] = [:], scenes: [ParsedScene] = []) {
+        public init(titlePage: [String: String] = [:],
+                    scenes: [ParsedScene] = [],
+                    sceneMeta: [Int: ParsedSceneMeta] = [:]) {
             self.titlePage = titlePage
             self.scenes = scenes
+            self.sceneMeta = sceneMeta
         }
     }
 
@@ -67,8 +86,9 @@ public enum FountainParser {
         let allLines = normalized.components(separatedBy: "\n")
 
         // Title page: at top of file, key: value pairs until a blank line.
-        // Continuation lines (indented 3+ spaces or a tab) get appended
-        // to the previous key's value, joined with newlines.
+        // Continuation lines (3+ leading spaces or a tab) are joined onto
+        // the prior key — fountain.io spec §"Title page" allows multi-line
+        // values.
         var bodyStart = 0
         if let firstNonEmpty = allLines.firstIndex(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty }),
            isTitlePageLine(allLines[firstNonEmpty]) {
@@ -120,12 +140,40 @@ public enum FountainParser {
                 continue
             }
 
+            // Boneyard `/* ... */` — Fountain comments. Single-line form
+            // gets dropped silently; multi-line form would need a state
+            // machine but the exporter only emits single-line boneyards
+            // for /* Penova-Episode: ... */ delimiters today.
+            if trimmed.hasPrefix("/*") && trimmed.hasSuffix("*/") {
+                i += 1
+                continue
+            }
+
             if isSceneHeading(trimmed) {
                 flushActionInto(scene: &currentScene)
                 if let s = currentScene { doc.scenes.append(s) }
                 currentScene = ParsedScene(heading: normaliseHeading(trimmed), elements: [])
                 lastElementKind = .heading
                 i += 1
+                // Consume any `[[Penova: ...]]` scene-level notes that
+                // immediately follow the heading. They attach to the
+                // scene, not to a later element.
+                let sceneIndex = doc.scenes.count   // current scene's index when appended
+                while i < lines.count {
+                    let lookahead = lines[i].trimmingCharacters(in: .whitespaces)
+                    if lookahead.isEmpty {
+                        i += 1
+                        break
+                    }
+                    if let metaUpdate = extractSceneMeta(lookahead) {
+                        var current = doc.sceneMeta[sceneIndex] ?? ParsedSceneMeta()
+                        metaUpdate(&current)
+                        doc.sceneMeta[sceneIndex] = current
+                        i += 1
+                        continue
+                    }
+                    break
+                }
                 continue
             }
 
@@ -215,7 +263,14 @@ public enum FountainParser {
     static func isTransition(_ line: String) -> Bool {
         let upper = line.uppercased()
         guard upper == line else { return false }            // must be all caps
-        return upper.hasSuffix("TO:") || upper == "CUT TO:" || upper == "FADE OUT."
+        if upper.hasSuffix("TO:") || upper == "CUT TO:" { return true }
+        // FADE OUT canonically ends with a period in Fountain, but writers
+        // commonly use a colon too — accept both. Same for IRIS OUT and
+        // SMASH CUT TO.
+        if upper == "FADE OUT." || upper == "FADE OUT:" { return true }
+        if upper == "IRIS OUT." || upper == "IRIS OUT:" { return true }
+        if upper.hasPrefix("SMASH CUT") { return true }
+        return false
     }
 
     static func isParenthetical(_ line: String) -> Bool {
@@ -254,7 +309,60 @@ public enum FountainParser {
         return s.trimmingCharacters(in: .whitespaces).uppercased()
     }
 
+    // MARK: - Scene-level Penova notes
+
+    /// Returns a closure that updates a `ParsedSceneMeta` based on the
+    /// given line, OR nil if the line isn't a Penova scene note. Matches
+    /// `[[Penova: key=value]]` (one or more notes per line, space-separated).
+    static func extractSceneMeta(_ line: String) -> ((inout ParsedSceneMeta) -> Void)? {
+        // Find every `[[Penova: ...]]` token in the line.
+        var pairs: [(String, String)] = []
+        var rest = Substring(line)
+        while let openRange = rest.range(of: "[[Penova:") {
+            let afterOpen = rest[openRange.upperBound...]
+            guard let closeRange = afterOpen.range(of: "]]") else { return nil }
+            let body = afterOpen[..<closeRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)
+            // body looks like "beat=midpoint" — single key=value
+            if let eq = body.firstIndex(of: "=") {
+                let key = body[..<eq].trimmingCharacters(in: .whitespaces)
+                let value = body[body.index(after: eq)...].trimmingCharacters(in: .whitespaces)
+                pairs.append((key, value))
+            } else {
+                pairs.append((body.trimmingCharacters(in: .whitespaces), "true"))
+            }
+            rest = afterOpen[closeRange.upperBound...]
+        }
+        guard !pairs.isEmpty else { return nil }
+        return { meta in
+            for (key, value) in pairs {
+                switch key {
+                case "beat":
+                    meta.beat = BeatType(rawValue: value)
+                case "actNumber":
+                    meta.actNumber = Int(value)
+                case "bookmarked":
+                    meta.bookmarked = (value == "true" || value == "1")
+                case "sceneNumber":
+                    meta.sceneNumber = Int(value)
+                case "timeRaw":
+                    meta.timeRaw = value
+                default:
+                    meta.unknown[key] = value
+                }
+            }
+        }
+    }
+
     // MARK: - Title page
+
+    /// True if the line is a continuation of the previous title-page key
+    /// (3+ leading spaces or a leading tab, per fountain.io spec).
+    static func isContinuationLine(_ line: String) -> Bool {
+        if line.hasPrefix("\t") { return true }
+        if line.hasPrefix("   ") { return true }   // exactly 3 spaces minimum
+        return false
+    }
 
     private static func isTitlePageLine(_ line: String) -> Bool {
         // Minimally: "Key: value" with a recognised key.
@@ -264,7 +372,9 @@ public enum FountainParser {
             "title", "credit", "author", "authors", "source", "draft date",
             "contact", "copyright", "notes"
         ]
-        return known.contains(key)
+        if known.contains(key) { return true }
+        // Penova-namespaced extensions — see spec §1.
+        return key.hasPrefix("penova-")
     }
 
     private static func parseTitlePageLine(_ line: String) -> (String, String)? {
@@ -274,13 +384,6 @@ public enum FountainParser {
         return (key, value)
     }
 
-    /// Per fountain.io: continuation lines for a multi-line title-page
-    /// value start with a tab or three or more spaces.
-    private static func isContinuationLine(_ line: String) -> Bool {
-        if line.hasPrefix("\t") { return true }
-        if line.hasPrefix("   ") { return true }
-        return false
-    }
 }
 
 // MARK: - TitlePage extraction
@@ -382,7 +485,46 @@ public enum FountainImporter {
             // when the parsed title is empty so we don't end up with
             // an "Untitled" project.
             if tp.title.isEmpty { tp.title = title }
+            // Penova-namespaced title-page extensions — see spec §1.
+            if let copyright = doc.titlePage["penova-copyright"], !copyright.isEmpty {
+                tp.copyright = copyright
+            }
+            if let draftStage = doc.titlePage["penova-draft-stage"], !draftStage.isEmpty {
+                tp.draftStage = draftStage
+            }
+            if let notes = doc.titlePage["penova-notes"], !notes.isEmpty {
+                tp.notes = notes
+            }
             project.titlePage = tp
+
+            // Genre — comma-separated raw values.
+            if let genreCSV = doc.titlePage["penova-genre"], !genreCSV.isEmpty {
+                project.genre = genreCSV
+                    .components(separatedBy: ",")
+                    .compactMap { Genre(rawValue: $0.trimmingCharacters(in: .whitespaces)) }
+            }
+            // Status — defaults to .active when absent.
+            if let statusRaw = doc.titlePage["penova-status"],
+               let status = ProjectStatus(rawValue: statusRaw) {
+                project.status = status
+            }
+            // Logline (legacy `Notes:` key — distinct from `Penova-Notes:`).
+            if let notes = doc.titlePage["notes"], !notes.isEmpty {
+                project.logline = notes
+            }
+            // Lock state — flag, timestamp, and the per-scene number map.
+            if doc.titlePage["penova-locked"]?.lowercased() == "true" {
+                project.locked = true
+                if let lockedAtRaw = doc.titlePage["penova-locked-at"] {
+                    let f = ISO8601DateFormatter()
+                    f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                    project.lockedAt = f.date(from: lockedAtRaw)
+                }
+                if let json = doc.titlePage["penova-locked-numbers"]?.data(using: .utf8),
+                   let map = try? JSONDecoder().decode([String: Int].self, from: json) {
+                    project.lockedSceneNumbers = map
+                }
+            }
         }
         context.insert(project)
 
@@ -402,6 +544,16 @@ public enum FountainImporter {
             scene.episode = episode
             episode.scenes.append(scene)
             context.insert(scene)
+
+            // Apply Penova-namespaced scene-level metadata (see spec §2):
+            // beat / actNumber / bookmarked are first-class fields on
+            // ScriptScene; sceneNumber + timeRaw + unknown are tolerated
+            // for forward-compat but not yet surfaced in the model.
+            if let meta = doc.sceneMeta[idx] {
+                scene.beatType = meta.beat
+                scene.actNumber = meta.actNumber
+                scene.bookmarked = meta.bookmarked
+            }
 
             var order = 0
             let headingEl = SceneElement(kind: .heading, text: parsed.heading, order: order)
