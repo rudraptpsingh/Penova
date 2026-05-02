@@ -74,7 +74,14 @@ SIG_RAW=$("$SIGN_UPDATE" "$DMG")
 SIG_LINE=$(printf '%s' "$SIG_RAW" | sed -E 's/.*(sparkle:edSignature="[^"]+").*/\1/')
 DMG_NAME=$(basename "$DMG")
 DMG_LENGTH=$(stat -f '%z' "$DMG")
-DMG_URL_DEFAULT="https://penova.app/releases/$DMG_NAME"
+# IMMUTABLE per-version URL — the appcast `<enclosure url=>` must
+# point to a path that never changes content. Pointing at the
+# moving `Penova.dmg` "latest" alias breaks Sparkle on every
+# release because Cloudflare's CDN edge can serve cached older
+# bytes from that URL after we overwrite it, producing a length /
+# signature mismatch and the "improperly signed" error users see
+# in the install dialog. Always include the version in the path.
+DMG_URL_DEFAULT="https://penova.pages.dev/releases/Penova-${VERSION}.dmg"
 PUB_DATE=$(LC_ALL=en_US.UTF-8 date "+%a, %d %b %Y %H:%M:%S %z")
 NOTES_LINE=""
 [[ -n "$NOTES_URL" ]] && NOTES_LINE="            <sparkle:releaseNotesLink>$NOTES_URL</sparkle:releaseNotesLink>"

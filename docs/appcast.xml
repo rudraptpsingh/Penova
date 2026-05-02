@@ -31,7 +31,7 @@
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:releaseNotesLink>https://penova.pages.dev/release-notes/1.2.0.html</sparkle:releaseNotesLink>
             <enclosure
-                url="https://penova.pages.dev/releases/Penova.dmg"
+                url="https://penova.pages.dev/releases/Penova-1.2.0.dmg"
                 type="application/x-apple-diskimage"
                 length="3967177"
                 sparkle:edSignature="WoszE/OLeOIbbPCrOJkwhDNhrCqe34oiN3mjkfI4SkzXZ9uqKHuLbfd4NNN7aak1aF4hhFH2UeMKcD+elR74Bg=="
