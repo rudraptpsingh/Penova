@@ -130,7 +130,21 @@ struct NewCharacterSheet: View {
 
     private func save() {
         if let c = editing {
-            c.name = name.trimmingCharacters(in: .whitespaces)
+            // Element-aware global rename: when the user changes the
+            // character name in this sheet, every cue + dialogue ref
+            // across every scene of every project the character
+            // belongs to gets rewritten. Final Draft surfaces this
+            // workflow as Document → Replace Character; we do it
+            // implicitly on save here.
+            let trimmedName = name.trimmingCharacters(in: .whitespaces)
+            if !trimmedName.isEmpty, trimmedName != c.name {
+                CharacterRename.renameAcrossProjects(
+                    in: c.projects,
+                    from: c.name,
+                    to: trimmedName
+                )
+            }
+            c.name = trimmedName
             c.role = role
             c.ageText = ageText.isEmpty ? nil : ageText
             c.occupation = occupation.isEmpty ? nil : occupation
