@@ -1,0 +1,273 @@
+#
+#  release.yml
+#  Penova — automated Mac release pipeline.
+#
+#  Trigger: pushing a git tag matching `v*.*.*` (e.g. `v1.2.0`).
+#
+#  Steps:
+#    1. Set up a fresh keychain on the runner with the Developer ID
+#       Application certificate imported from secrets.
+#    2. Bump MARKETING_VERSION + CURRENT_PROJECT_VERSION in project.yml
+#       to match the tag.
+#    3. Run `tools/notarize-mac.sh` — archive, sign, notarize, staple,
+#       wrap into a UDZO DMG, notarize + staple the DMG.
+#    4. Sign the DMG's Sparkle update entry with the EdDSA private key
+#       from secrets and produce the appcast `<item>` block.
+#    5. Update `docs/appcast.xml` with the new `<item>` (newest first)
+#       and `docs/releases/Penova.dmg` + `Penova-X.Y.Z.dmg` to the new
+#       binary.
+#    6. Bump the version strings on the public-facing pages (homepage,
+#       support, privacy, blog index, every blog post).
+#    7. Generate `docs/release-notes/X.Y.Z.html` from the tag's
+#       annotation message (or commit body) so Sparkle's update
+#       dialog has something to show.
+#    8. Deploy the updated `docs/` tree to Cloudflare Pages via
+#       `wrangler pages deploy`.
+#    9. Create a GitHub Release for the tag and attach the notarized
+#       DMG so direct GitHub-side downloads also work.
+#
+#  Required repo secrets (Settings → Secrets and variables → Actions):
+#    APPLE_DEVELOPER_ID_CERT_P12     (base64 .p12 of Developer ID Application)
+#    APPLE_DEVELOPER_ID_CERT_PASSWORD
+#    APPLE_ID                         (notarytool Apple ID)
+#    APPLE_TEAM_ID                    (10-char team ID)
+#    APPLE_APP_SPECIFIC_PASSWORD      (notarytool app-specific password)
+#    KEYCHAIN_PASSWORD                (random; used for the runner's temp keychain)
+#    SPARKLE_ED_PRIVATE_KEY           (base64 of `~/.local/share/Sparkle/private.key`)
+#    CLOUDFLARE_API_TOKEN             (token with Pages:Edit scope)
+#    CLOUDFLARE_ACCOUNT_ID
+#
+#  See tools/RELEASE.md for the one-time secret-setup instructions.
+#
+
+name: Release Mac DMG
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag (e.g. v1.2.0) — must already exist'
+        required: true
+        type: string
+
+permissions:
+  contents: write   # required to create the GitHub Release
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build, sign, notarize, deploy
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag and version
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME:-${{ inputs.tag }}}"
+          VERSION="${TAG#v}"           # 1.2.0
+          BUILD="${VERSION//./}"       # 120 (numeric build number)
+          echo "tag=$TAG"           >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION"   >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD"       >> "$GITHUB_OUTPUT"
+
+      - name: Set up Xcode
+        run: |
+          sudo xcode-select -switch /Applications/Xcode_16.4.app
+          xcodebuild -version
+
+      - name: Install xcodegen + create-dmg via Homebrew
+        run: brew install xcodegen create-dmg
+
+      - name: Import Developer ID certificate
+        env:
+          CERT_P12_BASE64:    ${{ secrets.APPLE_DEVELOPER_ID_CERT_P12 }}
+          CERT_PASSWORD:      ${{ secrets.APPLE_DEVELOPER_ID_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD:  ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "$CERT_P12_BASE64" | base64 --decode > /tmp/cert.p12
+          KEYCHAIN_PATH="$RUNNER_TEMP/penova-build.keychain-db"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import /tmp/cert.p12 \
+            -k "$KEYCHAIN_PATH" \
+            -P "$CERT_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          # Add the runner's temp keychain to the search list so codesign
+          # picks it up; keep the login keychain too in case we need it.
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+          rm /tmp/cert.p12
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+
+      - name: Store Sparkle EdDSA private key
+        env:
+          SPARKLE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          mkdir -p "$HOME/.local/share/Sparkle"
+          echo "$SPARKLE_KEY" | base64 --decode > "$HOME/.local/share/Sparkle/private.key"
+          chmod 600 "$HOME/.local/share/Sparkle/private.key"
+
+      - name: Bump version in project.yml
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD:   ${{ steps.version.outputs.build }}
+        run: |
+          # Replace both targets' version strings. Project.yml currently
+          # holds them under the PenovaMac and Penova target settings.
+          # We use a pinned form so we don't accidentally rewrite anything else.
+          sed -i '' -E "s/MARKETING_VERSION: \"[0-9]+\\.[0-9]+\\.[0-9]+\"/MARKETING_VERSION: \"$VERSION\"/g" project.yml
+          sed -i '' -E "s/CURRENT_PROJECT_VERSION: \"[0-9]+\"/CURRENT_PROJECT_VERSION: \"$BUILD\"/g" project.yml
+          grep -E 'MARKETING_VERSION|CURRENT_PROJECT_VERSION' project.yml
+
+      - name: Notarize Mac DMG
+        env:
+          APPLE_ID:                    ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID:               ${{ secrets.APPLE_TEAM_ID }}
+          PENOVA_TEAM_ID:              ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          # notarize-mac.sh accepts the env-var fallback path when no
+          # keychain profile is set up — exactly what we want on CI.
+          bash tools/notarize-mac.sh
+          ls -la build/Penova.dmg
+
+      - name: Sign Sparkle update entry
+        id: sign
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD:   ${{ steps.version.outputs.build }}
+        run: |
+          OUT=$(bash tools/sign-update.sh build/Penova.dmg \
+                  --version "$VERSION" \
+                  --build "$BUILD" \
+                  --notes-url "https://penova.pages.dev/release-notes/$VERSION.html")
+          echo "$OUT"
+          # Extract the <item>...</item> block (between the markers).
+          ITEM=$(echo "$OUT" | sed -n '/<item>/,/<\/item>/p')
+          # Persist for the next step. Wrap with a unique heredoc delimiter
+          # so multi-line GH-Actions output works.
+          {
+            echo "item<<APPCAST_ITEM_EOF"
+            echo "$ITEM"
+            echo "APPCAST_ITEM_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Stage DMG into docs/releases
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p docs/releases
+          cp build/Penova.dmg "docs/releases/Penova-$VERSION.dmg"
+          cp build/Penova.dmg "docs/releases/Penova.dmg"
+          shasum -a 256 "docs/releases/Penova-$VERSION.dmg"
+
+      - name: Update appcast.xml
+        env:
+          VERSION:   ${{ steps.version.outputs.version }}
+          ITEM_BODY: ${{ steps.sign.outputs.item }}
+        run: |
+          python3 tools/update_appcast.py \
+            --feed docs/appcast.xml \
+            --new-item "$ITEM_BODY"
+
+      - name: Bump version refs across docs
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Replace previous version's download links + nav-meta strings.
+          # Pull the previous version from the second-newest <item> in
+          # appcast.xml so we know what to replace.
+          PREV=$(python3 tools/last_two_versions.py docs/appcast.xml | tail -1)
+          if [ -n "$PREV" ] && [ "$PREV" != "$VERSION" ]; then
+            find docs -name '*.html' -print0 | xargs -0 sed -i '' \
+              -e "s|Penova-${PREV}.dmg|Penova-${VERSION}.dmg|g" \
+              -e "s|v${PREV}|v${VERSION}|g" \
+              -e "s|Download Penova ${PREV}|Download Penova ${VERSION}|g" \
+              -e "s|\"softwareVersion\": \"${PREV}\"|\"softwareVersion\": \"${VERSION}\"|g"
+          fi
+
+      - name: Generate release notes page
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG:     ${{ steps.version.outputs.tag }}
+        run: |
+          mkdir -p docs/release-notes
+          # Pull the tag's annotation message (or fall back to the commit body).
+          NOTES=$(git tag -l --format='%(contents)' "$TAG")
+          if [ -z "$NOTES" ]; then
+            NOTES=$(git log -1 --pretty=%B)
+          fi
+          python3 tools/render_release_notes.py \
+            --version "$VERSION" \
+            --notes "$NOTES" \
+            --out "docs/release-notes/$VERSION.html"
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@latest pages deploy docs \
+            --project-name penova \
+            --branch main \
+            --commit-dirty=true
+
+      - name: Verify live downloads
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # 503-tolerant probe — give Pages a moment after the deploy
+          # to propagate before asserting on live URLs.
+          sleep 10
+          curl -fsSI "https://penova.pages.dev/releases/Penova-${VERSION}.dmg" | head -1
+          curl -fsSI "https://penova.pages.dev/releases/Penova.dmg"             | head -1
+          curl -fsSI "https://penova.pages.dev/appcast.xml"                     | head -1
+          curl -fsSI "https://penova.pages.dev/release-notes/${VERSION}.html"   | head -1
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION:      ${{ steps.version.outputs.version }}
+          TAG:          ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG" \
+            "build/Penova.dmg" \
+            "docs/appcast.xml" \
+            --title "Penova $VERSION" \
+            --notes-file "docs/release-notes/${VERSION}.html" \
+            --verify-tag
+
+      - name: Commit version bump back to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION:  ${{ steps.version.outputs.version }}
+        run: |
+          # Persist the bumped project.yml + appcast + html updates
+          # to main so the next release knows what the previous one was.
+          git config user.name  "Penova release bot"
+          git config user.email "noreply@penova.pages.dev"
+          git checkout -B "release-bot/${VERSION}-bump"
+          git add project.yml docs/appcast.xml docs/index.html docs/blog \
+                  docs/support.html docs/privacy.html docs/release-notes \
+                  docs/releases
+          git commit -m "Release $VERSION: appcast, downloads, version refs"
+          git push origin "release-bot/${VERSION}-bump"
+          gh pr create \
+            --base main \
+            --head "release-bot/${VERSION}-bump" \
+            --title "Release $VERSION: bump version + appcast" \
+            --body "Automated release commit. Generated by .github/workflows/release.yml."
