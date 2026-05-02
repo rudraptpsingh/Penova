@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penova — release notes</title>
+<meta name="description" content="Every Penova release, with what changed and why. From 1.0.0 onwards.">
+<link rel="canonical" href="https://penova.pages.dev/release-notes/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-style='italic' text-anchor='middle' fill='%23f0a94a'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../blog/blog.css">
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "{{CLOUDFLARE_BEACON_TOKEN}}"}'></script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="brand">P<em>enova</em></a>
+  <div class="nav-links">
+    <a href="/#mac">Mac</a>
+    <a href="/#pricing">Free</a>
+    <a href="/#workflow">Workflow</a>
+    <a href="/#ios">iPhone</a>
+    <a href="/blog/">Blog</a>
+    <a href="/support">Support</a>
+  </div>
+  <div class="nav-meta">v1.2.1 · 2 May 2026</div>
+</nav>
+
+<main class="wrap">
+
+  <header class="post-head">
+    <div class="post-eyebrow">Release notes</div>
+    <h1>What's <em>new</em>.</h1>
+    <p class="post-deck">
+      Every Penova release, with what changed and why. Auto-update via
+      Sparkle delivers these to existing installs within ~1 hour;
+      direct downloads of the latest version are
+      <a href="../releases/Penova.dmg">always here</a>.
+    </p>
+  </header>
+
+  <article>
+
+    <h2>v1.2.1 <span style="color: var(--snow-3); font-size: 60%; font-family: var(--mono); padding-left: 6px;">2 May 2026</span></h2>
+    <p>
+      Mac script panel polish — element-kind chip removed entirely so
+      the editor reads cleanly as a real screenplay; window minimum
+      width raised to 1280pt so the paper always fits between the
+      sidebar and inspector.
+      <a href="1.2.1.html">Full notes →</a>
+    </p>
+
+    <h2>v1.2.0 <span style="color: var(--snow-3); font-size: 60%; font-family: var(--mono); padding-left: 6px;">2 May 2026</span></h2>
+    <p>
+      Penova's Fountain dialect spec lands. <code>.fountain</code> plain
+      text is now the canonical interchange format — Highland-, Beat-,
+      Slugline-, Final Draft-compatible. Validated end-to-end against
+      Big Fish (122 pages), Brick &amp; Steel, The Last Birthday Card.
+      Plus iOS UX fixes (title-page keyboard, scene-creation flow),
+      cross-platform accessibility identifiers, and SwiftData migration
+      scaffolding for forward-compat.
+      <a href="1.2.0.html">Full notes →</a>
+    </p>
+
+    <h2>v1.1.2 <span style="color: var(--snow-3); font-size: 60%; font-family: var(--mono); padding-left: 6px;">2 May 2026</span></h2>
+    <p>
+      Editor + layout polish — element-kind chip on focused row only,
+      paper-width adapts to window, app-store readiness items
+      (LSApplicationCategoryType, PrivacyInfo on Mac), Sparkle update
+      URLs pinned to per-version paths so cache mismatches can't break
+      auto-update.
+      <a href="1.1.2.html">Full notes →</a>
+    </p>
+
+    <h2>v1.1.1 <span style="color: var(--snow-3); font-size: 60%; font-family: var(--mono); padding-left: 6px;">2 May 2026</span></h2>
+    <p>
+      Writer-essentials patch. <code>(CONT'D)</code> now appears
+      automatically when the same character speaks again in a scene.
+      Renaming a character in the Characters tab rewrites every cue +
+      dialogue ref across every scene — element-aware, never touches
+      action body text or characters with prefix-overlapping names.
+      Auto-update interval lowered from 24h → 1h so future releases
+      reach users within the hour.
+      <a href="1.1.1.html">Full notes →</a>
+    </p>
+
+    <h2>v1.1.0 <span style="color: var(--snow-3); font-size: 60%; font-family: var(--mono); padding-left: 6px;">2 May 2026</span></h2>
+    <p>
+      Three flagship additions. In-app
+      <strong>Send Feedback</strong> menu (Mac + iOS) — emails go
+      directly to the developer with auto-attached version/OS/locale
+      diagnostic info. <strong>Title page editor</strong> with all WGA
+      fields (title, credit, author, source, contact, draft date,
+      draft stage, copyright, notes) round-tripping through PDF, FDX,
+      Fountain. <strong>Per-page revision color stripe</strong> for
+      production drafts — WGA-correct color stripe in the right margin,
+      header slug at the top, asterisks marking changed lines.
+      <a href="1.1.0.html">Full notes →</a>
+    </p>
+
+    <h2>v1.0.0 <span style="color: var(--snow-3); font-size: 60%; font-family: var(--mono); padding-left: 6px;">1 May 2026</span></h2>
+    <p>
+      Initial public release. Industry-format PDF, Final Draft (.fdx)
+      and Fountain export, three-pane Mac editor (script · cards ·
+      outline), production reports, page locking, voice quick-capture
+      on iPhone with on-device speech recognition. Free forever for
+      individual writers.
+    </p>
+
+    <h2>How updates work</h2>
+    <p>
+      Penova for Mac ships with Sparkle, the standard macOS auto-update
+      framework. The app checks for new versions automatically once an
+      hour while running; when one is available, you'll see a
+      "A new version is available" dialog. You can also force a check
+      via <strong>Penova → Check for Updates…</strong>.
+    </p>
+    <p>
+      Every released DMG is signed with an Apple Developer ID
+      certificate, notarized by Apple, and verified by an EdDSA
+      signature against the public key bundled in your installed app.
+      No server-side trust required — the entire update path is
+      cryptographic.
+    </p>
+
+    <p style="margin-top: 32px; color: var(--snow-4); font-size: 13px;">
+      Penova for iPhone ships through TestFlight beta currently;
+      App Store launch coming soon.
+    </p>
+
+  </article>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="/support">Support</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/release-notes/">Release notes</a>
+    </div>
+    <div class="foot-meta">© 2026 Penova · Free, professional screenwriting</div>
+  </div>
+</footer>
+
+</body>
+</html>
