@@ -35,6 +35,7 @@ struct SettingsScreen: View {
             .padding(PenovaSpace.l)
         }
         .background(PenovaColor.ink0)
+        .accessibilityIdentifier(A11yID.settingsScreen)
         .navigationTitle(Copy.settings.title)
         .navigationBarTitleDisplayMode(.inline)
         .alert("Delete all data?", isPresented: $showDeleteAll) {

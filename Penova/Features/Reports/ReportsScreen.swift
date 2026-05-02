@@ -41,6 +41,7 @@ struct ReportsScreen: View {
             }
         }
         .background(PenovaColor.ink0)
+        .accessibilityIdentifier(A11yID.reportsScreen)
         .navigationTitle("Reports")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -32,6 +32,10 @@ struct TitlePageEditorScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: PenovaSpace.l) {
+                    // Spacer at the bottom of the form lets the user
+                    // scroll past the keyboard when editing multi-line
+                    // fields (Contact, Notes) — without it the keyboard
+                    // covers the field on small screens like iPhone SE.
                     PenovaTextField(label: "Title", text: $title,
                                     placeholder: "The Last Train")
                     PenovaTextField(label: "Credit", text: $credit,
@@ -50,9 +54,21 @@ struct TitlePageEditorScreen: View {
                     multilineField(label: "Notes", text: $notes, placeholder: "Optional")
                     paperPreview
                     PenovaButton(title: "Save", variant: .primary) { save() }
+                    // Bottom inset so the keyboard never sits on top of
+                    // the active field. The system's keyboard avoidance
+                    // shifts the focused field above the keyboard, and
+                    // this trailing spacer ensures even the last
+                    // multiline field on a small phone has somewhere to
+                    // shift into.
+                    Color.clear.frame(height: 220)
                 }
                 .padding(PenovaSpace.l)
             }
+            // Interactive scroll-to-dismiss matches the standard iOS
+            // text-edit gesture writers expect (drag down on the form
+            // → keyboard pulls down with finger). Without this the
+            // keyboard stays put until they tap a Done button.
+            .scrollDismissesKeyboard(.interactively)
             .background(PenovaColor.ink0)
             .navigationTitle("Title page")
             .navigationBarTitleDisplayMode(.inline)
@@ -61,10 +77,24 @@ struct TitlePageEditorScreen: View {
                     Button("Cancel") { dismiss() }
                         .foregroundStyle(PenovaColor.snow3)
                 }
+                // Done-on-keyboard so users with hardware keyboards or
+                // accessibility tools have a discoverable way out.
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { hideKeyboard() }
+                        .foregroundStyle(PenovaColor.amber)
+                }
             }
             .onAppear(perform: hydrate)
         }
         .preferredColorScheme(.dark)
+    }
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil, from: nil, for: nil
+        )
     }
 
     // MARK: - Lifecycle

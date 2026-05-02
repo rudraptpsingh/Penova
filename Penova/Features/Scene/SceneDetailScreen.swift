@@ -21,6 +21,7 @@ struct SceneDetailScreen: View {
     @FocusState private var focused: String?
     @State private var showEditScene = false
     @State private var showDeleteConfirm = false
+    @State private var showNewSceneSheet = false
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -74,6 +75,7 @@ struct SceneDetailScreen: View {
                 .padding(.bottom, PenovaSpace.xxl)
             }
             .background(PenovaColor.ink0)
+            .accessibilityIdentifier(A11yID.sceneDetailScreen)
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
@@ -89,6 +91,18 @@ struct SceneDetailScreen: View {
         .sheet(isPresented: $showEditScene) {
             if let episode = scene.episode {
                 NewSceneSheet(episode: episode, editing: scene)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+        }
+        .sheet(isPresented: $showNewSceneSheet) {
+            // Append-after-current-scene flow: the New Scene sheet
+            // creates the scene with proper user-supplied location +
+            // time, and the keyboard accessory's "+ New scene" button
+            // becomes a real entry point instead of a placeholder
+            // generator.
+            if let episode = scene.episode {
+                NewSceneSheet(episode: episode)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             }
@@ -373,15 +387,15 @@ struct SceneDetailScreen: View {
     }
 
     private func appendNewScene() {
-        guard let ep = scene.episode else { return }
-        let nextOrder = (ep.scenes.map(\.order).max() ?? -1) + 1
-        let new = ScriptScene(locationName: "NEW LOCATION", location: .interior, time: .day, order: nextOrder)
-        new.episode = ep
-        ep.scenes.append(new)
-        context.insert(new)
-        ep.updatedAt = .now
-        try? context.save()
+        // Surface the proper New Scene sheet so the user actually fills
+        // in heading, location, and time-of-day instead of being left
+        // with an orphaned "NEW LOCATION - DAY" placeholder in the
+        // sidebar. Previous behaviour created the scene silently and
+        // dropped focus, leaving the user staring at the same scene
+        // with the keyboard dismissed and a mystery scene appearing
+        // in the navigator.
         focused = nil
+        showNewSceneSheet = true
     }
 
     private func deleteElement(_ el: SceneElement) {

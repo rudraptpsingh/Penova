@@ -38,7 +38,7 @@ struct PenovaMacApp: App {
             do {
                 let schema = Schema(PenovaSchema.models)
                 let config = ModelConfiguration("Penova", schema: schema)
-                let container = try ModelContainer(for: schema, configurations: [config])
+                let container = try ModelContainer(for: schema, migrationPlan: PenovaMigrationPlan.self, configurations: [config])
                 let ctx = ModelContext(container)
                 guard let project = try ctx.fetch(FetchDescriptor<Project>(
                     sortBy: [SortDescriptor(\Project.updatedAt, order: .reverse)]
@@ -125,7 +125,7 @@ struct PenovaMacApp: App {
             do {
                 let schema = Schema(PenovaSchema.models)
                 let config = ModelConfiguration("Penova", schema: schema)
-                let container = try ModelContainer(for: schema, configurations: [config])
+                let container = try ModelContainer(for: schema, migrationPlan: PenovaMigrationPlan.self, configurations: [config])
                 let ctx = ModelContext(container)
                 guard let project = try ctx.fetch(FetchDescriptor<Project>(
                     sortBy: [SortDescriptor(\Project.updatedAt, order: .reverse)]
@@ -167,7 +167,7 @@ struct PenovaMacApp: App {
             } else {
                 config = ModelConfiguration("Penova", schema: schema)
             }
-            container = try ModelContainer(for: schema, configurations: [config])
+            container = try ModelContainer(for: schema, migrationPlan: PenovaMigrationPlan.self, configurations: [config])
             // Note: SwiftData's `ModelContext.undoManager` does not
             // reliably reverse persisted deletes after save(); see
             // PenovaTests/UndoSupportTests for the contract. Top-level

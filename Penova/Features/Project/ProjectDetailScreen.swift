@@ -63,6 +63,7 @@ struct ProjectDetailScreen: View {
                 .padding(.bottom, PenovaSpace.xxl)
             }
             .background(PenovaColor.ink0)
+            .accessibilityIdentifier(A11yID.projectDetailScreen)
             .navigationTitle(project.title)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: Episode.self) { ep in
