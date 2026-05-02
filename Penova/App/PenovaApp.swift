@@ -28,7 +28,7 @@ struct PenovaApp: App {
         do {
             let schema = Schema(PenovaSchema.models)
             let config = ModelConfiguration("Penova", schema: schema)
-            container = try ModelContainer(for: schema, configurations: [config])
+            container = try ModelContainer(for: schema, migrationPlan: PenovaMigrationPlan.self, configurations: [config])
             // Note: SwiftData's `ModelContext.undoManager` does NOT
             // reliably reverse persisted deletes once save() has run
             // (verified via UndoSupportTests.swiftDataDeleteIsNotUndoable).

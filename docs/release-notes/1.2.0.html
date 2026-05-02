@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Penova 1.2.0 — release notes</title>
+<style>
+  body { background: #0b0a08; color: #efe9db;
+         font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+         font-size: 14px; line-height: 1.55; margin: 24px; }
+  h1 { font-size: 22px; margin: 0 0 16px; color: #fff; }
+  h2 { font-size: 16px; margin: 24px 0 8px; color: #f0a94a; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .date { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+          font-size: 11px; color: #948e80; letter-spacing: 0.06em;
+          text-transform: uppercase; margin-bottom: 18px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+         font-size: 12.5px; background: #1a1a17; padding: 1px 5px;
+         border-radius: 3px; color: #d4cebe; }
+  strong { color: #fff; }
+</style>
+</head>
+<body>
+<h1>Penova 1.2.0</h1>
+<div class="date">2 May 2026 · macOS 14+ · iOS 17+</div>
+
+<h2>Fountain — Penova's portable interchange format</h2>
+<ul>
+  <li>Penova now treats <code>.fountain</code> plain text as a canonical interchange format. Every Project field that has a Fountain representation round-trips losslessly through the parser and exporter — including title-page metadata, episode boundaries, scene beats, locked-script state, and revision history. <a href="https://github.com/rudraptpsingh/Penova/blob/main/docs/spec/penova-fountain.md">Full dialect spec</a> documents the contract.</li>
+  <li>The parser handles all six standard fountain.io title-page keys plus Penova-namespaced extensions; it gracefully tolerates unknown <code>Penova-*</code> keys (forward-compat for future versions). <code>FADE OUT:</code>, <code>IRIS OUT</code>, and <code>SMASH CUT TO</code> now recognize as transitions.</li>
+  <li>End-to-end validated against three canonical reference screenplays (Big Fish, Brick &amp; Steel, The Last Birthday Card) — they round-trip through the full Penova pipeline with byte-equivalent structure.</li>
+</ul>
+
+<h2>iOS — title-page editor + scene-creation flow</h2>
+<ul>
+  <li>Title page editor on iPhone now <strong>auto-resizes for the keyboard</strong> — drag the form down to dismiss, or tap the keyboard's "Done" button. Multi-line fields (Contact, Notes) no longer hide behind the keyboard on small screens.</li>
+  <li>The keyboard accessory's <strong>"+ New Scene"</strong> button now opens the proper New Scene sheet so you fill in heading + location + time-of-day instead of being left with an orphaned "NEW LOCATION - DAY" placeholder.</li>
+</ul>
+
+<h2>Foundation — SwiftData migration plan</h2>
+<ul>
+  <li>Penova now declares an explicit SwiftData <code>VersionedSchema</code> (<code>SchemaV1</code>) and <code>SchemaMigrationPlan</code> (<code>PenovaMigrationPlan</code>). Today the plan is a no-op — every property change through 1.x has been an Optional-with-default that SwiftData migrates lightweight automatically. The scaffolding exists so the first time we rename or remove a model property, the migration path is already in place — no scrambling to declare a versioned schema after a returning user has hit a launch crash.</li>
+</ul>
+
+<h2>Accessibility</h2>
+<ul>
+  <li>Cross-platform <code>A11yID</code> identifiers consolidated into PenovaKit; iOS surfaces (Settings, Reports, Project Detail, Scene Detail, Title Page) now expose stable identifiers for UI tests + accessibility tools.</li>
+</ul>
+
+<h2>Tests</h2>
+<ul>
+  <li><strong>434 / 434</strong> unit tests across 45 suites pass. New: <code>PenovaMigrationPlanTests</code> pins the schema version, the V1 model list, and that <code>ModelContainer(migrationPlan:)</code> initializes cleanly.</li>
+</ul>
+
+<p style="margin-top: 32px; color: #5e5a52; font-size: 12px;">
+  Feedback or bug reports — <a href="mailto:rudra.ptp.singh@gmail.com" style="color: #f0a94a;">rudra.ptp.singh@gmail.com</a>
+  · <a href="tel:+919956340651" style="color: #f0a94a;">+91 99563 40651</a>
+  · <a href="https://wa.me/919956340651" style="color: #f0a94a;">WhatsApp</a>.
+</p>
+</body>
+</html>

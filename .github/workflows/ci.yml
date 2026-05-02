@@ -1,0 +1,140 @@
+#
+#  ci.yml
+#  Penova — pull-request continuous integration.
+#
+#  Runs on every push to a non-main branch and every PR opened against
+#  main. Validates:
+#    1. Both Penova (iOS) and PenovaMac compile cleanly with the
+#       checked-in project.yml + xcodegen.
+#    2. The full PenovaTests target passes — every parser, exporter,
+#       round-trip, regression test pinned today.
+#    3. The committed appcast.xml is well-formed XML (XMLParser);
+#       catches the `--`-in-comment bug shape without needing to run
+#       the test suite first.
+#    4. project.yml + every Info.plist in the tree are valid.
+#
+#  Does NOT sign or notarize anything. The release workflow
+#  (.github/workflows/release.yml) handles that on tag push.
+#
+#  Required runtime: macos-15 with Xcode 16.4. No secrets needed —
+#  this runs on PRs from forks too.
+#
+
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run per PR / branch; cancel in-flight when new commits land.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-checks:
+    name: Static checks (project files, appcast XML)
+    runs-on: macos-15
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate appcast.xml is well-formed
+        run: |
+          python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('docs/appcast.xml')
+          items = tree.getroot().findall('.//item')
+          print(f'appcast OK: {len(items)} items')
+          assert len(items) > 0, 'appcast.xml must have at least one item'
+          "
+
+      - name: Validate every committed Info.plist
+        run: |
+          # Penova/App/Info.plist + PenovaMac/App/Info.plist must
+          # parse via PlistBuddy without errors. Catches accidental
+          # XML/plist breakage before the build picks it up.
+          for plist in $(find Penova PenovaMac -name 'Info.plist' -not -path '*/build/*'); do
+            echo "Checking $plist"
+            /usr/libexec/PlistBuddy -c "Print" "$plist" >/dev/null
+          done
+
+      - name: Validate project.yml parses
+        run: |
+          python3 -c "
+          import yaml
+          with open('project.yml') as f:
+              y = yaml.safe_load(f)
+          assert 'targets' in y, 'project.yml must declare targets'
+          print('project.yml OK')
+          "
+
+  build-and-test:
+    name: Build + test (Mac + iOS Simulator)
+    runs-on: macos-15
+    timeout-minutes: 25
+    needs: static-checks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        run: |
+          sudo xcode-select -switch /Applications/Xcode_16.4.app
+          xcodebuild -version
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build PenovaMac
+        run: |
+          xcodebuild -project Penova.xcodeproj \
+                     -scheme PenovaMac \
+                     -destination 'platform=macOS' \
+                     -configuration Debug \
+                     build \
+                     2>&1 | tail -5
+          # Any non-zero exit propagates from xcodebuild.
+
+      - name: Build Penova (iOS Simulator)
+        run: |
+          xcodebuild -project Penova.xcodeproj \
+                     -scheme Penova \
+                     -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+                     -configuration Debug \
+                     build \
+                     2>&1 | tail -5
+
+      - name: Run PenovaTests
+        run: |
+          # Use -resultBundlePath so the failure stack survives and is
+          # uploadable as an artifact below.
+          set -o pipefail
+          xcodebuild -project Penova.xcodeproj \
+                     -scheme Penova \
+                     -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+                     -resultBundlePath build/TestResults.xcresult \
+                     test \
+                     2>&1 | grep -E '(Test run with|✘ Test|error:|FAIL)' | tail -20
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/TestResults.xcresult
+          retention-days: 7

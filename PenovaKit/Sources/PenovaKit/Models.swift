@@ -695,13 +695,55 @@ public final class Revision {
 // MARK: - Schema accessor
 
 public enum PenovaSchema {
-    public static let models: [any PersistentModel.Type] = [
-        Project.self,
-        Episode.self,
-        ScriptScene.self,
-        SceneElement.self,
-        ScriptCharacter.self,
-        WritingDay.self,
-        Revision.self
-    ]
+    public static let models: [any PersistentModel.Type] = SchemaV1.models
+
+    /// Versioned schema container — the migration plan declared below
+    /// uses these to reason about future changes. Today there's only
+    /// V1, so the migration plan is a no-op; every shipped property
+    /// is added as Optional-with-default and SwiftData treats those
+    /// as additive (lightweight) migrations automatically. This
+    /// scaffolding exists so the FIRST renamed-or-removed property
+    /// has a place to declare a `MigrationStage` instead of crashing
+    /// returning users on launch.
+    public enum SchemaV1: VersionedSchema {
+        public static var versionIdentifier: Schema.Version {
+            Schema.Version(1, 0, 0)
+        }
+
+        public static var models: [any PersistentModel.Type] {
+            [
+                Project.self,
+                Episode.self,
+                ScriptScene.self,
+                SceneElement.self,
+                ScriptCharacter.self,
+                WritingDay.self,
+                Revision.self
+            ]
+        }
+    }
+}
+
+/// Migration plan for the SwiftData store. Currently a single stage
+/// (V1) — every release through v1.1.x adds Optional-with-default
+/// properties which SwiftData migrates lightweight, no manual work.
+///
+/// When we eventually rename or remove a model property — say in v2.0
+/// when the storage model changes shape for Fountain folder mode —
+/// add a `SchemaV2` enum, a `MigrationStage.custom(...)` between V1
+/// and V2, and append it to `stages`. Existing user stores will
+/// migrate cleanly on launch.
+///
+/// Apple guidance: declare a MigrationPlan even when you don't need
+/// one yet. The cost of adding it now is zero; the cost of adding it
+/// later — when there's already a corrupt-on-launch crash report
+/// from a returning user — is real.
+public enum PenovaMigrationPlan: SchemaMigrationPlan {
+    public static var schemas: [any VersionedSchema.Type] {
+        [PenovaSchema.SchemaV1.self]
+    }
+
+    public static var stages: [MigrationStage] {
+        []  // No stages yet — we're at V1 with no historical migrations.
+    }
 }
