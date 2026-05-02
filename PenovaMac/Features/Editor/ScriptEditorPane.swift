@@ -400,25 +400,19 @@ private struct EditableElementRow: View {
                    alignment: element.kind == .transition ? .trailing : .leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .topTrailing) {
-            if isFocused {
-                kindBadge
-                    .offset(x: 8, y: -2)
-            }
-        }
+        // Element-kind chip removed: it overlapped the row text on
+        // short right-aligned rows like transitions ("TRANSITION" badge
+        // sitting on top of "CUT TO:"). Mac users can read the row's
+        // kind from its visual format — right-aligned ALL CAPS =
+        // transition, centered = character, indented body = dialogue,
+        // etc. — and Final Draft, the industry standard, doesn't show
+        // inline kind chips either. The element-kind menu is still
+        // available via the Edit menu (⌘1–⌘7 keyboard shortcuts and
+        // the right-click context menu), so power users can still
+        // change kinds without the chip in the way.
     }
 
     private var paperInk: Color { Color(red: 0.10, green: 0.08, blue: 0.05) }
-
-    private var kindBadge: some View {
-        Text(element.kind.display)
-            .font(.system(size: 9, weight: .semibold))
-            .foregroundStyle(paperInk.opacity(0.6))
-            .textCase(.uppercase)
-            .padding(.horizontal, 6).padding(.vertical, 2)
-            .background(paperInk.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-    }
 
     private var placeholder: String {
         switch element.kind {
