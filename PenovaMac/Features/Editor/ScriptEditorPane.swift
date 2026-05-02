@@ -225,6 +225,15 @@ struct PaperPage: View {
     private func delete(_ el: SceneElement) {
         let prev = scene.elementsOrdered.last { $0.order < el.order }
         context.delete(el)
+        // Save FIRST so the deleted element is removed from
+        // scene.elementsOrdered before we renumber. SwiftData doesn't
+        // synchronously evict the deleted element from the inverse
+        // relationship — without this save, the renumber loop
+        // assigns 0..N-1 to N+1 elements (including the doomed one),
+        // and the post-second-save result has non-contiguous orders
+        // for the survivors. Pinned by
+        // RegressionsV1Tests.deleteCompactsOrdersToContiguousSequence.
+        try? context.save()
         // Compact `order` to a contiguous 0..N-1 sequence so subsequent
         // insertAbove / appendAfter calls can't collide on the same
         // value. Without this, repeated insert-above + delete sequences

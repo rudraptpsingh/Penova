@@ -38,6 +38,7 @@
 		34C7BD445A5450DFFFAC0F1D /* SceneHeadingParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7DBCCE530AF69736000C07 /* SceneHeadingParserTests.swift */; };
 		3C20137B3653DC6AF84B10DE /* UndoSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B241B0D3C8FC692E706211E /* UndoSupportTests.swift */; };
 		41EA258C0DAC979563D37DD1 /* CRUDEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4524546DE98F2547731BEF /* CRUDEdgeCaseTests.swift */; };
+		42468B9855ED035BC7253454 /* RegressionsV1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494D6B91577E5CA327FCE2BC /* RegressionsV1Tests.swift */; };
 		45303C6FD7E32611E6895DFF /* DesignSystemGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC376E071873F871BF16D1 /* DesignSystemGallery.swift */; };
 		46DE3194BB6715CAC43F0779 /* SmartGroupPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA95D3D4899F54E48F7DD59 /* SmartGroupPane.swift */; };
 		4885E1C5BB2F3B5C1B414352 /* SearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63797BEBCD9A39817DB21091 /* SearchServiceTests.swift */; };
@@ -197,6 +198,7 @@
 		3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaApp.swift; sourceTree = "<group>"; };
 		47F8D4BF5A60229036D057F1 /* TitlePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitlePageTests.swift; sourceTree = "<group>"; };
 		48FA741756FA2A09AE863DA3 /* ReportsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsScreen.swift; sourceTree = "<group>"; };
+		494D6B91577E5CA327FCE2BC /* RegressionsV1Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegressionsV1Tests.swift; sourceTree = "<group>"; };
 		49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptPDFRenderer.swift; sourceTree = "<group>"; };
 		4AC3F05DE22C2FC68888D7F3 /* PenovaMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaMacApp.swift; sourceTree = "<group>"; };
 		4B241B0D3C8FC692E706211E /* UndoSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoSupportTests.swift; sourceTree = "<group>"; };
@@ -404,6 +406,7 @@
 				BDA80EF1216184E5F3EA0C92 /* PenovaMigrationPlanTests.swift */,
 				D06E1633EEA1A73230CCAF90 /* ProductionReportsTests.swift */,
 				BDD36CDDCDA2B99E93D8608A /* RealScriptEndToEndTests.swift */,
+				494D6B91577E5CA327FCE2BC /* RegressionsV1Tests.swift */,
 				E2D00A628D777DD5EA2FFDDC /* ReorderAndStatusTests.swift */,
 				7B884AA3C58CCD3B8C61079C /* RevisionColorTests.swift */,
 				80EE7053F2E2CC6DF4F630FA /* RevisionPageTests.swift */,
@@ -1034,6 +1037,7 @@
 				BBB87BE1300DB72B641C4D58 /* PenovaMigrationPlanTests.swift in Sources */,
 				83D8EA1A6A5D77D3D8FD871A /* ProductionReportsTests.swift in Sources */,
 				3420160178E02A6A89BB5175 /* RealScriptEndToEndTests.swift in Sources */,
+				42468B9855ED035BC7253454 /* RegressionsV1Tests.swift in Sources */,
 				916EEA4BD42E8AAE07AE0292 /* ReorderAndStatusTests.swift in Sources */,
 				7CFBB0FEE76E58D3F306A81F /* RevisionColorTests.swift in Sources */,
 				E8C491EEAB2DFBC36E0C1787 /* RevisionPageTests.swift in Sources */,
