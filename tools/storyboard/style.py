@@ -41,12 +41,23 @@ class Style:
     slug_fg:   RGB = (252, 248, 240)
 
     # ---- Stroke ----------------------------------------------------
+    # `stroke` is the legacy single-weight (kept for back-compat).
+    # Real ink work uses HEAVY keylines for silhouettes + THIN inner
+    # lines for details; `stroke_key` and `stroke_inner` give that
+    # variation. Code paths that don't specify fall back to `stroke`.
     stroke:           int   = 4
+    stroke_key:       int   = 5     # silhouette / outline weight
+    stroke_inner:     int   = 2     # eyes, mouth, hair, prop detail
     line_jitter:      float = 2.4   # px max deviation per segment
     line_segments:    int   = 10    # interpolation samples per stroke
     circle_jitter:    float = 1.8
     circle_segments:  int   = 36
     background_jitter_mul: float = 1.0   # multiplier on wobble for bg
+
+    # ---- Inking devices --------------------------------------------
+    spot_blacks:      bool  = True   # fill hair, shoes, accessories
+    cross_hatch:      bool  = True   # cross-hatch shadow side of body
+    motion_lines:     bool  = True   # speed lines for walking poses
 
     # ---- Figure proportions (px at scale=1.0) ----------------------
     head_r:           int  = 46
@@ -118,6 +129,8 @@ _PRESETS: Dict[str, Style] = {
         line_jitter=1.6,
         line_segments=8,
         circle_jitter=1.4,
+        stroke_key=4,
+        stroke_inner=3,
         head_r=32,
         head_attach=0.85,
         neck_len=14,
@@ -132,6 +145,9 @@ _PRESETS: Dict[str, Style] = {
         eye_dx=13,
         eye_offset_y_factor=-0.55,
         ground_shadow=False,
+        spot_blacks=False,
+        cross_hatch=False,
+        motion_lines=False,
     ),
 
     # Bold marker — chunky stroke, low wobble, no shadow. Reads well
@@ -139,6 +155,8 @@ _PRESETS: Dict[str, Style] = {
     "bold": Style(
         name="bold",
         stroke=6,
+        stroke_key=7,
+        stroke_inner=3,
         line_jitter=1.2,
         line_segments=6,
         circle_jitter=0.8,

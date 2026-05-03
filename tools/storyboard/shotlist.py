@@ -209,6 +209,76 @@ def extract_intros(doc: Document) -> Dict[str, str]:
     return out
 
 
+_MALE_TOKENS = {
+    "he", "him", "his", "man", "boy", "guy", "gentleman", "father",
+    "son", "uncle", "brother", "husband", "sir", "mister", "mr",
+}
+_FEMALE_TOKENS = {
+    "she", "her", "hers", "woman", "girl", "lady", "mother", "daughter",
+    "aunt", "sister", "wife", "ma'am", "madam", "mrs", "miss", "ms",
+}
+_NAME_WINDOW = 60   # words after a name to scan for pronouns
+_NAME_TOKEN_RE = re.compile(r"[A-Za-z']+")
+
+
+def extract_genders(doc: Document, roster: Optional[List[str]] = None
+                    ) -> Dict[str, str]:
+    """Heuristic name -> 'm' | 'f' map, derived from pronouns near
+    each character mention plus descriptor keywords.
+
+    Strategy: for each ALL-CAPS character name found in any action
+    line, scan up to `_NAME_WINDOW` whitespace tokens AFTER the name
+    and tally male/female pronoun hits. The first decisive scene wins.
+    Descriptor blob (from extract_intros) is consulted last.
+    """
+    intros = extract_intros(doc)
+    candidates: set = set()
+    for scene in doc.scenes:
+        for el in scene.elements:
+            if el.kind == "character":
+                candidates.add(el.text.strip().upper())
+    # Also accept names that appear in intro descriptors (action prose).
+    candidates.update(intros.keys())
+    if roster:
+        candidates.update(r.upper() for r in roster)
+
+    # Aggregate text per character: scan action prose, and for every
+    # token that matches a known character (case-insensitive), grab a
+    # window of words after it. Names with all-caps cues match either
+    # spelling ("Raja smiles" or "RAJA wipes").
+    bag: Dict[str, str] = {}
+    for scene in doc.scenes:
+        for el in scene.elements:
+            if el.kind != "action":
+                continue
+            tokens = _NAME_TOKEN_RE.findall(el.text)
+            for i, original in enumerate(tokens):
+                if original.upper() not in candidates:
+                    continue
+                window_end = min(len(tokens), i + 1 + _NAME_WINDOW)
+                snippet = " ".join(tokens[i + 1:window_end])
+                bag.setdefault(original.upper(), "")
+                bag[original.upper()] += " " + snippet
+    out: Dict[str, str] = {}
+    for name, blob in bag.items():
+        low = blob.lower()
+        words = set(re.findall(r"[a-z']+", low))
+        m = sum(1 for w in words if w in _MALE_TOKENS)
+        f = sum(1 for w in words if w in _FEMALE_TOKENS)
+        if m > f:
+            out[name] = "m"
+        elif f > m:
+            out[name] = "f"
+        # ambiguous -> consult descriptor
+        if name not in out and name in intros:
+            d = intros[name].lower()
+            if any(w in d for w in _MALE_TOKENS):
+                out[name] = "m"
+            elif any(w in d for w in _FEMALE_TOKENS):
+                out[name] = "f"
+    return out
+
+
 def build(doc: Document) -> List[Shot]:
     shots: List[Shot] = []
     for idx, scene in enumerate(doc.scenes):

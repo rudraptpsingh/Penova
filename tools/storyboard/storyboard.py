@@ -87,6 +87,7 @@ def main(argv: list[str]) -> int:
 
     doc = fountain.parse(source)
     _render.seed_intros(_sl.extract_intros(doc))
+    _render.seed_genders(_sl.extract_genders(doc))
     shots = _sl.build(doc)
 
     if args.dump_shots:

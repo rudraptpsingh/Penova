@@ -223,6 +223,7 @@ def _stable_hash(s: str) -> int:
 
 
 _INTROS: Dict[str, str] = {}
+_GENDERS: Dict[str, str] = {}   # name.upper() -> 'm' | 'f'
 
 
 def seed_intros(intros: Dict[str, str]) -> None:
@@ -231,6 +232,14 @@ def seed_intros(intros: Dict[str, str]) -> None:
     instead of relying purely on the name hash."""
     global _INTROS
     _INTROS = {k.upper(): v for k, v in intros.items()}
+
+
+def seed_genders(genders: Dict[str, str]) -> None:
+    """Provide script-derived genders. Used to pick visual conventions
+    everyone recognises — men get rectangular pants, women get the
+    triangular-skirt restroom-sign silhouette and longer hair."""
+    global _GENDERS
+    _GENDERS = {k.upper(): (v.lower() if v else "") for k, v in genders.items()}
 
 
 # Keyword -> trait override. First match wins per slot.
@@ -271,28 +280,128 @@ def _override_from_desc(traits: Dict, desc: str) -> Dict:
     return out
 
 
+_MALE_HAIR   = ("short", "buzz", "bald", "cap", "side")
+_FEMALE_HAIR = ("bun", "long", "side", "short")
+
+
 def traits_for(name: Optional[str]) -> Dict:
     if not name:
         return {
             "head": "round", "hair": "short", "accessory": "none",
             "build": 1.0, "height": 1.0, "brow": "flat",
+            "gender": "", "body_style": "pants",
         }
     h = _stable_hash(name.upper())
+    gender = _GENDERS.get(name.upper(), "")
+
+    # Gender-aware hair pool — picks from the conventional silhouettes
+    # everyone recognises (short for men, bun/long for women) so the
+    # figures read at first glance.
+    if gender == "m":
+        hair_pool = _MALE_HAIR
+    elif gender == "f":
+        hair_pool = _FEMALE_HAIR
+    else:
+        hair_pool = _HAIR_STYLES
+
     base = {
-        "head":      _HEAD_SHAPES[h % len(_HEAD_SHAPES)],
-        "hair":      _HAIR_STYLES[(h >> 3) % len(_HAIR_STYLES)],
-        "accessory": _ACCESSORIES[(h >> 6) % len(_ACCESSORIES)],
-        "brow":      _EYEBROWS[(h >> 10) % len(_EYEBROWS)],
-        "build":     0.92 + ((h >> 13) % 5) * 0.04,
-        "height":    0.94 + ((h >> 17) % 5) * 0.03,
+        "head":       _HEAD_SHAPES[h % len(_HEAD_SHAPES)],
+        "hair":       hair_pool[(h >> 3) % len(hair_pool)],
+        "accessory":  _ACCESSORIES[(h >> 6) % len(_ACCESSORIES)],
+        "brow":       _EYEBROWS[(h >> 10) % len(_EYEBROWS)],
+        "build":      0.92 + ((h >> 13) % 5) * 0.04,
+        "height":     0.94 + ((h >> 17) % 5) * 0.03,
+        "gender":     gender,
+        # Restroom-sign convention: women get the triangular skirt
+        # silhouette, men get straight pants. Universally legible.
+        "body_style": "skirt" if gender == "f" else "pants",
     }
     desc = _INTROS.get(name.upper())
     if desc:
         base = _override_from_desc(base, desc)
+        # Skirt/dress wording in the descriptor wins.
+        if any(w in desc.lower() for w in ("dress", "skirt", "saree", "sari")):
+            base["body_style"] = "skirt"
+        if any(w in desc.lower() for w in ("trousers", "jeans", "pants", "kurta")):
+            base["body_style"] = "pants"
     return base
 
 
 # ---- Hair / accessories ---------------------------------------------
+
+def _hair_silhouette(cx: float, head_cy: float, head_r: float,
+                     style: str) -> Optional[List[Tuple[float, float]]]:
+    """Closed polygon for the hair silhouette, suitable for solid fill
+    OR for stroking. Returns None for bald."""
+    if style == "bald":
+        return None
+    r = head_r
+    if style == "short":
+        return [
+            (cx - r * 0.95, head_cy - r * 0.55),
+            (cx - r * 0.95, head_cy - r * 0.95),
+            (cx - r * 0.6,  head_cy - r * 1.10),
+            (cx,            head_cy - r * 1.18),
+            (cx + r * 0.6,  head_cy - r * 1.10),
+            (cx + r * 0.95, head_cy - r * 0.95),
+            (cx + r * 0.95, head_cy - r * 0.55),
+            (cx + r * 0.55, head_cy - r * 0.62),
+            (cx,            head_cy - r * 0.55),
+            (cx - r * 0.55, head_cy - r * 0.62),
+            (cx - r * 0.95, head_cy - r * 0.55),
+        ]
+    if style == "long":
+        return [
+            (cx - r * 1.05, head_cy + r * 1.4),
+            (cx - r * 1.05, head_cy - r * 0.4),
+            (cx - r * 0.95, head_cy - r * 1.15),
+            (cx,            head_cy - r * 1.22),
+            (cx + r * 0.95, head_cy - r * 1.15),
+            (cx + r * 1.05, head_cy - r * 0.4),
+            (cx + r * 1.05, head_cy + r * 1.4),
+            (cx + r * 0.7,  head_cy + r * 1.4),
+            (cx + r * 0.6,  head_cy - r * 0.2),
+            (cx,            head_cy - r * 0.55),
+            (cx - r * 0.6,  head_cy - r * 0.2),
+            (cx - r * 0.7,  head_cy + r * 1.4),
+            (cx - r * 1.05, head_cy + r * 1.4),
+        ]
+    if style == "bun":
+        return [
+            (cx - r * 0.9, head_cy - r * 0.55),
+            (cx - r * 0.9, head_cy - r * 0.95),
+            (cx,           head_cy - r * 1.05),
+            (cx + r * 0.9, head_cy - r * 0.95),
+            (cx + r * 0.9, head_cy - r * 0.55),
+            (cx + r * 0.5, head_cy - r * 0.6),
+            (cx,           head_cy - r * 0.55),
+            (cx - r * 0.5, head_cy - r * 0.6),
+            (cx - r * 0.9, head_cy - r * 0.55),
+        ]
+    if style == "cap":
+        return [
+            (cx - r * 1.0,  head_cy - r * 0.5),
+            (cx - r * 0.95, head_cy - r * 1.05),
+            (cx + r * 0.95, head_cy - r * 1.05),
+            (cx + r * 1.0,  head_cy - r * 0.5),
+            (cx + r * 1.5,  head_cy - r * 0.35),
+            (cx + r * 1.5,  head_cy - r * 0.2),
+            (cx + r * 0.4,  head_cy - r * 0.35),
+            (cx + r * 0.0,  head_cy - r * 0.50),
+            (cx - r * 1.0,  head_cy - r * 0.5),
+        ]
+    if style == "side":
+        return [
+            (cx - r * 0.95, head_cy - r * 0.55),
+            (cx - r * 0.5,  head_cy - r * 1.10),
+            (cx + r * 0.7,  head_cy - r * 1.05),
+            (cx + r * 0.4,  head_cy - r * 0.40),
+            (cx + r * 0.2,  head_cy - r * 0.55),
+            (cx - r * 0.2,  head_cy - r * 0.50),
+            (cx - r * 0.95, head_cy - r * 0.55),
+        ]
+    return None
+
 
 def _draw_hair(
     draw: ImageDraw.ImageDraw, cx: float, head_cy: float, head_r: float,
@@ -300,6 +409,17 @@ def _draw_hair(
 ):
     if style == "bald":
         return
+    # Spot-blacks: fill hair silhouette solid for the styles that have
+    # one. Buzz/tuft are stipple/stroke-only and stay outline-driven.
+    silhouette = _hair_silhouette(cx, head_cy, head_r, style)
+    if silhouette and _STYLE.spot_blacks:
+        # Solid fill, then wobble outline on top so the edge has
+        # texture instead of looking laser-cut.
+        draw.polygon(silhouette, fill=INK)
+        _wobble_polyline(draw, silhouette, rng=rng, jitter=0.8,
+                         width=_STYLE.stroke_key)
+        return
+    # Outline-only fallback, original lines:
     if style == "short":
         _wobble_polyline(
             draw,
@@ -308,7 +428,7 @@ def _draw_hair(
              (cx,                 head_cy - head_r * 1.18),
              (cx + head_r * 0.6,  head_cy - head_r * 1.1),
              (cx + head_r * 0.95, head_cy - head_r * 0.55)],
-            rng=rng, jitter=1.0,
+            rng=rng, jitter=1.0, width=_STYLE.stroke_inner,
         )
     elif style == "buzz":
         # Dotted stipple along the scalp.
@@ -316,79 +436,21 @@ def _draw_hair(
             ax = cx + k * (head_r * 0.18)
             ay = head_cy - head_r * 0.92 + (abs(k) % 2) * 2
             draw.ellipse((ax - 2, ay - 2, ax + 2, ay + 2), fill=INK)
-    elif style == "bun":
-        _wobble_circle(draw, cx, head_cy - head_r * 1.15, head_r * 0.42,
-                       rng=rng, jitter=0.8, segments=20)
-        _wobble_polyline(
-            draw,
-            [(cx - head_r * 0.9, head_cy - head_r * 0.5),
-             (cx,                head_cy - head_r * 0.95),
-             (cx + head_r * 0.9, head_cy - head_r * 0.5)],
-            rng=rng, jitter=0.8,
-        )
     elif style == "tuft":
-        # Two upward tufts.
+        # Two upward tufts (no silhouette; stays line art).
         _wobble_polyline(
             draw,
             [(cx - head_r * 0.55, head_cy - head_r * 0.95),
              (cx - head_r * 0.3,  head_cy - head_r * 1.35),
              (cx - head_r * 0.05, head_cy - head_r * 0.95)],
-            rng=rng, jitter=0.6,
+            rng=rng, jitter=0.6, width=_STYLE.stroke_inner,
         )
         _wobble_polyline(
             draw,
             [(cx + head_r * 0.05, head_cy - head_r * 0.95),
              (cx + head_r * 0.3,  head_cy - head_r * 1.35),
              (cx + head_r * 0.55, head_cy - head_r * 0.95)],
-            rng=rng, jitter=0.6,
-        )
-    elif style == "cap":
-        # Baseball-cap silhouette.
-        _wobble_polyline(
-            draw,
-            [(cx - head_r * 1.0,  head_cy - head_r * 0.5),
-             (cx - head_r * 0.95, head_cy - head_r * 1.05),
-             (cx + head_r * 0.95, head_cy - head_r * 1.05),
-             (cx + head_r * 1.0,  head_cy - head_r * 0.5)],
-            rng=rng, jitter=0.8,
-        )
-        # Bill
-        _wobble_polyline(
-            draw,
-            [(cx + head_r * 0.2,  head_cy - head_r * 0.5),
-             (cx + head_r * 1.5,  head_cy - head_r * 0.35),
-             (cx + head_r * 1.5,  head_cy - head_r * 0.2),
-             (cx + head_r * 0.4,  head_cy - head_r * 0.35)],
-            rng=rng, jitter=0.6,
-        )
-    elif style == "long":
-        # Hair falls past shoulders.
-        _wobble_polyline(
-            draw,
-            [(cx - head_r * 1.05, head_cy - head_r * 0.4),
-             (cx - head_r * 0.95, head_cy - head_r * 1.15),
-             (cx,                 head_cy - head_r * 1.22),
-             (cx + head_r * 0.95, head_cy - head_r * 1.15),
-             (cx + head_r * 1.05, head_cy - head_r * 0.4)],
-            rng=rng, jitter=1.0,
-        )
-        _wobble_line(draw,
-                     (cx - head_r * 1.05, head_cy - head_r * 0.4),
-                     (cx - head_r * 0.95, head_cy + head_r * 1.4),
-                     rng=rng, jitter=1.2)
-        _wobble_line(draw,
-                     (cx + head_r * 1.05, head_cy - head_r * 0.4),
-                     (cx + head_r * 0.95, head_cy + head_r * 1.4),
-                     rng=rng, jitter=1.2)
-    elif style == "side":
-        # Side-swept fringe.
-        _wobble_polyline(
-            draw,
-            [(cx - head_r * 0.95, head_cy - head_r * 0.55),
-             (cx - head_r * 0.5,  head_cy - head_r * 1.1),
-             (cx + head_r * 0.7,  head_cy - head_r * 1.05),
-             (cx + head_r * 0.4,  head_cy - head_r * 0.4)],
-            rng=rng, jitter=0.8,
+            rng=rng, jitter=0.6, width=_STYLE.stroke_inner,
         )
 
 
@@ -413,10 +475,21 @@ def _draw_eyebrows(
 def _draw_accessory(
     draw, *, accessory: str, cx: float, shoulder_y: float,
     head_cy: float, head_r: float, hip_y: float, scale: float,
-    facing: int, rng: random.Random,
+    facing: int, rng: random.Random, behind_body: bool = False,
 ):
+    """Draws the visible part of an accessory.
+
+    `behind_body=True` draws ONLY accessories that hang on the back
+    (backpack, satchel) and skips the rest. `behind_body=False` does
+    the opposite: skips back-worn items, draws everything that sits
+    in front of the body (apron, scarf, glasses, headphones)."""
     s = scale
     if accessory == "none":
+        return
+    is_back_worn = accessory in ("backpack", "satchel")
+    if behind_body and not is_back_worn:
+        return
+    if (not behind_body) and is_back_worn:
         return
     if accessory == "headphones":
         # U-arc over the head; cups at the temples.
@@ -438,36 +511,50 @@ def _draw_accessory(
         bx = cx + (-1 if facing >= 0 else 1) * 18 * s
         bw = 56 * s
         bh = 100 * s
-        _wobble_rect(draw,
-                     bx - bw / 2, shoulder_y + 6,
-                     bx + bw / 2, shoulder_y + bh,
-                     rng=rng, jitter=0.8)
-        # Strap
+        pack = [
+            (bx - bw / 2, shoulder_y + 6),
+            (bx + bw / 2, shoulder_y + 6),
+            (bx + bw / 2, shoulder_y + bh),
+            (bx - bw / 2, shoulder_y + bh),
+            (bx - bw / 2, shoulder_y + 6),
+        ]
+        if _STYLE.spot_blacks:
+            draw.polygon(pack, fill=INK)
+            _wobble_polyline(draw, pack, rng=rng, jitter=0.8,
+                             width=_STYLE.stroke_key)
+        else:
+            _wobble_polyline(draw, pack, rng=rng, jitter=0.8,
+                             width=_STYLE.stroke_key)
+        # Strap (always thin)
         _wobble_polyline(
             draw,
             [(cx - 22 * s, shoulder_y + 4),
              (cx - 22 * s, shoulder_y + 50 * s),
              (bx - bw / 2 + 4, shoulder_y + 50 * s)],
-            rng=rng, jitter=0.6, width=STROKE - 1,
+            rng=rng, jitter=0.6, width=_STYLE.stroke_inner,
         )
     elif accessory == "apron":
-        # Trapezoid over torso.
-        _wobble_polyline(
-            draw,
-            [(cx - 30 * s, shoulder_y + 8),
-             (cx + 30 * s, shoulder_y + 8),
-             (cx + 38 * s, hip_y - 4),
-             (cx - 38 * s, hip_y - 4),
-             (cx - 30 * s, shoulder_y + 8)],
-            rng=rng, jitter=0.8,
-        )
+        apron = [
+            (cx - 30 * s, shoulder_y + 8),
+            (cx + 30 * s, shoulder_y + 8),
+            (cx + 38 * s, hip_y - 4),
+            (cx - 38 * s, hip_y - 4),
+            (cx - 30 * s, shoulder_y + 8),
+        ]
+        if _STYLE.spot_blacks:
+            draw.polygon(apron, fill=INK)
+            _wobble_polyline(draw, apron, rng=rng, jitter=0.8,
+                             width=_STYLE.stroke_key)
+        else:
+            _wobble_polyline(draw, apron, rng=rng, jitter=0.8,
+                             width=_STYLE.stroke_key)
         # Neck loop
         _wobble_polyline(
             draw,
             [(cx - 22 * s, shoulder_y + 8),
              (cx,          shoulder_y - 22 * s),
              (cx + 22 * s, shoulder_y + 8)],
-            rng=rng, jitter=0.6, width=STROKE - 1,
+            rng=rng, jitter=0.6, width=_STYLE.stroke_inner,
         )
     elif accessory == "scarf":
         # Wrap around neck with two tails.
@@ -496,6 +583,47 @@ def _draw_accessory(
                      (cx + 22 * s, shoulder_y + 2),
                      (bx, shoulder_y + 60 * s),
                      rng=rng, jitter=0.6, width=STROKE - 1)
+
+
+# ---- Mitten hand ----------------------------------------------------
+
+def _draw_mitten(
+    draw: ImageDraw.ImageDraw,
+    pos: Tuple[float, float],
+    elbow: Tuple[float, float],
+    *,
+    side: int,                       # +1 thumb on outer side, -1 inner
+    scale: float,
+    rng: random.Random,
+    color: Tuple[int, int, int] = INK,
+):
+    """Cartoon mitten: rounded palm + thumb tick. Hand is oriented along
+    the forearm vector so it always reads as 'attached', regardless of
+    arm angle."""
+    s = scale
+    hx, hy = pos
+    ex, ey = elbow
+    dx = hx - ex
+    dy = hy - ey
+    L = max(1.0, (dx * dx + dy * dy) ** 0.5)
+    ax, ay = dx / L, dy / L           # arm forward direction
+    nx, ny = -ay, ax                  # arm normal
+    palm_r = 7 * s
+    palm_cx = hx + ax * 2 * s
+    palm_cy = hy + ay * 2 * s
+    # Palm outline
+    _wobble_circle(draw, palm_cx, palm_cy, palm_r, rng=rng,
+                   jitter=0.6, segments=18,
+                   width=_STYLE.stroke_inner,
+                   color=color)
+    # Thumb: a short stub on `side` of the palm
+    th_base = (palm_cx + nx * side * palm_r * 0.6,
+               palm_cy + ny * side * palm_r * 0.6)
+    th_tip  = (palm_cx + nx * side * palm_r * 1.4 + ax * palm_r * 0.6,
+               palm_cy + ny * side * palm_r * 1.4 + ay * palm_r * 0.6)
+    _wobble_line(draw, th_base, th_tip, rng=rng, jitter=0.4,
+                 segments=3, width=_STYLE.stroke_inner,
+                 color=color)
 
 
 # ---- Mouth -----------------------------------------------------------
@@ -568,21 +696,40 @@ def _draw_figure(
             fill=BG,
         )
 
-    # ---- Torso (sides only — clean stick-figure read) ----
-    _wobble_line(draw, l_sh, l_hip, rng=rng, color=color)
-    _wobble_line(draw, r_sh, r_hip, rng=rng, color=color)
-    _wobble_line(draw, l_sh, r_sh, rng=rng, jitter=1.0, color=color)
+    key_w = st.stroke_key
+    inner_w = st.stroke_inner
 
-    # ---- Neck ----
+    # ---- Torso (sides only — clean stick-figure read, keylines) ----
+    _wobble_line(draw, l_sh, l_hip, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, r_sh, r_hip, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, l_sh, r_sh, rng=rng, jitter=1.0, color=color,
+                 width=key_w)
+
+    # Cross-hatch on the shadow side (opposite of facing) for body
+    # form. Skip for faded listeners.
+    if color == INK and st.cross_hatch:
+        shade_x_l = cx + (-1 if facing >= 0 else 1) * shoulder_dx * 0.55
+        shade_x_r = cx + (-1 if facing >= 0 else 1) * shoulder_dx * 0.95
+        for k in range(4):
+            t = (k + 1) / 6
+            y = shoulder_y + (hip_y - shoulder_y) * t
+            x0 = shade_x_l - 4 * s
+            x1 = shade_x_r + 4 * s
+            _wobble_line(draw, (min(x0, x1), y), (max(x0, x1), y),
+                         rng=rng, jitter=0.5, segments=3,
+                         width=max(1, inner_w - 1), color=color)
+
+    # ---- Neck (keyline) ----
     _wobble_line(draw, (cx, shoulder_y), neck_top, rng=rng,
-                 jitter=0.7, segments=4, color=color)
+                 jitter=0.7, segments=4, color=color, width=key_w)
 
-    # ---- Head ----
+    # ---- Head (keyline) ----
     if traits["head"] == "round":
-        _wobble_circle(draw, cx, head_cy, head_r, rng=rng, color=color)
+        _wobble_circle(draw, cx, head_cy, head_r, rng=rng, color=color,
+                       width=key_w)
     elif traits["head"] == "oval":
         _wobble_ellipse(draw, cx, head_cy, head_r * 0.85, head_r * 1.05,
-                        rng=rng, color=color)
+                        rng=rng, color=color, width=key_w)
     else:  # square
         _wobble_polyline(
             draw,
@@ -591,8 +738,17 @@ def _draw_figure(
              (cx + head_r * 0.95, head_cy + head_r * 0.7),
              (cx - head_r * 0.95, head_cy + head_r * 0.7),
              (cx - head_r * 0.9, head_cy - head_r * 0.95)],
-            rng=rng, jitter=1.0, color=color,
+            rng=rng, jitter=1.0, color=color, width=key_w,
         )
+
+    # ---- Chin tick (subtle) ----
+    if color == INK:
+        chin_y = head_cy + head_r * 0.78
+        chin_dx = head_r * 0.18
+        _wobble_line(draw, (cx - chin_dx, chin_y),
+                     (cx + chin_dx, chin_y + 1),
+                     rng=rng, jitter=0.4, segments=3,
+                     width=max(1, inner_w - 1))
 
     # Hair on top
     if color == INK:  # don't draw hair on faded background figures
@@ -609,7 +765,8 @@ def _draw_figure(
             ax = cx + ex * eye_dx + eye_shift
             draw.ellipse((ax - eye_r, eye_y - eye_r,
                           ax + eye_r, eye_y + eye_r),
-                         fill=BG, outline=color, width=max(1, STROKE - 1))
+                         fill=BG, outline=color,
+                         width=max(1, inner_w))
             px = ax + 1.4 * facing
             py = eye_y + 0.6
             draw.ellipse((px - pupil_r, py - pupil_r,
@@ -624,6 +781,16 @@ def _draw_figure(
     if color == INK:
         _draw_eyebrows(draw, cx + eye_shift, head_cy, head_r, traits["brow"],
                        s=s, rng=rng)
+
+    # ---- Nose (small tick between eyes and mouth) ----
+    if color == INK:
+        nose_y_top = head_cy + head_r * 0.10
+        nose_y_bot = head_cy + head_r * 0.30
+        nose_x = cx + (4 if facing >= 0 else -4) * s
+        _wobble_line(draw, (nose_x, nose_y_top),
+                     (nose_x + (3 if facing >= 0 else -3) * s, nose_y_bot),
+                     rng=rng, jitter=0.4, segments=3,
+                     width=max(1, inner_w - 1))
 
     mouth_y = head_cy + head_r * 0.50
     _draw_mouth(draw, cx, mouth_y,
@@ -662,15 +829,16 @@ def _draw_figure(
         r_elbow = (r_sh[0] + 10 * s, r_sh[1] + arm_u)
         r_hand  = (r_elbow[0] + 4 * s, r_elbow[1] + arm_l)
 
-    _wobble_line(draw, l_sh, l_elbow, rng=rng, color=color)
-    _wobble_line(draw, l_elbow, l_hand, rng=rng, color=color)
-    _wobble_line(draw, r_sh, r_elbow, rng=rng, color=color)
-    _wobble_line(draw, r_elbow, r_hand, rng=rng, color=color)
-    # Hands as small open circles
-    _wobble_circle(draw, l_hand[0], l_hand[1], 5 * s, rng=rng,
-                   jitter=0.5, segments=14, width=STROKE - 1, color=color)
-    _wobble_circle(draw, r_hand[0], r_hand[1], 5 * s, rng=rng,
-                   jitter=0.5, segments=14, width=STROKE - 1, color=color)
+    _wobble_line(draw, l_sh, l_elbow, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, l_elbow, l_hand, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, r_sh, r_elbow, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, r_elbow, r_hand, rng=rng, color=color, width=key_w)
+    # Mitten hands: small palm shape with a thumb tick. Better than a
+    # blank circle — reads as a hand even at thumbnail size.
+    _draw_mitten(draw, l_hand, l_elbow, side=-1 * facing,
+                 scale=s, rng=rng, color=color)
+    _draw_mitten(draw, r_hand, r_elbow, side=+1 * facing,
+                 scale=s, rng=rng, color=color)
 
     # ---- Legs ----
     leg_u = st.leg_upper * s
@@ -685,18 +853,73 @@ def _draw_figure(
         r_knee = (r_hip[0] + 2 * s, r_hip[1] + leg_u)
         l_foot = (l_knee[0] - 2 * s, l_knee[1] + leg_l)
         r_foot = (r_knee[0] + 2 * s, r_knee[1] + leg_l)
-    _wobble_line(draw, l_hip, l_knee, rng=rng, color=color)
-    _wobble_line(draw, l_knee, l_foot, rng=rng, color=color)
-    _wobble_line(draw, r_hip, r_knee, rng=rng, color=color)
-    _wobble_line(draw, r_knee, r_foot, rng=rng, color=color)
-    # Feet (short horizontal ticks)
+    if traits.get("body_style") == "skirt":
+        # Triangular skirt — the universally-readable feminine signifier.
+        # Flares from hip line down to mid-thigh, then thinner legs
+        # continue below to the feet. Solid-fill when spot_blacks.
+        skirt_y = (hip_y + (l_knee[1] if pose != "walking" else l_knee[1]
+                            )) / 2
+        flare = 28 * s * bw
+        skirt = [
+            (l_hip[0] + 2 * s, hip_y - 2),
+            (r_hip[0] - 2 * s, hip_y - 2),
+            (cx + flare, skirt_y),
+            (cx - flare, skirt_y),
+            (l_hip[0] + 2 * s, hip_y - 2),
+        ]
+        if color == INK and st.spot_blacks:
+            draw.polygon(skirt, fill=color)
+            _wobble_polyline(draw, skirt, rng=rng, jitter=0.8,
+                             width=key_w, color=color)
+        else:
+            _wobble_polyline(draw, skirt, rng=rng, jitter=0.8,
+                             width=key_w, color=color)
+        # Legs continue from skirt-bottom edges, not from hip.
+        l_leg_top = (cx - flare * 0.35, skirt_y)
+        r_leg_top = (cx + flare * 0.35, skirt_y)
+        _wobble_line(draw, l_leg_top, l_knee, rng=rng,
+                     color=color, width=key_w)
+        _wobble_line(draw, r_leg_top, r_knee, rng=rng,
+                     color=color, width=key_w)
+    else:
+        _wobble_line(draw, l_hip, l_knee, rng=rng, color=color, width=key_w)
+        _wobble_line(draw, r_hip, r_knee, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, l_knee, l_foot, rng=rng, color=color, width=key_w)
+    _wobble_line(draw, r_knee, r_foot, rng=rng, color=color, width=key_w)
+    # Feet — solid filled "shoe" silhouettes when spot_blacks is on,
+    # otherwise short ticks like the classic style.
     foot_dir = facing if facing else 1
-    _wobble_line(draw, l_foot,
-                 (l_foot[0] + foot_dir * 12 * s, l_foot[1]),
-                 rng=rng, jitter=0.6, segments=4, color=color)
-    _wobble_line(draw, r_foot,
-                 (r_foot[0] + foot_dir * 12 * s, r_foot[1]),
-                 rng=rng, jitter=0.6, segments=4, color=color)
+    if color == INK and st.spot_blacks:
+        for fx, fy in (l_foot, r_foot):
+            shoe = [
+                (fx - 4 * s,                 fy - 3 * s),
+                (fx + foot_dir * 14 * s,     fy - 4 * s),
+                (fx + foot_dir * 16 * s,     fy + 1),
+                (fx - 4 * s,                 fy + 2),
+                (fx - 4 * s,                 fy - 3 * s),
+            ]
+            draw.polygon(shoe, fill=color)
+    else:
+        _wobble_line(draw, l_foot,
+                     (l_foot[0] + foot_dir * 12 * s, l_foot[1]),
+                     rng=rng, jitter=0.6, segments=4, color=color,
+                     width=key_w)
+        _wobble_line(draw, r_foot,
+                     (r_foot[0] + foot_dir * 12 * s, r_foot[1]),
+                     rng=rng, jitter=0.6, segments=4, color=color,
+                     width=key_w)
+    # Motion lines for walking figures — short trails BEHIND the
+    # direction of travel (opposite of facing).
+    if color == INK and st.motion_lines and pose == "walking":
+        trail_dir = -1 if facing >= 0 else 1
+        for k in range(3):
+            ty = shoulder_y + 24 * s + k * 22 * s
+            x0 = cx + trail_dir * (shoulder_dx + 14) * s
+            x1 = x0 + trail_dir * 32 * s
+            _wobble_line(draw, (x0, ty), (x1, ty - 2 * s),
+                         rng=rng, jitter=0.5, segments=4,
+                         width=max(1, inner_w))
+
     # Ground-shadow hatching: 4-6 short diagonals under the feet.
     if color == INK and st.ground_shadow:
         sh_y = max(l_foot[1], r_foot[1]) + 6
@@ -1086,6 +1309,63 @@ def _wrap(text: str, font: ImageFont.FreeTypeFont, max_w: int) -> List[str]:
     return lines
 
 
+def _classify_bubble(text: str, parenthetical: Optional[str]) -> str:
+    """Pick a bubble variant from text cues. Returns one of:
+        'thought' — internal monologue (parenthetical "to herself",
+                    "to no one", thinks/muses).
+        'shout'   — text ending with one or more '!'.
+        'speech'  — default rounded bubble.
+    """
+    t = text.strip()
+    p = (parenthetical or "").lower()
+    if any(k in p for k in (
+        "to himself", "to herself", "to no one",
+        "thinks", "thinking", "muses", "to themself",
+        "internal", "inner",
+    )):
+        return "thought"
+    if t.endswith("!") or "!!" in t:
+        return "shout"
+    return "speech"
+
+
+def _bubble_cloud_pts(box_x, box_y, box_w, box_h, n_lobes=10):
+    """Polygon for a cloud-style thought bubble. Lobes around the
+    perimeter with small inward gaps so it reads as 'thought'."""
+    pts: List[Tuple[float, float]] = []
+    cx = box_x + box_w / 2
+    cy = box_y + box_h / 2
+    rx = box_w / 2 + 6
+    ry = box_h / 2 + 6
+    for k in range(n_lobes * 2 + 1):
+        a = (k / (n_lobes * 2)) * math.tau
+        # Alternate outward (lobe peak) and inward (lobe valley)
+        out = (k % 2 == 0)
+        r_mul = 1.05 if out else 0.92
+        pts.append((cx + math.cos(a) * rx * r_mul,
+                    cy + math.sin(a) * ry * r_mul))
+    return pts
+
+
+def _bubble_jagged_pts(box_x, box_y, box_w, box_h, n_spikes=18):
+    """Star/zigzag polygon for a shout bubble."""
+    pts: List[Tuple[float, float]] = []
+    cx = box_x + box_w / 2
+    cy = box_y + box_h / 2
+    rx_o = box_w / 2 + 14
+    ry_o = box_h / 2 + 14
+    rx_i = box_w / 2 - 4
+    ry_i = box_h / 2 - 4
+    for k in range(n_spikes * 2 + 1):
+        a = (k / (n_spikes * 2)) * math.tau - math.pi / 2
+        outer = (k % 2 == 0)
+        rx = rx_o if outer else max(box_w / 2 * 0.85, rx_i)
+        ry = ry_o if outer else max(box_h / 2 * 0.85, ry_i)
+        pts.append((cx + math.cos(a) * rx,
+                    cy + math.sin(a) * ry))
+    return pts
+
+
 def _draw_bubble(
     draw: ImageDraw.ImageDraw,
     text: str,
@@ -1123,49 +1403,92 @@ def _draw_bubble(
         box_x = W - box_w - 60
     box_y = SLUG_BAR_H + 70
 
+    bubble_type = _classify_bubble(text, parenthetical)
+
     # Mask: fill paper colour slightly LARGER than the outline so any
-    # background strokes (awning slats, shelf lines, hill ridges)
-    # within `margin` px of the bubble get cleanly hidden.
-    margin = _STYLE.bubble_margin
+    # background strokes don't crowd the text. Cloud/jagged bubbles
+    # need a wider mask because their outline pokes outside the box.
+    margin = _STYLE.bubble_margin + (
+        14 if bubble_type == "shout" else
+        10 if bubble_type == "thought" else 0)
     draw.rounded_rectangle(
         (box_x - margin, box_y - margin,
          box_x + box_w + margin, box_y + box_h + margin),
         radius=28, fill=BG, outline=None,
     )
-    r = 22
-    pts = [
-        (box_x + r, box_y),
-        (box_x + box_w - r, box_y),
-        (box_x + box_w, box_y + r),
-        (box_x + box_w, box_y + box_h - r),
-        (box_x + box_w - r, box_y + box_h),
-        (box_x + r, box_y + box_h),
-        (box_x, box_y + box_h - r),
-        (box_x, box_y + r),
-        (box_x + r, box_y),
-    ]
-    _wobble_polyline(draw, pts, rng=rng, jitter=1.2, width=STROKE)
 
-    # Tail at the bubble's bottom edge nearest the speaker. Speaker is
-    # below the bubble on the SAME side as the bubble, so the tail
-    # base sits on the inside half of the bubble's bottom edge.
-    if side == "left":
-        tail_base_x = box_x + 50           # left bubble, speaker below-left
+    if bubble_type == "thought":
+        cloud = _bubble_cloud_pts(box_x, box_y, box_w, box_h)
+        # Solid fill + outline so background can't bleed through lobes.
+        draw.polygon(cloud, fill=BG)
+        _wobble_polyline(draw, cloud, rng=rng, jitter=1.0,
+                         width=_STYLE.stroke_inner)
+    elif bubble_type == "shout":
+        jag = _bubble_jagged_pts(box_x, box_y, box_w, box_h)
+        draw.polygon(jag, fill=BG)
+        _wobble_polyline(draw, jag, rng=rng, jitter=0.8,
+                         width=_STYLE.stroke_key)
     else:
-        tail_base_x = box_x + box_w - 80   # right bubble, speaker below-right
+        r = 22
+        pts = [
+            (box_x + r, box_y),
+            (box_x + box_w - r, box_y),
+            (box_x + box_w, box_y + r),
+            (box_x + box_w, box_y + box_h - r),
+            (box_x + box_w - r, box_y + box_h),
+            (box_x + r, box_y + box_h),
+            (box_x, box_y + box_h - r),
+            (box_x, box_y + r),
+            (box_x + r, box_y),
+        ]
+        _wobble_polyline(draw, pts, rng=rng, jitter=1.2, width=STROKE)
+
+    # Tail at the bubble's bottom edge nearest the speaker.
+    if side == "left":
+        tail_base_x = box_x + 50
+    else:
+        tail_base_x = box_x + box_w - 80
     tail_w = 28
     base_cx = tail_base_x + tail_w / 2
     base_cy = box_y + box_h
     dx = anchor[0] - base_cx
     dy = anchor[1] - base_cy
     norm = max(1.0, (dx * dx + dy * dy) ** 0.5)
-    tail_len = 70
-    tip = (base_cx + dx / norm * tail_len, base_cy + dy / norm * tail_len)
-    poly = [(tail_base_x, base_cy - 1),
-            (tail_base_x + tail_w, base_cy - 1), tip]
-    draw.polygon(poly, fill=BG)
-    _wobble_polyline(draw, [poly[0], poly[2]], rng=rng, jitter=1.0, width=STROKE)
-    _wobble_polyline(draw, [poly[1], poly[2]], rng=rng, jitter=1.0, width=STROKE)
+
+    if bubble_type == "thought":
+        # Trail of three shrinking circles from bubble to speaker —
+        # the universal "thought" tail.
+        for k, frac in enumerate((0.30, 0.55, 0.85)):
+            cx_dot = base_cx + dx * frac
+            cy_dot = base_cy + dy * frac
+            r_dot = max(3, 11 - k * 3)
+            draw.ellipse((cx_dot - r_dot, cy_dot - r_dot,
+                          cx_dot + r_dot, cy_dot + r_dot),
+                         fill=BG, outline=INK,
+                         width=max(1, _STYLE.stroke_inner))
+    elif bubble_type == "shout":
+        # A bold, slightly shorter triangle so it points sharply.
+        tail_len = 60
+        tip = (base_cx + dx / norm * tail_len,
+               base_cy + dy / norm * tail_len)
+        poly = [(tail_base_x - 4, base_cy - 1),
+                (tail_base_x + tail_w + 4, base_cy - 1), tip]
+        draw.polygon(poly, fill=BG)
+        _wobble_polyline(draw, [poly[0], poly[2]], rng=rng, jitter=0.6,
+                         width=_STYLE.stroke_key)
+        _wobble_polyline(draw, [poly[1], poly[2]], rng=rng, jitter=0.6,
+                         width=_STYLE.stroke_key)
+    else:
+        tail_len = 70
+        tip = (base_cx + dx / norm * tail_len,
+               base_cy + dy / norm * tail_len)
+        poly = [(tail_base_x, base_cy - 1),
+                (tail_base_x + tail_w, base_cy - 1), tip]
+        draw.polygon(poly, fill=BG)
+        _wobble_polyline(draw, [poly[0], poly[2]], rng=rng, jitter=1.0,
+                         width=STROKE)
+        _wobble_polyline(draw, [poly[1], poly[2]], rng=rng, jitter=1.0,
+                         width=STROKE)
 
     # Text
     cy = box_y + pad
