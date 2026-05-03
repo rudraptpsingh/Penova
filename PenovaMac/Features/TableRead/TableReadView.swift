@@ -428,20 +428,28 @@ struct TableReadView: View {
     }
 
     private func reload() {
-        // Refresh assignments from the store.
+        // First time the sheet opens for a project, auto-assign distinct
+        // voices to every speaking character so they don't all collapse
+        // to the same default. This is the critical fix that turns
+        // "everyone sounds like Vihaan" into "MARCUS sounds like Daniel,
+        // PENNY sounds like Samantha, ZAINA sounds like Karen, …".
+        // Idempotent: only assigns characters without an existing row.
+        try? VoiceAssignmentService.autoAssignSpeakingCharacters(
+            in: [scene],
+            project: project,
+            context: context
+        )
+
         assignments = (try? VoiceAssignmentService.assignments(
             for: project, context: context
         )) ?? [:]
 
-        // Build / rebuild the queue from current settings.
         queue = TableReadEngine.queue(
             for: scene,
             assignments: assignments,
             settings: settings
         )
 
-        // If the queue changed shape mid-read, ask the player to load
-        // the new one. The player handles empty queues gracefully.
         if !queue.isEmpty && player.queue != queue {
             player.stop()
         }
