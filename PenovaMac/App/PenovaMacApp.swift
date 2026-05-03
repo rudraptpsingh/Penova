@@ -301,6 +301,13 @@ struct PenovaMacApp: App {
                     NotificationCenter.default.post(name: .penovaStartNewRevision, object: nil)
                 }
                 .keyboardShortcut("r", modifiers: [.command, .option])
+
+                Divider()
+
+                Button("Voiced Table Read…") {
+                    NotificationCenter.default.post(name: .penovaTableRead, object: nil)
+                }
+                .keyboardShortcut("p", modifiers: [.command, .option])
             }
         }
     }
@@ -313,6 +320,7 @@ extension Notification.Name {
     static let penovaLockScript           = Notification.Name("penova.lockScript")
     static let penovaUnlockScript         = Notification.Name("penova.unlockScript")
     static let penovaStartNewRevision     = Notification.Name("penova.startNewRevision")
+    static let penovaTableRead            = Notification.Name("penova.tableRead")
     static let penovaDeleteFocusedElement = Notification.Name("penova.deleteFocusedElement")
     static let penovaInsertLineAbove      = Notification.Name("penova.insertLineAbove")
     static let penovaInsertLineBelow      = Notification.Name("penova.insertLineBelow")

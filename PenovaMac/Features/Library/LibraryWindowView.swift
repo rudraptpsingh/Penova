@@ -50,6 +50,7 @@ struct LibraryWindowView: View {
     @State private var lockConfirmVisible: Bool = false
     @State private var unlockConfirmVisible: Bool = false
     @State private var pendingSceneDelete: ScriptScene?
+    @State private var tableReadVisible: Bool = false
 
     var body: some View {
         baseShell
@@ -73,6 +74,11 @@ struct LibraryWindowView: View {
             .sheet(isPresented: $reportsSheetVisible) {
                 if let project = currentProject {
                     MacReportsSheet(project: project)
+                }
+            }
+            .sheet(isPresented: $tableReadVisible) {
+                if let scene = selectedScene, let project = currentProject {
+                    TableReadView(scene: scene, project: project)
                 }
             }
             .alert("Lock script for production?", isPresented: $lockConfirmVisible) {
@@ -129,6 +135,11 @@ struct LibraryWindowView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .penovaStartNewRevision)) { _ in
                 startNewRevisionOnCurrentProject()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .penovaTableRead)) { _ in
+                if selectedScene != nil && currentProject != nil {
+                    tableReadVisible = true
+                }
             }
     }
 

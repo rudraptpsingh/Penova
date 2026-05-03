@@ -50,6 +50,7 @@
 		60353FCE2B1B2736F4A0327E /* MeasurePageCountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99E56D4E56DF23224752606 /* MeasurePageCountTests.swift */; };
 		65AC2666F3FB5D7A6BFDE537 /* CharacterDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC097A121D0563C7366C0853 /* CharacterDetailScreen.swift */; };
 		6890FEFB3C5C607E30513344 /* AuthSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186CD4EF2F6FF49FBFB59E9E /* AuthSessionTests.swift */; };
+		68AACC222AB348038351E2E2 /* TableReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A7DF517544EE9FB2619621 /* TableReadView.swift */; };
 		69190BB81A070D08F3251619 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6C7C497012E1651F70AE05C /* Inter-Regular.ttf */; };
 		69E1F46CB2DBE5B025D50B30 /* NewEpisodeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDF152B2B5911C5872F93D18 /* NewEpisodeSheet.swift */; };
 		6CF5E8CDB6236A96F744ED79 /* TitlePageEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C25BEB7974BE6F4BA84EFD /* TitlePageEditorSheet.swift */; };
@@ -109,6 +110,7 @@
 		BDD43D34DCB3FCBC095DCC33 /* FountainImporterRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACEB0FEE449CEF21663BD58E /* FountainImporterRoundTripTests.swift */; };
 		BDE1311061C22D760C53F5D0 /* PenovaLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19317ED789EE4031C852A9D1 /* PenovaLog.swift */; };
 		BE59EA6A43682E9518370802 /* SampleLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F754A3C047E4EDF7AC86442 /* SampleLibrary.swift */; };
+		C229EFA06D4DCE274E7954A9 /* AVSpeechTTSProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDEEF859223563F37B5985CF /* AVSpeechTTSProvider.swift */; };
 		C8D43C249B526F471087DCC4 /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */; };
 		CD037E801F8F3A31C84D0EE7 /* ScenesTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100FB18E1E733E1C82EEC0B2 /* ScenesTabScreen.swift */; };
 		D143841AD50BB0A60EC622FA /* AutocompleteServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5246196E669041E4598BA092 /* AutocompleteServiceTests.swift */; };
@@ -195,6 +197,7 @@
 		386EDCE7010C0660598A1563 /* VoiceCaptureSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCaptureSheet.swift; sourceTree = "<group>"; };
 		386F37873BA0950B02E5CCBC /* PDFKitLineSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitLineSource.swift; sourceTree = "<group>"; };
 		3CE6F3A15D0AD4434CE3EC6D /* PenovaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenovaApp.swift; sourceTree = "<group>"; };
+		47A7DF517544EE9FB2619621 /* TableReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableReadView.swift; sourceTree = "<group>"; };
 		47F8D4BF5A60229036D057F1 /* TitlePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitlePageTests.swift; sourceTree = "<group>"; };
 		48FA741756FA2A09AE863DA3 /* ReportsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsScreen.swift; sourceTree = "<group>"; };
 		49B93544E3ACE8A7F328C5E0 /* ScriptPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptPDFRenderer.swift; sourceTree = "<group>"; };
@@ -273,6 +276,7 @@
 		D47D10D04CF254E3BC8425C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D696D098FCAA572DDDE10A01 /* RobotoMono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RobotoMono-OFL.txt"; sourceTree = "<group>"; };
 		DD0A6DE12015C425ADCD087F /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayfairDisplay.ttf; sourceTree = "<group>"; };
+		DDEEF859223563F37B5985CF /* AVSpeechTTSProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVSpeechTTSProvider.swift; sourceTree = "<group>"; };
 		DE21FB4D260F2E5601AA1A01 /* NewProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProjectSheet.swift; sourceTree = "<group>"; };
 		DE6B1F6492966F2B448907F3 /* PenovaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PenovaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE8B8A33B4AEA01C01A267D0 /* FountainRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainRoundTripTests.swift; sourceTree = "<group>"; };
@@ -554,6 +558,15 @@
 			path = Revisions;
 			sourceTree = "<group>";
 		};
+		66ED50CB128E5BD825001E6E /* TableRead */ = {
+			isa = PBXGroup;
+			children = (
+				DDEEF859223563F37B5985CF /* AVSpeechTTSProvider.swift */,
+				47A7DF517544EE9FB2619621 /* TableReadView.swift */,
+			);
+			path = TableRead;
+			sourceTree = "<group>";
+		};
 		6DAA8A4EA06633B149DFEEA5 /* Editor */ = {
 			isa = PBXGroup;
 			children = (
@@ -716,6 +729,7 @@
 				57FB91B8CC0485D6671C71E2 /* Library */,
 				01EC0CE8109DA8C0A1E7E97D /* Reports */,
 				29250BAA197A78567BDE7477 /* Search */,
+				66ED50CB128E5BD825001E6E /* TableRead */,
 				46FF96DD7B70BB27BC926DAC /* TitlePage */,
 			);
 			path = Features;
@@ -1072,6 +1086,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C229EFA06D4DCE274E7954A9 /* AVSpeechTTSProvider.swift in Sources */,
 				D2976059AECC1EDEB2B09964 /* IndexCardsPane.swift in Sources */,
 				144142179327150946EF429F /* LibrarySidebar.swift in Sources */,
 				2D552732A137B6D9E01EFFFE /* LibraryWindowView.swift in Sources */,
@@ -1088,6 +1103,7 @@
 				FE15DFA88C81ECA666E59F3D /* ScriptEditorPane.swift in Sources */,
 				46DE3194BB6715CAC43F0779 /* SmartGroupPane.swift in Sources */,
 				E33B2E2C309A68CC3113131E /* SmokeTest.swift in Sources */,
+				68AACC222AB348038351E2E2 /* TableReadView.swift in Sources */,
 				6CF5E8CDB6236A96F744ED79 /* TitlePageEditorSheet.swift in Sources */,
 				B2684AB2672FB97DDCFC0481 /* UpdaterService.swift in Sources */,
 			);
