@@ -471,3 +471,103 @@ struct FlowLayout: Layout {
         }
     }
 }
+
+// MARK: - Preview
+//
+// Open this file in Xcode and the canvas-side preview will render the
+// inspector populated with a Mumbai-set scene whose action lines trip
+// every style-check rule. Use this to visually verify the "Style"
+// section renders correctly when iterating on its layout — the live
+// app surface is harder to reach without seeded data.
+
+#Preview("With style marks") {
+    let schema = Schema(PenovaSchema.models)
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(
+        for: schema,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let context = container.mainContext
+
+    let project = Project(title: "Ek Raat Mumbai Mein", logline: "")
+    context.insert(project)
+    let episode = Episode(title: "Arrival", order: 0)
+    episode.project = project
+    project.episodes.append(episode)
+    context.insert(episode)
+
+    let scene = ScriptScene(
+        locationName: "MUMBAI LOCAL TRAIN",
+        location: .interior,
+        time: .night,
+        order: 0
+    )
+    scene.episode = episode
+    episode.scenes.append(scene)
+    scene.beatType = .midpoint
+    scene.bookmarked = true
+    context.insert(scene)
+
+    // Lines that trip every rule:
+    //   • action #1: "the kind of tired that sleep doesn't fix" → cliché
+    //                "is being careful" → passive
+    //   • action #2: "begins to" → cliché
+    //                "quietly" inside parenthetical (separate element)
+    //   • parenthetical: "(quietly)" → adverb
+    //   • dialogue (skipped): proves the section ignores spoken lines
+    let elements: [(SceneElementKind, String, String?)] = [
+        (.action,
+         "Arjun has the kind of tired that sleep doesn't fix. He is being careful with the satchel.",
+         nil),
+        (.action,
+         "The train begins to slow. Outside, headlights cut through the rain.",
+         nil),
+        (.character,     "ZAINA", nil),
+        (.parenthetical, "(quietly)", "ZAINA"),
+        (.dialogue,
+         "You said you wouldn't come back, but here you are quickly disembarking.",
+         "ZAINA"),
+    ]
+    for (i, (kind, text, name)) in elements.enumerated() {
+        let el = SceneElement(kind: kind, text: text, order: i, characterName: name)
+        el.scene = scene
+        scene.elements.append(el)
+        context.insert(el)
+    }
+
+    return SceneInspector(scene: scene)
+        .frame(width: 320, height: 800)
+        .modelContainer(container)
+}
+
+#Preview("Clean scene — section hidden") {
+    let schema = Schema(PenovaSchema.models)
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(
+        for: schema,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let context = container.mainContext
+
+    let project = Project(title: "Demo", logline: "")
+    context.insert(project)
+    let ep = Episode(title: "Pilot", order: 0); ep.project = project
+    project.episodes.append(ep); context.insert(ep)
+    let scene = ScriptScene(
+        locationName: "ROOFTOP",
+        location: .exterior,
+        time: .dawn,
+        order: 0
+    )
+    scene.episode = ep; ep.scenes.append(scene); context.insert(scene)
+    let el = SceneElement(
+        kind: .action,
+        text: "She watches the city wake. Birds. A vendor. A dog.",
+        order: 0
+    )
+    el.scene = scene; scene.elements.append(el); context.insert(el)
+
+    return SceneInspector(scene: scene)
+        .frame(width: 320, height: 800)
+        .modelContainer(container)
+}
