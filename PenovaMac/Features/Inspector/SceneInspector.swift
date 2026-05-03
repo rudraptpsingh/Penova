@@ -28,6 +28,7 @@ struct SceneInspector: View {
                     beatSection(scene: scene)
                     pageSection(scene: scene)
                     charactersSection(scene: scene)
+                    styleSection(scene: scene)
                     Divider()
                         .background(PenovaColor.ink4)
                     deleteSection(scene: scene)
@@ -225,6 +226,118 @@ struct SceneInspector: View {
             }
         }
         .frame(width: 60, height: 3)
+    }
+
+    // MARK: - Style check
+
+    /// Quiet, opinionated style hints over action lines + parentheticals
+    /// in this scene. Surfaces every `StyleMark` produced by
+    /// `StyleCheckService.marks(for:)` as a small card with the matched
+    /// excerpt — the matched span is emphasised in the semantic colour.
+    /// Hidden when the scene has zero marks so a clean scene shows a
+    /// clean inspector.
+    @ViewBuilder
+    private func styleSection(scene: ScriptScene) -> some View {
+        let summary = StyleCheckService.marks(for: scene)
+        let total = summary.reduce(0) { $0 + $1.marks.count }
+        if total > 0 {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    sectionLabel("Style")
+                    Spacer()
+                    Text("\(total) " + (total == 1 ? "mark" : "marks"))
+                        .font(.custom("RobotoMono-Medium", size: 10))
+                        .foregroundStyle(PenovaColor.snow4)
+                }
+                ForEach(Array(summary.enumerated()), id: \.offset) { _, entry in
+                    ForEach(Array(entry.marks.enumerated()), id: \.offset) { _, mark in
+                        styleMarkCard(mark: mark, source: entry.element.text)
+                    }
+                }
+            }
+        }
+    }
+
+    private func styleMarkCard(mark: StyleMark, source: String) -> some View {
+        let colour = styleMarkColour(mark.kind)
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(mark.kind.display.uppercased())
+                .font(PenovaFont.labelTiny)
+                .tracking(PenovaTracking.labelTiny)
+                .foregroundStyle(colour)
+            Text(styleMarkExcerpt(mark: mark, source: source))
+                .font(.custom("RobotoMono-Regular", size: 11.5))
+                .foregroundStyle(PenovaColor.snow2)
+                .lineLimit(3)
+                .truncationMode(.tail)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PenovaColor.ink3)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(colour)
+                .frame(width: 2)
+                .clipShape(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 8,
+                        bottomLeadingRadius: 8
+                    )
+                )
+        }
+    }
+
+    /// Semantic colour per mark kind, drawn from PenovaColor:
+    /// adverb + cliché use `ember` (the "fix this" red); passive uses
+    /// `amber` (the gentler "consider this" tone).
+    private func styleMarkColour(_ kind: StyleMarkKind) -> Color {
+        switch kind {
+        case .adverb, .cliche: return PenovaColor.ember
+        case .passive:         return PenovaColor.amber
+        }
+    }
+
+    /// Build an excerpt around the mark with the matched span emphasised.
+    /// Falls back to the matched substring alone if the mark range can't
+    /// be resolved against the source (shouldn't happen for marks
+    /// produced by StyleCheckService, but we degrade gracefully).
+    private func styleMarkExcerpt(mark: StyleMark, source: String) -> AttributedString {
+        guard let range = mark.range(in: source) else {
+            return AttributedString(mark.matched)
+        }
+        let leading  = source[source.startIndex..<range.lowerBound]
+        let trailing = source[range.upperBound..<source.endIndex]
+
+        // Trim the lead/tail to keep cards compact — show ~32 chars of
+        // context on either side, ellipsised with a leading "…" if we
+        // had to clip.
+        let leadStr = String(leading)
+        let tailStr = String(trailing)
+        let leadDisplay: String = {
+            if leadStr.count > 32 {
+                let start = leadStr.index(leadStr.endIndex, offsetBy: -32)
+                return "… " + String(leadStr[start...])
+            }
+            return leadStr
+        }()
+        let tailDisplay: String = {
+            if tailStr.count > 48 {
+                let end = tailStr.index(tailStr.startIndex, offsetBy: 48)
+                return String(tailStr[..<end]) + " …"
+            }
+            return tailStr
+        }()
+
+        var attr = AttributedString(leadDisplay)
+
+        var matched = AttributedString(mark.matched)
+        matched.foregroundColor = PenovaColor.snow
+        matched.backgroundColor = styleMarkColour(mark.kind).opacity(0.18)
+        attr.append(matched)
+
+        attr.append(AttributedString(tailDisplay))
+        return attr
     }
 
     // MARK: - Beat colour
