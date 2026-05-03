@@ -26,6 +26,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fountain          # noqa: E402
 import shotlist as _sl   # noqa: E402
 import stitch            # noqa: E402
+import render as _render # noqa: E402
+import style as _style   # noqa: E402
 
 
 def _format_secs(s: float) -> str:
@@ -36,7 +38,7 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(
         description="Fountain -> black-outline stop-motion animatic.",
     )
-    ap.add_argument("script", help=".fountain source")
+    ap.add_argument("script", nargs="?", help=".fountain source")
     ap.add_argument("-o", "--out", help="output MP4 path")
     ap.add_argument("--fps", type=int, default=10,
                     help="output frame rate (default 10)")
@@ -44,9 +46,37 @@ def main(argv: list[str]) -> int:
                     help="frames to hold each pose before cycling (default 3)")
     ap.add_argument("--dump-shots", action="store_true",
                     help="print the shot list as JSON and exit (no render)")
+    ap.add_argument("--style", default="calvin",
+                    help=f"visual style — built-ins: "
+                         f"{', '.join(_style.list_presets())}, or pass a "
+                         f"path/name of a saved style json")
+    ap.add_argument("--list-styles", action="store_true",
+                    help="print available styles and exit")
+    ap.add_argument("--save-style", metavar="NAME",
+                    help="save the selected style under NAME and exit "
+                         "(useful after editing a json style file)")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args(argv)
 
+    if args.list_styles:
+        for name in _style.list_presets():
+            print(name)
+        return 0
+
+    try:
+        active_style = _style.load(args.style)
+    except ValueError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    _render.set_style(active_style)
+
+    if args.save_style:
+        path = _style.save_named(active_style, args.save_style)
+        print(f"saved style to {path}")
+        return 0
+
+    if not args.script:
+        ap.error("script is required (or pass --list-styles / --save-style)")
     src_path = args.script
     if not os.path.isfile(src_path):
         print(f"error: {src_path}: no such file", file=sys.stderr)
@@ -56,6 +86,7 @@ def main(argv: list[str]) -> int:
         source = f.read()
 
     doc = fountain.parse(source)
+    _render.seed_intros(_sl.extract_intros(doc))
     shots = _sl.build(doc)
 
     if args.dump_shots:
@@ -88,6 +119,7 @@ def main(argv: list[str]) -> int:
         print(f"  shots:    {len(shots)}")
         print(f"  duration: {_format_secs(total_dur)} @ {args.fps} fps")
         print(f"  hold:     {args.hold} frames/pose")
+        print(f"  style:    {active_style.name}")
         print(f"  output:   {out_path}")
 
     t0 = time.time()
