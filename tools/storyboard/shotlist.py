@@ -65,10 +65,14 @@ class Shot:
     duration_s: float = 1.6
     poses: int = 2       # number of distinct pose variants to alternate
     scene_index: int = 0
-    location: str = ""   # 'INT' | 'EXT' | 'INT/EXT' | ''
+    location: str = ""
     roster: List[str] = field(default_factory=list)
     mentioned: List[str] = field(default_factory=list)
     props: List[str] = field(default_factory=list)
+    # ---- Visual / pacing hints --------------------------------------
+    framing: str = "wide"          # 'wide' | 'close' | 'beat'
+    expression: str = "neutral"    # see EXPRESSIONS below
+    silent: bool = False           # caption box suppressed
 
 
 def _location_tag(heading: str) -> str:
@@ -150,6 +154,20 @@ def _action_duration(text: str) -> float:
     return max(1.6, min(4.5, wc / 2.6))
 
 
+def _dialogue_duration(text: str) -> float:
+    """Reading time + small bonuses for natural pauses (commas,
+    ellipses, em-dashes). Capped so a single dialogue line never
+    holds the audience more than ~7 seconds."""
+    wc = _word_count(text)
+    base = max(1.4, wc / 2.5)
+    # Comma/em-dash ~ a quick breath; ellipsis ~ a long held pause.
+    base += text.count(",") * 0.18
+    base += (text.count("...") + text.count("…")) * 0.9
+    base += text.count(" — ") * 0.3
+    base += text.count(" -- ") * 0.3
+    return min(7.0, base)
+
+
 def _scene_roster(scene: Scene) -> List[str]:
     """First-appearance order of named characters in a scene.
 
@@ -185,6 +203,88 @@ def _scene_roster(scene: Scene) -> List[str]:
 
 
 _INTRO_RE = re.compile(r"\b([A-Z][A-Z'-]{1,30})\s*\(([^)]{1,200})\)")
+
+
+# ---- Expression detection ------------------------------------------
+# Maps regex of likely matches in parenthetical or text to an
+# expression key the renderer understands. Tested in order.
+
+EXPRESSIONS = (
+    "neutral", "thoughtful", "amused", "sad", "tired",
+    "surprised", "intent", "shouting", "downcast",
+)
+
+_EXPR_RULES: List[tuple[re.Pattern, str]] = [
+    # Parenthetical / action-line cues come first; they're explicit.
+    (re.compile(r"\b(smiles?|smiling|grin|grinning|amused|chuckl)",
+                re.I), "amused"),
+    (re.compile(r"\b(weary|exhausted|tired|worn|drained|spent|"
+                r"dragging|breathless)", re.I), "tired"),
+    (re.compile(r"\b(sad|downcast|downbeat|crestfallen|bitter)",
+                re.I), "sad"),
+    (re.compile(r"\b(surprised|shocked|startled|gasps)", re.I),
+     "surprised"),
+    (re.compile(r"\b(intent|focused|stern|serious|pointedly)",
+                re.I), "intent"),
+    (re.compile(r"\b(without looking|looks down|looks away|"
+                r"avoiding|distant|lost in)", re.I), "downcast"),
+    (re.compile(r"\b(to (?:no one|himself|herself|themself)|"
+                r"thinks|muses|under (?:his|her) breath|"
+                r"quietly to)", re.I), "thoughtful"),
+    (re.compile(r"\b(shouts?|yells?|screams?|hollers)", re.I),
+     "shouting"),
+    (re.compile(r"\b(pouring|wiping|reaching|setting|placing|"
+                r"sets|wipes|pours)", re.I), "intent"),
+    (re.compile(r"\b(closes? .* eyes|eyes closed|breathes? in)",
+                re.I), "thoughtful"),
+    (re.compile(r"\b(cradles?|holds?|gathers?)", re.I), "tired"),
+]
+
+
+def _expression_for(text: str, parenthetical: Optional[str]) -> str:
+    """Pick an expression key from a parenthetical (preferred) or the
+    line text. Falls back to neutral."""
+    sources = []
+    if parenthetical:
+        sources.append(parenthetical)
+    if text:
+        sources.append(text)
+    for src in sources:
+        for pat, key in _EXPR_RULES:
+            if pat.search(src):
+                return key
+    if text.endswith("!"):
+        return "shouting"
+    if text.endswith("...") or text.endswith("…"):
+        return "thoughtful"
+    return "neutral"
+
+
+# ---- Beat / framing heuristics -------------------------------------
+
+# Action sentences that match these patterns are short, character-led
+# moments — the comic-strip "beat panel". Render without a caption
+# box, using emotion-aware expression.
+_BEAT_PATTERNS = [
+    re.compile(r"\b(smiles?|smiling|grin)", re.I),
+    re.compile(r"\b(closes? .* eyes|eyes closed)", re.I),
+    re.compile(r"\b(pauses?|silent|silence|holds breath)", re.I),
+    re.compile(r"\b(cradles?|gathers?)", re.I),
+    re.compile(r"\b(looks? (?:down|away|up)|gazes?|stares?)", re.I),
+    re.compile(r"\b(curls?|drifts?|rises?|settles?)", re.I),
+]
+
+
+def _is_beat_sentence(text: str) -> bool:
+    """A 'beat' is a short emotional reaction line — silent in the
+    render, no caption box."""
+    wc = _word_count(text)
+    if wc > 12:
+        return False
+    for pat in _BEAT_PATTERNS:
+        if pat.search(text):
+            return True
+    return False
 
 
 def extract_intros(doc: Document) -> Dict[str, str]:
@@ -321,6 +421,8 @@ def build(doc: Document) -> List[Shot]:
                 for sentence in _split_sentences(el.text):
                     mentions = _detect_mentions(sentence, roster)
                     seen_so_far = cumulative(mentions)
+                    is_beat = _is_beat_sentence(sentence) and bool(mentions)
+                    expr = _expression_for(sentence, None)
                     shots.append(
                         Shot(
                             kind="action",
@@ -333,15 +435,26 @@ def build(doc: Document) -> List[Shot]:
                             roster=list(seen_so_far),
                             mentioned=mentions,
                             props=_detect_props(sentence),
+                            framing="beat" if is_beat else "wide",
+                            expression=expr,
+                            silent=is_beat,
                         )
                     )
                 pending_paren = None
             elif el.kind == "dialogue":
-                wc = _word_count(el.text)
-                dur = max(1.6, wc / 2.5)
                 speaker = el.character
                 if speaker and speaker not in seen_so_far:
                     seen_so_far = cumulative([speaker])
+                # Close-up framing for emotionally-charged dialogue:
+                # any line WITH a parenthetical, the longest lines, or
+                # lines packed with pauses (".", "...", "—").
+                wc = _word_count(el.text)
+                pause_marks = (el.text.count("...") + el.text.count("…")
+                               + el.text.count(" — "))
+                use_close = (pending_paren is not None
+                             or wc >= 12
+                             or pause_marks >= 1)
+                expr = _expression_for(el.text, pending_paren)
                 shots.append(
                     Shot(
                         kind="dialogue",
@@ -349,13 +462,15 @@ def build(doc: Document) -> List[Shot]:
                         text=el.text,
                         character=speaker,
                         parenthetical=pending_paren,
-                        duration_s=dur,
+                        duration_s=_dialogue_duration(el.text),
                         poses=3,
                         scene_index=idx,
                         location=loc,
                         roster=list(seen_so_far),
                         mentioned=[speaker] if speaker else [],
                         props=_detect_props(el.text),
+                        framing="close" if use_close else "wide",
+                        expression=expr,
                     )
                 )
                 pending_paren = None

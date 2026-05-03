@@ -65,15 +65,34 @@ SLUG_BAR_H = _STYLE.slug_bar_h
 
 # ---- Font loader -----------------------------------------------------
 
-def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
-    candidates = (
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if bold
-        else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold
-        else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold
-        else "/System/Library/Fonts/Supplemental/Arial.ttf",
-    )
+def _font(size: int, bold: bool = False, italic: bool = False
+          ) -> ImageFont.FreeTypeFont:
+    """Best-effort system font lookup. Italic and bold-italic variants
+    fall back to roman if the OS doesn't have them."""
+    if bold and italic:
+        candidates = (
+            "/usr/share/fonts/truetype/liberation/LiberationSans-BoldItalic.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-BoldOblique.ttf",
+            "/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf",
+        )
+    elif bold:
+        candidates = (
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        )
+    elif italic:
+        candidates = (
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf",
+            "/System/Library/Fonts/Supplemental/Arial Italic.ttf",
+        )
+    else:
+        candidates = (
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/System/Library/Fonts/Supplemental/Arial.ttf",
+        )
     for path in candidates:
         try:
             return ImageFont.truetype(path, size)
@@ -585,6 +604,186 @@ def _draw_accessory(
                      rng=rng, jitter=0.6, width=STROKE - 1)
 
 
+# ---- Expression-aware face ------------------------------------------
+#
+# Newspaper-comic faces vary mouth + eye + brow together to read an
+# emotion at thumbnail size. These helpers map a small expression
+# vocabulary (neutral, amused, sad, tired, surprised, intent,
+# thoughtful, shouting, downcast) to concrete strokes.
+
+def _draw_eyes(draw, cx, eye_y, eye_dx, *,
+               expression: str, facing: int, s: float,
+               color, inner_w: int, st):
+    eye_r = st.eye_radius * s
+    pupil_r = max(1.0, st.pupil_radius * s)
+
+    for ex in (-1, 1):
+        ax = cx + ex * eye_dx
+        if st.eye_style != "round_pupil":
+            d = max(2, st.eye_radius * s)
+            if expression == "surprised":
+                d *= 1.6
+            draw.ellipse((ax - d, eye_y - d, ax + d, eye_y + d),
+                         fill=color)
+            continue
+
+        # Round eye baseline
+        r = eye_r
+        if expression == "surprised":
+            r = eye_r * 1.5
+        elif expression == "tired" or expression == "thoughtful" \
+                or expression == "downcast":
+            r = eye_r  # full circle, but we'll mask with a half
+        elif expression == "amused":
+            r = eye_r * 0.95
+
+        # Eye-white circle
+        draw.ellipse((ax - r, eye_y - r, ax + r, eye_y + r),
+                     fill=BG, outline=color, width=max(1, inner_w))
+
+        # Half-mask the eye for tired/thoughtful/downcast.
+        # Paint a BG rectangle over the upper half (or lower for sad).
+        if expression in ("tired", "thoughtful"):
+            # heavy upper lid -> half-closed
+            draw.rectangle((ax - r - 1, eye_y - r - 1,
+                            ax + r + 1, eye_y + 0),
+                           fill=BG)
+            # lid line
+            draw.line((ax - r, eye_y, ax + r, eye_y),
+                      fill=color, width=max(1, inner_w))
+        elif expression == "downcast":
+            draw.rectangle((ax - r - 1, eye_y - r - 1,
+                            ax + r + 1, eye_y - r * 0.3),
+                           fill=BG)
+        elif expression == "amused":
+            # Squint: cover the bottom half with BG so the eye becomes
+            # a happy upward-curving slit.
+            draw.rectangle((ax - r - 1, eye_y + 1,
+                            ax + r + 1, eye_y + r + 2),
+                           fill=BG)
+            # curved lid line for the squint
+            draw.arc((ax - r, eye_y - r, ax + r, eye_y + r),
+                     start=180, end=360, fill=color,
+                     width=max(1, inner_w))
+
+        # Pupil — only when the eye is "open"
+        if expression not in ("amused",):
+            shift = 1.4 * facing
+            ydy = 0.6
+            if expression == "downcast":
+                ydy = -r * 0.45
+            elif expression == "thoughtful":
+                shift = -1.4 * facing  # looking inward
+            px = ax + shift
+            py = eye_y + ydy
+            # If lid covers, push pupil down to peek under
+            if expression in ("tired", "thoughtful"):
+                py = eye_y + r * 0.25
+            draw.ellipse((px - pupil_r, py - pupil_r,
+                          px + pupil_r, py + pupil_r),
+                         fill=color)
+
+
+def _draw_expression_brows(draw, cx, head_cy, head_r, expression: str,
+                           default_brow: str, *, s: float,
+                           rng: random.Random, inner_w: int):
+    by = head_cy - head_r * 0.32
+    bx = head_r * 0.42
+    w = max(1, inner_w + 1)
+    if expression == "amused":
+        # Raised arches.
+        for sgn in (-1, 1):
+            x0 = cx + sgn * bx - 8
+            x1 = cx + sgn * bx + 8
+            draw.line((x0, by + 1, x1, by - 4), fill=INK, width=w)
+    elif expression == "intent":
+        # Furrowed: angled inward, slight V over the nose bridge.
+        for sgn in (-1, 1):
+            x0 = cx + sgn * bx - 8
+            x1 = cx + sgn * bx + 8
+            draw.line((x0, by - 3, x1, by + 4), fill=INK, width=w + 1)
+    elif expression == "sad" or expression == "downcast":
+        # Inner-up sad arch.
+        for sgn in (-1, 1):
+            x0 = cx + sgn * bx - 8
+            x1 = cx + sgn * bx + 8
+            draw.line((x0, by + 4, x1, by - 1), fill=INK, width=w)
+    elif expression == "surprised":
+        for sgn in (-1, 1):
+            x0 = cx + sgn * bx - 9
+            x1 = cx + sgn * bx + 9
+            draw.line((x0, by - 4, x1, by - 4), fill=INK, width=w)
+    elif expression == "shouting":
+        for sgn in (-1, 1):
+            x0 = cx + sgn * bx - 9
+            x1 = cx + sgn * bx + 9
+            draw.line((x0, by, x1, by + 5), fill=INK, width=w + 1)
+    elif expression == "thoughtful" or expression == "tired":
+        for sgn in (-1, 1):
+            x0 = cx + sgn * bx - 8
+            x1 = cx + sgn * bx + 8
+            draw.line((x0, by + 2, x1, by + 4), fill=INK, width=w)
+    else:
+        _draw_eyebrows(draw, cx, head_cy, head_r, default_brow,
+                       s=s, rng=rng)
+
+
+def _draw_expression_mouth(draw, mx, my, expression: str, *,
+                            talking: bool, mouth_cycle: int, s: float,
+                            color, inner_w: int, rng: random.Random):
+    w = max(1, inner_w + 1)
+    if talking and expression not in ("amused", "shouting", "sad",
+                                       "surprised"):
+        cycle = mouth_cycle % 3
+        if cycle == 0:
+            draw.line((mx - 8 * s, my, mx + 8 * s, my),
+                      fill=color, width=w)
+        elif cycle == 1:
+            draw.ellipse((mx - 7 * s, my - 3, mx + 7 * s, my + 5),
+                         outline=color, width=w)
+        else:
+            draw.ellipse((mx - 9 * s, my - 5, mx + 9 * s, my + 9),
+                         outline=color, width=w)
+        return
+    if expression == "amused":
+        # Smile arc.
+        draw.arc((mx - 12 * s, my - 4, mx + 12 * s, my + 12),
+                 start=0, end=180, fill=color, width=w + 1)
+    elif expression == "sad":
+        draw.arc((mx - 12 * s, my, mx + 12 * s, my + 18),
+                 start=180, end=360, fill=color, width=w + 1)
+    elif expression == "surprised":
+        # Open "o".
+        draw.ellipse((mx - 6 * s, my - 5, mx + 6 * s, my + 8),
+                     outline=color, width=w)
+    elif expression == "shouting":
+        # Big rectangular open mouth.
+        pts = [(mx - 11 * s, my - 4), (mx + 11 * s, my - 4),
+               (mx + 14 * s, my + 12), (mx - 14 * s, my + 12),
+               (mx - 11 * s, my - 4)]
+        draw.polygon(pts, fill=color)
+    elif expression == "tired":
+        # Slack flat line, slightly downturned at the corners.
+        draw.line((mx - 10 * s, my + 1, mx + 10 * s, my + 1),
+                  fill=color, width=w)
+        draw.line((mx - 10 * s, my + 1, mx - 12 * s, my + 4),
+                  fill=color, width=w)
+        draw.line((mx + 10 * s, my + 1, mx + 12 * s, my + 4),
+                  fill=color, width=w)
+    elif expression == "intent":
+        # Tight straight line.
+        draw.line((mx - 9 * s, my, mx + 9 * s, my),
+                  fill=color, width=w + 1)
+    elif expression == "thoughtful":
+        # Small pursed line, slightly off-center.
+        draw.line((mx - 6 * s, my + 1, mx + 6 * s, my - 1),
+                  fill=color, width=w)
+    else:
+        # Neutral straight closed mouth.
+        draw.line((mx - 7 * s, my, mx + 7 * s, my),
+                  fill=color, width=w)
+
+
 # ---- Mitten hand ----------------------------------------------------
 
 def _draw_mitten(
@@ -663,6 +862,7 @@ def _draw_figure(
     holding: Optional[str] = None,  # 'cup' | 'glass' | 'kettle' | None
     color: Tuple[int, int, int] = INK,
     mask: bool = True,
+    expression: str = "neutral",
 ) -> Dict:
     """Hip is at (cx, cy). Figure ~ 300 px tall at scale=1.0.
 
@@ -754,33 +954,17 @@ def _draw_figure(
     if color == INK:  # don't draw hair on faded background figures
         _draw_hair(draw, cx, head_cy, head_r, traits["hair"], rng=rng)
 
-    # ---- Face — eye style chosen by the active style ----
+    # ---- Face — expression-aware eyes + brows + mouth ----
     eye_y = head_cy + st.eye_offset_y_factor * head_r
     eye_dx = st.eye_dx * s
     eye_shift = 2 * facing if pose != "talking" else 0
-    if st.eye_style == "round_pupil":
-        eye_r = st.eye_radius * s
-        pupil_r = st.pupil_radius * s
-        for ex in (-1, 1):
-            ax = cx + ex * eye_dx + eye_shift
-            draw.ellipse((ax - eye_r, eye_y - eye_r,
-                          ax + eye_r, eye_y + eye_r),
-                         fill=BG, outline=color,
-                         width=max(1, inner_w))
-            px = ax + 1.4 * facing
-            py = eye_y + 0.6
-            draw.ellipse((px - pupil_r, py - pupil_r,
-                          px + pupil_r, py + pupil_r),
-                         fill=color)
-    else:  # "dot"
-        d = st.eye_radius * s if st.eye_radius >= 2 else 2
-        for ex in (-1, 1):
-            ax = cx + ex * eye_dx + eye_shift
-            draw.ellipse((ax - d, eye_y - d, ax + d, eye_y + d),
-                         fill=color)
+    _draw_eyes(draw, cx + eye_shift, eye_y, eye_dx,
+               expression=expression, facing=facing, s=s, color=color,
+               inner_w=inner_w, st=st)
     if color == INK:
-        _draw_eyebrows(draw, cx + eye_shift, head_cy, head_r, traits["brow"],
-                       s=s, rng=rng)
+        _draw_expression_brows(draw, cx + eye_shift, head_cy, head_r,
+                               expression, traits["brow"], s=s,
+                               rng=rng, inner_w=inner_w)
 
     # ---- Nose (small tick between eyes and mouth) ----
     if color == INK:
@@ -793,9 +977,10 @@ def _draw_figure(
                      width=max(1, inner_w - 1))
 
     mouth_y = head_cy + head_r * 0.50
-    _draw_mouth(draw, cx, mouth_y,
-                talking=(pose == "talking"),
-                mouth_cycle=mouth_cycle, s=s)
+    _draw_expression_mouth(draw, cx, mouth_y, expression,
+                            talking=(pose == "talking"),
+                            mouth_cycle=mouth_cycle, s=s, color=color,
+                            inner_w=inner_w, rng=rng)
 
     # ---- Arms (shoulder -> elbow -> hand) ----
     arm_u = st.arm_upper * s
@@ -1507,7 +1692,8 @@ def _draw_caption(
     speaker: Optional[str] = None,
 ):
     W, H = CANVAS
-    f = _font(28)
+    # Italic action narration — distinguishes it from dialogue.
+    f = _font(28, italic=True)
     name_f = _font(24, bold=True)
     pad = 28
     max_w = W - pad * 4
@@ -1675,47 +1861,52 @@ def render_pose(shot: Shot, pose_index: int, *, seed_salt: int = 0) -> Image.Ima
     left_cx, right_cx = 360, 920
 
     if shot.kind == "action":
-        # Stage everyone present, plus undressed props.
         present = list(shot.mentioned)
-        # If nobody is mentioned but the scene already has roster members,
-        # don't pull them in — let the shot be the location alone.
+        is_beat = shot.framing == "beat" or shot.silent
+        figure_scale = 1.15 if is_beat else 1.0
         for i, name in enumerate(present[:2]):
             side = _side_for(name, shot.roster)
             cx = left_cx if side == "left" else right_cx
             facing = 1 if side == "left" else -1
             holding = _holding_for(shot.props, name, shot.roster)
             pose = "holding" if holding else "neutral"
-            # "walks off" / "approaches" -> walking pose
             txt_low = shot.text.lower()
             if any(w in txt_low for w in ("walks", "walked", "walking",
                                            "approaches", "rushes")):
                 pose = "walking"
+            # Center the subject for a beat panel with one character.
+            if is_beat and len(present) == 1:
+                cx = (left_cx + right_cx) / 2
+                facing = 1
             _draw_figure(
                 draw, cx, figure_cy,
                 rng=rng, name=name, pose=pose,
-                facing=facing, scale=1.0, holding=holding,
+                facing=facing, scale=figure_scale, holding=holding,
+                expression=shot.expression,
             )
-            # Name plate just above the head.
             f = _font(24, bold=True)
             label = name.upper()
             bbox = f.getbbox(label)
             nw = bbox[2] - bbox[0]
             draw.text((cx - nw / 2, figure_cy - _STYLE.name_plate_offset),
                       label, fill=INK, font=f)
-        # Foreground (counter etc.) before set-dressing so on-counter
-        # props sit ON TOP of the counter, not behind it.
         _draw_foreground(draw, shot.scene_heading, shot.location, rng=rng)
         held = {h for n in present
                 for h in [_holding_for(shot.props, n, shot.roster)] if h}
         residual_props = [p for p in shot.props if p not in held]
         _scene_props_to_set_dressing(draw, residual_props, rng=rng)
-        _draw_caption(draw, shot.text, rng=rng)
+        if is_beat:
+            # Silent reaction beat — italic line tucked at lower-left,
+            # no caption box. The image carries the moment.
+            f = _font(20, italic=True)
+            draw.text((40, H - 56), shot.text, fill=INK, font=f)
+        else:
+            _draw_caption(draw, shot.text, rng=rng)
         return img
 
     if shot.kind == "dialogue":
         speaker = shot.character
         roster = shot.roster
-        # Place speaker on their side, listener (if any) opposite.
         listener = None
         for n in roster:
             if n != speaker:
@@ -1725,12 +1916,54 @@ def render_pose(shot: Shot, pose_index: int, *, seed_salt: int = 0) -> Image.Ima
         speaker_side = _side_for(speaker, roster) if speaker else "left"
         speaker_cx = left_cx if speaker_side == "left" else right_cx
         speaker_facing = 1 if speaker_side == "left" else -1
+        speaker_pose = "gesture" if pose_index % 3 == 2 else "talking"
+        speaker_holding = _holding_for(shot.props, speaker, roster)
+        if speaker_holding:
+            speaker_pose = "holding"
 
+        # ---- Close-up framing ----
+        # For emotional / long dialogue: bring the speaker close to
+        # camera so the face does the work. Listener becomes a faded
+        # silhouette in the foreground (over-the-shoulder feel).
+        if shot.framing == "close":
+            close_cx = (left_cx + right_cx) / 2
+            close_cy = figure_cy + 80
+            close_scale = 1.55
+            # Faded listener as a low foreground shoulder if present.
+            if listener:
+                ots_cx = (left_cx if speaker_side == "right" else right_cx)
+                ots_cy = figure_cy + 220
+                _draw_figure(
+                    draw, ots_cx, ots_cy,
+                    rng=rng, name=listener, pose="neutral",
+                    facing=(-1 if speaker_side == "right" else 1),
+                    scale=1.4, color=INK_FAINT,
+                )
+            anchors = _draw_figure(
+                draw, close_cx, close_cy,
+                rng=rng, name=speaker, pose=speaker_pose,
+                mouth_cycle=pose_index, facing=speaker_facing,
+                scale=close_scale, holding=speaker_holding,
+                expression=shot.expression,
+            )
+            _draw_foreground(draw, shot.scene_heading, shot.location, rng=rng)
+            bubble_side = speaker_side
+            _draw_bubble(
+                draw, shot.text, rng=rng,
+                anchor=anchors["mouth"], side=bubble_side,
+                font=_font(30),
+                parenthetical=shot.parenthetical,
+            )
+            # No name plate in close-up; the figure size + bubble
+            # already identify the speaker, and a label at this scale
+            # would land on the face.
+            return img
+
+        # ---- Wide two-shot (default) ----
         listener_cx = None
         if listener:
             listener_cx = right_cx if speaker_side == "left" else left_cx
             listener_facing = -1 if speaker_side == "left" else 1
-            # Faded listener first so speaker overlays cleanly.
             _draw_figure(
                 draw, listener_cx, figure_cy,
                 rng=rng, name=listener, pose="neutral",
@@ -1738,22 +1971,14 @@ def render_pose(shot: Shot, pose_index: int, *, seed_salt: int = 0) -> Image.Ima
                 color=INK_FAINT,
             )
 
-        # Speaker — alternate talking / gesture poses with mouth cycle.
-        speaker_pose = "gesture" if pose_index % 3 == 2 else "talking"
-        speaker_holding = _holding_for(shot.props, speaker, roster)
-        if speaker_holding:
-            speaker_pose = "holding"
         anchors = _draw_figure(
             draw, speaker_cx, figure_cy,
             rng=rng, name=speaker, pose=speaker_pose,
             mouth_cycle=pose_index, facing=speaker_facing,
             scale=1.0, holding=speaker_holding,
+            expression=shot.expression,
         )
-        # Foreground (counter etc.) draws over figures.
         _draw_foreground(draw, shot.scene_heading, shot.location, rng=rng)
-        # Speech bubble on the SAME side as the speaker so the tail
-        # only has to drop a short distance to the mouth — comic
-        # convention. A long cross-frame tail reads ambiguously.
         bubble_side = speaker_side
         _draw_bubble(
             draw, shot.text, rng=rng,
@@ -1761,7 +1986,6 @@ def render_pose(shot: Shot, pose_index: int, *, seed_salt: int = 0) -> Image.Ima
             font=_font(28),
             parenthetical=shot.parenthetical,
         )
-        # Name plates LAST so the bubble's mask can't paint over them.
         if listener and listener_cx is not None:
             f = _font(20, bold=True)
             label = listener.upper()
