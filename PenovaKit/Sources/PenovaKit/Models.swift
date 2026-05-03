@@ -702,6 +702,7 @@ public enum PenovaSchema {
         SceneElement.self,
         ScriptCharacter.self,
         WritingDay.self,
-        Revision.self
+        Revision.self,
+        VoiceAssignment.self
     ]
 }
