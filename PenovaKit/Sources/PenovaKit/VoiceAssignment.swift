@@ -164,6 +164,87 @@ public enum VoiceAssignmentService {
         return added
     }
 
+    /// Auto-assign every speaking character that appears in the given
+    /// scenes but doesn't have a row yet. Pulls names from `.character`
+    /// cues and `.dialogue.characterName`. Critical for the Voiced
+    /// Table Read flow where writers haven't necessarily registered
+    /// every speaker in the Characters tab — without this, every
+    /// unregistered speaker falls to the same default catalogue
+    /// suggestion and they all sound identical.
+    ///
+    /// Distinct-voice strategy: each missing character gets a preset
+    /// chosen by hashing the character name into the catalogue's
+    /// speaking presets, biased toward the gender suggested by the
+    /// name's last letter. So MARCUS and PENNY end up on different
+    /// presets even with no roster info.
+    @discardableResult
+    public static func autoAssignSpeakingCharacters(
+        in scenes: [ScriptScene],
+        project: Project,
+        context: ModelContext
+    ) throws -> Int {
+        let existing = try assignments(for: project, context: context)
+        var seen: Set<String> = Set(existing.keys)
+        var added = 0
+
+        var names: [String] = []
+        for scene in scenes {
+            for el in scene.elementsOrdered {
+                let raw: String? = (el.kind == .character)
+                    ? el.text
+                    : (el.kind == .dialogue ? el.characterName : nil)
+                guard let raw, !raw.isEmpty else { continue }
+                let upper = raw.uppercased()
+                if !seen.contains(upper) {
+                    seen.insert(upper)
+                    names.append(upper)
+                }
+            }
+        }
+
+        for name in names {
+            let voiceID = suggestForUnknownCharacter(name: name)
+            _ = try assign(
+                voice: voiceID,
+                to: name,
+                in: project,
+                context: context
+            )
+            added += 1
+        }
+        return added
+    }
+
+    /// Pick a preset for a character we know nothing about beyond its
+    /// name. Walks the catalogue's speaking presets (excluding the
+    /// narrator) and picks one by stable name hash, biased toward the
+    /// gender suggested by the name's last letter. Same character
+    /// gets the same voice across launches.
+    public static func suggestForUnknownCharacter(name: String) -> String {
+        let speaking = VoiceCatalogue.presets
+            .filter { $0.id != VoiceCatalogue.narratorID }
+        guard !speaking.isEmpty else { return VoiceCatalogue.narratorID }
+
+        let inferred: VoiceGender? = inferGender(from: name)
+        let pool: [VoicePreset]
+        switch inferred {
+        case .female:
+            pool = speaking.filter { $0.gender == .female }
+        case .male:
+            pool = speaking.filter { $0.gender == .male }
+        default:
+            pool = speaking
+        }
+        let candidates = pool.isEmpty ? speaking : pool
+
+        var hash: UInt64 = 5381
+        for c in name.utf8 {
+            hash = ((hash << 5) &+ hash) &+ UInt64(c)
+        }
+        let index = Int(hash % UInt64(candidates.count))
+        return candidates[index].id
+    }
+
     // MARK: - Helpers
 
     /// Parse free-form age text ("38", "mid-30s", "early forties") to a
