@@ -155,6 +155,12 @@ public enum CommandSearch {
         public let matchedIndices: [Int]
 
         public var id: String { command.id }
+
+        public init(command: PenovaCommand, score: Int, matchedIndices: [Int]) {
+            self.command = command
+            self.score = score
+            self.matchedIndices = matchedIndices
+        }
     }
 
     /// Score one command against the query.
