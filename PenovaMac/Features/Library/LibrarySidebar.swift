@@ -48,12 +48,20 @@ struct LibrarySidebar: View {
     let projects: [Project]
     @Binding var selectedScene: ScriptScene?
     @Binding var activeSmart: SmartGroup?
+    /// Bubbles user-initiated project actions up to LibraryWindowView,
+    /// which owns the model context + alert + sheet state. Optional so
+    /// preview / SwiftUI canvas instances stay simple.
+    var onRenameProject: (Project) -> Void = { _ in }
+    var onArchiveProject: (Project) -> Void = { _ in }
+    var onTrashProject: (Project) -> Void = { _ in }
+    var onRestoreProject: (Project) -> Void = { _ in }
 
     @State private var query: String = ""
     @State private var openedEpisodes: Set<String> = []
     @State private var openedProjects: Set<String> = []
     @State private var hoveredSmart: SmartGroup?
     @State private var hoveredSceneID: String?
+    @State private var showArchived: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -83,6 +91,12 @@ struct LibrarySidebar: View {
                 .padding(.bottom, 12)
             }
 
+            if hiddenCount > 0 {
+                Divider().background(PenovaColor.ink4)
+                showArchivedToggle
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
             Divider().background(PenovaColor.ink4)
             newProjectButton
                 .padding(.horizontal, 12)
@@ -203,16 +217,54 @@ struct LibrarySidebar: View {
         return VStack(alignment: .leading, spacing: 0) {
             disclosureRow(
                 title: project.title,
-                systemImage: "folder",
+                systemImage: project.status == .archived
+                    ? "archivebox"
+                    : (project.status == .trashed ? "trash" : "folder"),
                 count: project.totalSceneCount,
                 indent: 0,
                 isOpen: isOpen,
                 onToggle: { toggle(&openedProjects, project.id) }
             )
+            .contextMenu { projectContextMenu(for: project) }
+            .opacity(project.status == .active ? 1.0 : 0.55)
             if isOpen {
                 ForEach(project.activeEpisodesOrdered) { episode in
                     episodeNode(episode)
                 }
+            }
+        }
+    }
+
+    /// Right-click menu for a project row in the sidebar. Mirrors the
+    /// iOS Scripts tab — Rename / Archive / Move to Trash. Trashed
+    /// projects expose Restore + Delete forever instead.
+    @ViewBuilder
+    private func projectContextMenu(for project: Project) -> some View {
+        Button("Rename…") { onRenameProject(project) }
+        Divider()
+        switch project.status {
+        case .active:
+            Button("Archive") { onArchiveProject(project) }
+            Button(role: .destructive) {
+                onTrashProject(project)
+            } label: {
+                Text("Move to Trash")
+            }
+        case .archived:
+            Button("Restore") { onRestoreProject(project) }
+            Button(role: .destructive) {
+                onTrashProject(project)
+            } label: {
+                Text("Move to Trash")
+            }
+        case .trashed:
+            Button("Restore") { onRestoreProject(project) }
+            // "Delete forever" reuses onTrashProject — the parent
+            // detects status == .trashed and runs context.delete.
+            Button(role: .destructive) {
+                onTrashProject(project)
+            } label: {
+                Text("Delete forever…")
             }
         }
     }
@@ -326,6 +378,29 @@ struct LibrarySidebar: View {
         if set.contains(id) { set.remove(id) } else { set.insert(id) }
     }
 
+    /// Footer toggle that flips the sidebar between "active only" and
+    /// "all" project visibility. Hidden when no projects are archived
+    /// or trashed — no clutter when there's nothing to reveal.
+    private var showArchivedToggle: some View {
+        Button(action: { showArchived.toggle() }) {
+            HStack(spacing: 8) {
+                Image(systemName: showArchived ? "eye" : "eye.slash")
+                    .foregroundStyle(PenovaColor.snow4)
+                    .font(.system(size: 11))
+                Text(showArchived ? "Hide archived" : "Show archived & trash")
+                    .font(PenovaFont.bodySmall)
+                    .foregroundStyle(PenovaColor.snow3)
+                Spacer()
+                Text("\(hiddenCount)")
+                    .font(.custom("RobotoMono-Medium", size: 10))
+                    .foregroundStyle(PenovaColor.snow4)
+            }
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     private var newProjectButton: some View {
         Button(action: {
             NotificationCenter.default.post(name: .penovaNewProject, object: nil)
@@ -354,15 +429,32 @@ struct LibrarySidebar: View {
     }
     private var bookmarkedCount: Int { allScenes.filter(\.bookmarked).count }
 
+    /// Filter pipeline:
+    ///   1. Hide trashed projects unless `showArchived` is on.
+    ///   2. Hide archived projects unless `showArchived` is on.
+    ///   3. Apply the query string when present.
     private var visibleProjects: [Project] {
-        guard !query.isEmpty else { return projects }
+        let statusFiltered = projects.filter { p in
+            switch p.status {
+            case .active:   return true
+            case .archived: return showArchived
+            case .trashed:  return showArchived
+            }
+        }
+        guard !query.isEmpty else { return statusFiltered }
         let q = query.lowercased()
-        return projects.filter { project in
+        return statusFiltered.filter { project in
             project.title.lowercased().contains(q)
                 || project.activeEpisodesOrdered.contains { ep in
                     ep.scenesOrdered.contains { $0.heading.lowercased().contains(q) }
                 }
         }
+    }
+
+    /// Count of non-active projects — surfaces the "Show archived"
+    /// affordance only when there's something to reveal.
+    private var hiddenCount: Int {
+        projects.filter { $0.status != .active }.count
     }
 
     private func filteredScenes(in episode: Episode) -> [ScriptScene] {
