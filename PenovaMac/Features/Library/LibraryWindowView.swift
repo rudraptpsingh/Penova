@@ -50,6 +50,10 @@ struct LibraryWindowView: View {
     @State private var lockConfirmVisible: Bool = false
     @State private var unlockConfirmVisible: Bool = false
     @State private var pendingSceneDelete: ScriptScene?
+    @State private var renamingProject: Project?
+    @State private var renameDraft: String = ""
+    @State private var pendingProjectTrash: Project?
+    @State private var pendingProjectDeleteForever: Project?
 
     var body: some View {
         baseShell
@@ -99,6 +103,36 @@ struct LibraryWindowView: View {
             } message: {
                 Text("This removes “\(pendingSceneDelete?.heading ?? "")” and every element in it. This can't be undone.")
             }
+            .alert(
+                "Move \"\(pendingProjectTrash?.title ?? "")\" to Trash?",
+                isPresented: Binding(
+                    get: { pendingProjectTrash != nil },
+                    set: { if !$0 { pendingProjectTrash = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) { pendingProjectTrash = nil }
+                Button("Move to Trash", role: .destructive) { confirmTrash() }
+            } message: {
+                Text("The project disappears from the sidebar. Toggle \"Show archived & trash\" at the bottom to restore or delete forever.")
+            }
+            .alert(
+                "Delete \"\(pendingProjectDeleteForever?.title ?? "")\" forever?",
+                isPresented: Binding(
+                    get: { pendingProjectDeleteForever != nil },
+                    set: { if !$0 { pendingProjectDeleteForever = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) { pendingProjectDeleteForever = nil }
+                Button("Delete forever", role: .destructive) { confirmDeleteForever() }
+            } message: {
+                Text("Removes the project and every episode, scene, and character it contains. This can't be undone.")
+            }
+            .sheet(isPresented: Binding(
+                get: { renamingProject != nil },
+                set: { if !$0 { renamingProject = nil } }
+            )) {
+                renameProjectSheet
+            }
             .background(hiddenShortcuts)
             .onAppear {
                 if selectedScene == nil {
@@ -138,7 +172,11 @@ struct LibraryWindowView: View {
                 LibrarySidebar(
                     projects: projects,
                     selectedScene: $selectedScene,
-                    activeSmart: $activeSmart
+                    activeSmart: $activeSmart,
+                    onRenameProject: { startRename(project: $0) },
+                    onArchiveProject: { archive(project: $0) },
+                    onTrashProject: { requestTrash(project: $0) },
+                    onRestoreProject: { restore(project: $0) }
                 )
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
             } detail: {
@@ -536,6 +574,107 @@ struct LibraryWindowView: View {
         context.insert(rev)
         try? context.save()
         PenovaLog.editor.info("New revision started: \(nextColor.display, privacy: .public)")
+    }
+
+    // MARK: - Project management (Mac)
+
+    private func startRename(project: Project) {
+        renamingProject = project
+        renameDraft = project.title
+    }
+
+    private func commitRename() {
+        guard let project = renamingProject else { return }
+        let trimmed = renameDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        project.title = trimmed
+        project.updatedAt = .now
+        try? context.save()
+        renamingProject = nil
+    }
+
+    private func archive(project: Project) {
+        project.status = (project.status == .archived) ? .active : .archived
+        project.updatedAt = .now
+        try? context.save()
+    }
+
+    private func requestTrash(project: Project) {
+        if project.status == .trashed {
+            pendingProjectDeleteForever = project
+        } else {
+            pendingProjectTrash = project
+        }
+    }
+
+    private func confirmTrash() {
+        guard let project = pendingProjectTrash else { return }
+        project.status = .trashed
+        project.trashedAt = .now
+        project.updatedAt = .now
+        try? context.save()
+        if selectedScene?.episode?.project?.id == project.id {
+            selectedScene = projects
+                .filter { $0.status == .active && $0.id != project.id }
+                .flatMap(\.activeEpisodesOrdered)
+                .flatMap(\.scenesOrdered)
+                .first
+        }
+        pendingProjectTrash = nil
+    }
+
+    private func confirmDeleteForever() {
+        guard let project = pendingProjectDeleteForever else { return }
+        if selectedScene?.episode?.project?.id == project.id {
+            selectedScene = projects
+                .filter { $0.id != project.id }
+                .flatMap(\.activeEpisodesOrdered)
+                .flatMap(\.scenesOrdered)
+                .first
+        }
+        context.delete(project)
+        try? context.save()
+        pendingProjectDeleteForever = nil
+    }
+
+    private func restore(project: Project) {
+        project.status = .active
+        project.trashedAt = nil
+        project.updatedAt = .now
+        try? context.save()
+    }
+
+    @ViewBuilder
+    private var renameProjectSheet: some View {
+        VStack(alignment: .leading, spacing: PenovaSpace.m) {
+            Text("Rename project")
+                .font(PenovaFont.title)
+                .foregroundStyle(PenovaColor.snow)
+            TextField("Project name", text: $renameDraft)
+                .textFieldStyle(.plain)
+                .font(PenovaFont.body)
+                .padding(PenovaSpace.sm)
+                .background(PenovaColor.ink3)
+                .clipShape(RoundedRectangle(cornerRadius: PenovaRadius.sm))
+                .foregroundStyle(PenovaColor.snow)
+                .onSubmit { commitRename() }
+
+            HStack {
+                Spacer()
+                Button("Cancel") { renamingProject = nil }
+                    .keyboardShortcut(.cancelAction)
+                Button("Rename") { commitRename() }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderedProminent)
+                    .tint(PenovaColor.amber)
+                    .disabled(
+                        renameDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+                            .isEmpty
+                    )
+            }
+        }
+        .padding(PenovaSpace.l)
+        .frame(width: 420)
     }
 
     /// ⌘P: render the current project to a temporary PDF and open it
