@@ -27,57 +27,249 @@ struct IndexCardsPane: View {
     @Environment(\.modelContext) private var context
 
     @State private var draggingSceneID: String?
+    @State private var overlay: StructureOverlay = .penova
 
     private let columns = [
         GridItem(.adaptive(minimum: 240, maximum: 320), spacing: 16),
     ]
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let firstEp = projects.first?.activeEpisodesOrdered.first {
-                    header(for: firstEp)
-                }
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(allScenes, id: \.id) { scene in
-                        Button(action: {
-                            selectedScene = scene
-                            onOpenScene?(scene)
-                        }) {
-                            SceneCard(scene: scene, isSelected: scene.id == selectedScene?.id)
-                                .opacity(draggingSceneID == scene.id ? 0.35 : 1)
-                        }
-                        .buttonStyle(.plain)
-                        .onDrag {
-                                draggingSceneID = scene.id
-                                PenovaLog.editor.info("drag start: scene \(scene.id, privacy: .public)")
-                                return NSItemProvider(object: scene.id as NSString)
-                            }
-                            .onDrop(
-                                of: [.plainText],
-                                delegate: SceneCardDropDelegate(
-                                    targetScene: scene,
-                                    draggingSceneID: $draggingSceneID,
-                                    onMove: handleDrop
-                                )
-                            )
-                            .contextMenu {
-                                Button("Open in editor") {
-                                    selectedScene = scene
-                                    onOpenScene?(scene)
-                                }
-                                Divider()
-                                Button("Delete scene", role: .destructive) {
-                                    onRequestDelete?(scene)
-                                }
-                            }
+        VStack(spacing: 0) {
+            structureToolbar
+            Divider().background(PenovaColor.ink4)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    if let firstEp = projects.first?.activeEpisodesOrdered.first {
+                        header(for: firstEp)
+                    }
+                    ForEach(visibleBeats, id: \.id) { beat in
+                        beatSection(beat: beat)
+                    }
+                    let unbeated = scenesByBeatID["__unassigned"] ?? []
+                    if !unbeated.isEmpty {
+                        unassignedSection(scenes: unbeated)
                     }
                 }
+                .padding(24)
             }
-            .padding(24)
         }
         .background(PenovaColor.ink0)
         .accessibilityIdentifier(A11yID.cardsPane)
+    }
+
+    // MARK: - Structure toolbar
+
+    /// Pill-style overlay toggle + coverage stat. Penova's beat enum
+    /// stays the source of truth — switching overlays just relabels
+    /// the rail and remaps cards via StructureMapper.
+    private var structureToolbar: some View {
+        HStack(spacing: 14) {
+            Text("STRUCTURE")
+                .font(PenovaFont.labelTiny)
+                .tracking(PenovaTracking.labelTiny)
+                .foregroundStyle(PenovaColor.snow4)
+
+            HStack(spacing: 2) {
+                ForEach(StructureOverlay.allCases, id: \.self) { o in
+                    overlayPill(o)
+                }
+            }
+            .padding(2)
+            .background(PenovaColor.ink2)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Spacer()
+
+            // Coverage pill — % of overlay's beats that have any
+            // assigned scene mapping to them.
+            HStack(spacing: 6) {
+                Text("COVERAGE")
+                    .font(PenovaFont.labelTiny)
+                    .tracking(PenovaTracking.labelTiny)
+                    .foregroundStyle(PenovaColor.snow4)
+                Text(coverageLabel)
+                    .font(.custom("RobotoMono-Medium", size: 11))
+                    .foregroundStyle(PenovaColor.amber)
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 12)
+        .background(PenovaColor.ink1)
+    }
+
+    private func overlayPill(_ o: StructureOverlay) -> some View {
+        let isActive = (overlay == o)
+        return Button(action: { overlay = o }) {
+            HStack(spacing: 5) {
+                Text(o.display)
+                    .font(.system(size: 12, weight: .medium))
+                Text(o.beatCountLabel)
+                    .font(.custom("RobotoMono-Regular", size: 9))
+                    .foregroundStyle(isActive ? PenovaColor.amber.opacity(0.7) : PenovaColor.snow4)
+            }
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isActive ? PenovaColor.ink3 : Color.clear)
+            )
+            .foregroundStyle(isActive ? PenovaColor.amber : PenovaColor.snow3)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var coverageLabel: String {
+        let assigned = Set(allScenes.compactMap(\.beatType))
+        let cov = StructureMapper.coverage(assignedBeats: assigned, overlay: overlay)
+        return "\(Int(cov.coveragePercent * 100))%"
+    }
+
+    // MARK: - Beat sections
+
+    private var visibleBeats: [StructureBeat] { overlay.beats }
+
+    /// Map of overlay-beat-id → scenes that fall under it. Plus an
+    /// "__unassigned" bucket for scenes with no beatType set.
+    private var scenesByBeatID: [String: [ScriptScene]] {
+        var buckets: [String: [ScriptScene]] = [:]
+        for scene in allScenes {
+            guard let beatType = scene.beatType else {
+                buckets["__unassigned", default: []].append(scene)
+                continue
+            }
+            let id = StructureMapper.equivalent(beatType, in: overlay)
+                ?? "__unassigned"
+            buckets[id, default: []].append(scene)
+        }
+        return buckets
+    }
+
+    @ViewBuilder
+    private func beatSection(beat: StructureBeat) -> some View {
+        let scenes = scenesByBeatID[beat.id] ?? []
+        VStack(alignment: .leading, spacing: 12) {
+            beatHeader(beat: beat, count: scenes.count)
+            if scenes.isEmpty {
+                emptyBeatPlaceholder(beat: beat)
+            } else {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(scenes, id: \.id) { scene in
+                        cardButton(for: scene)
+                    }
+                }
+            }
+        }
+    }
+
+    private func beatHeader(beat: StructureBeat, count: Int) -> some View {
+        HStack(alignment: .lastTextBaseline, spacing: 10) {
+            Text(beat.name.uppercased())
+                .font(PenovaFont.labelCaps)
+                .tracking(PenovaTracking.labelCaps)
+                .foregroundStyle(beat.isMidpointAnchor ? PenovaColor.amber : PenovaColor.snow2)
+            Text(beatPageLabel(beat))
+                .font(.custom("RobotoMono-Regular", size: 10))
+                .foregroundStyle(PenovaColor.snow4)
+            Text(beat.description)
+                .font(PenovaFont.bodySmall)
+                .foregroundStyle(PenovaColor.snow4)
+                .italic()
+                .lineLimit(1)
+            Spacer()
+            Text("\(count)")
+                .font(.custom("RobotoMono-Medium", size: 11))
+                .foregroundStyle(PenovaColor.snow4)
+        }
+        .padding(.bottom, 4)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(beat.isMidpointAnchor ? PenovaColor.amber : PenovaColor.ink4)
+                .frame(height: beat.isMidpointAnchor ? 2 : 1)
+        }
+    }
+
+    private func beatPageLabel(_ beat: StructureBeat) -> String {
+        let start = Int(beat.suggestedPageStart * 100)
+        let end = Int(beat.suggestedPageEnd * 100)
+        if start == end { return "p. \(start)%" }
+        return "pp \(start)—\(end)%"
+    }
+
+    private func emptyBeatPlaceholder(beat: StructureBeat) -> some View {
+        HStack {
+            Text("No scenes here yet — drag a card or assign \(beat.name) in the inspector.")
+                .font(PenovaFont.bodySmall)
+                .foregroundStyle(PenovaColor.snow4)
+                .italic()
+            Spacer()
+        }
+        .padding(.horizontal, 12).padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(PenovaColor.ink4, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+        )
+    }
+
+    private func unassignedSection(scenes: [ScriptScene]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .lastTextBaseline, spacing: 10) {
+                Text("UNASSIGNED")
+                    .font(PenovaFont.labelCaps)
+                    .tracking(PenovaTracking.labelCaps)
+                    .foregroundStyle(PenovaColor.snow4)
+                Text("Scenes without a beat — pick one in the inspector.")
+                    .font(PenovaFont.bodySmall)
+                    .foregroundStyle(PenovaColor.snow4)
+                    .italic()
+                Spacer()
+                Text("\(scenes.count)")
+                    .font(.custom("RobotoMono-Medium", size: 11))
+                    .foregroundStyle(PenovaColor.snow4)
+            }
+            .padding(.bottom, 4)
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(PenovaColor.ink4).frame(height: 1)
+            }
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(scenes, id: \.id) { scene in
+                    cardButton(for: scene)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cardButton(for scene: ScriptScene) -> some View {
+        Button(action: {
+            selectedScene = scene
+            onOpenScene?(scene)
+        }) {
+            SceneCard(scene: scene, isSelected: scene.id == selectedScene?.id)
+                .opacity(draggingSceneID == scene.id ? 0.35 : 1)
+        }
+        .buttonStyle(.plain)
+        .onDrag {
+            draggingSceneID = scene.id
+            PenovaLog.editor.info("drag start: scene \(scene.id, privacy: .public)")
+            return NSItemProvider(object: scene.id as NSString)
+        }
+        .onDrop(
+            of: [.plainText],
+            delegate: SceneCardDropDelegate(
+                targetScene: scene,
+                draggingSceneID: $draggingSceneID,
+                onMove: handleDrop
+            )
+        )
+        .contextMenu {
+            Button("Open in editor") {
+                selectedScene = scene
+                onOpenScene?(scene)
+            }
+            Divider()
+            Button("Delete scene", role: .destructive) {
+                onRequestDelete?(scene)
+            }
+        }
     }
 
     private func header(for episode: Episode) -> some View {
