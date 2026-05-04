@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Penova 1.2.0 — release notes</title>
+<style>
+  body { background: #0b0a08; color: #efe9db;
+         font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+         font-size: 14px; line-height: 1.55; margin: 24px; max-width: 720px; }
+  h1 { font-size: 22px; margin: 0 0 16px; color: #fff; }
+  h2 { font-size: 16px; margin: 28px 0 8px; color: #f0a94a; }
+  h3 { font-size: 13px; margin: 18px 0 6px; color: #fff; font-weight: 600; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .date { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+          font-size: 11px; color: #948e80; letter-spacing: 0.06em;
+          text-transform: uppercase; margin-bottom: 18px; }
+  .summary { background: #1a1a17; padding: 14px 16px; border-radius: 8px;
+             border-left: 3px solid #f0a94a; margin-bottom: 22px;
+             font-size: 13.5px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+         font-size: 12.5px; background: #1a1a17; padding: 1px 5px;
+         border-radius: 3px; color: #d4cebe; }
+  kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px; background: #1f1d1a; border: 1px solid #2e2c28;
+        padding: 1px 5px; border-radius: 3px; color: #efe9db; }
+  strong { color: #fff; }
+  em.small { color: #948e80; font-style: normal; font-size: 12px;
+             margin-left: 6px; }
+</style>
+</head>
+<body>
+<h1>Penova 1.2.0</h1>
+<div class="date">4 May 2026 · macOS 14+</div>
+
+<div class="summary">
+  Penova 1.2.0 is the biggest feature release since launch. Six new headline
+  surfaces — the <strong>Command Palette</strong>, a one-click
+  <strong>Save Revision</strong> sheet over the full WGA colour
+  sequence, the <strong>Beat Board</strong> with slidable structure
+  overlays (Field 3-Act / Save the Cat / Hero's Journey), the
+  <strong>Voiced Table Read</strong> on AVSpeech, an inspector
+  <strong>Style Check</strong> that flags adverbs / clichés /
+  passive voice, and a <strong>Sprint timer</strong> in the toolbar.
+  Plus first-class <strong>project rename / archive / trash</strong>
+  on Mac, which the app shipped without.
+</div>
+
+<h2>Headline features</h2>
+
+<h3>⌘K Command Palette</h3>
+<ul>
+  <li>Hit <kbd>⌘K</kbd> anywhere in the app to summon a Linear /
+    Raycast-style modal. Type three letters to find any command —
+    rename a character, save a revision, switch view modes, lock
+    the script, jump to search, generate sides for a character.</li>
+  <li>Sub-sequence fuzzy matching with start, word-boundary, and
+    consecutive-character bonuses (the same flavour Sublime Text
+    and VS Code use). The result you want is usually the first one.</li>
+  <li>Eleven starter commands wired up at launch — the same actions
+    your menu bar already exposes, now reachable by typing.</li>
+</ul>
+
+<h3>One-click Save Revision (⌥⌘R)</h3>
+<ul>
+  <li>An explicit <strong>Save Revision</strong> sheet replaces the
+    silent save-on-shortcut path. Shows the next colour with the WGA
+    paper-stock swatch, today's date, the round number, and an optional
+    note field.</li>
+  <li>Auto-advances through the full WGA sequence — White → Blue →
+    Pink → Yellow → Green → Goldenrod → Buff → Salmon → Cherry → Tan
+    → Ivory → Double White, then wraps. Override the colour pick if
+    you want to jump.</li>
+  <li>Round number tracks independently of colour, so "Round #14" is
+    always meaningful even after the colour wraps.</li>
+  <li>Each revision snapshots the project as a Fountain string —
+    diff-able, restorable, archive-friendly.</li>
+</ul>
+
+<h3>Beat Board with structure overlays</h3>
+<ul>
+  <li>The Index Cards view (⌘2 / View → Index Cards) now renders
+    scenes grouped by beat under a section rail across the top.</li>
+  <li>Toggle the structure: <strong>Penova</strong> (the 6-beat
+    default) / <strong>Field 3-Act</strong> / <strong>Save the Cat</strong>
+    (15 beats) / <strong>Hero's Journey</strong> (12 beats). Same
+    scenes, different scaffolding — best-fit translation of your
+    beat assignments under each model.</li>
+  <li>Empty beats render a dashed-border placeholder telling the
+    writer what's missing — instant feedback that your "Refusal of
+    the Call" needs a scene.</li>
+  <li>Coverage pill shows what percentage of the active overlay's
+    beats have at least one scene mapped to them.</li>
+</ul>
+
+<h3>Voiced Table Read (⌥⌘P)</h3>
+<ul>
+  <li>Hit <kbd>⌥⌘P</kbd> on any scene. The cream paper page renders
+    the scene with a NOW-line halo on the line being read; auto-
+    scrolls as it advances.</li>
+  <li>Per-character voice assignment from a curated catalogue —
+    Vihaan, Aanya, Saraswati, Kabir, Meera, Kai, Rohan, Narrator.
+    Auto-assigned by name + gender heuristic on first open;
+    overridable in the cast panel.</li>
+  <li>Audio plays via Apple's on-device speech engine — no network,
+    no API key, free. Pace, listen-options (action lines / parens /
+    auto-scroll) configurable.</li>
+  <li>Premium voices (much more natural neural-trained voices) are
+    a one-time download from System Settings →
+    Accessibility → Spoken Content. Penova picks the best installed
+    quality automatically — no setting to flip.</li>
+  <li>Curated voice mapping per preset means the same speaker gets
+    the same timbre across sessions; pitch jitter and breath pauses
+    on em-dash / ellipsis / question-mark make the delivery less
+    metronome-flat.</li>
+</ul>
+
+<h3>Style check in the inspector</h3>
+<ul>
+  <li>The right-hand inspector now surfaces a <strong>Style</strong>
+    panel for each scene with the marks the writer might want to fix:
+    <em class="small">— adverbs (<code>quickly</code>, <code>quietly</code>),
+    clichés (<code>we see</code>, <code>begins to</code>, <code>a beat</code>),
+    passive voice (<code>is being</code>, <code>was watched</code>).</em></li>
+  <li>Quiet, never blocking. Renders as small cards with a quoted
+    excerpt + a 2px coloured strip on the leading edge so a clean
+    scene shows a clean inspector.</li>
+  <li>Curated stop-list keeps "ugly" / "family" / "fly" off the
+    adverb list. Cliché matcher uses word-boundary anchoring so
+    "begins" mid-sentence isn't flagged.</li>
+</ul>
+
+<h3>Sprint timer in the toolbar</h3>
+<ul>
+  <li>Toolbar pill — click to start a focused-writing sprint.
+    Shows live elapsed time and word count vs goal
+    (<code>17:42 · 487 / 1000</code>).</li>
+  <li>Default 25 minutes / 1000 words. Click the chip again to end
+    the session.</li>
+</ul>
+
+<h2>Project management on Mac</h2>
+
+<p>The Mac app shipped without a way to rename, archive, or delete
+projects. 1.2.0 closes that gap, mirroring the iOS Scripts tab pattern.</p>
+
+<ul>
+  <li><strong>Right-click any project</strong> in the sidebar →
+    context menu with <em>Rename… · Archive · Move to Trash</em>.</li>
+  <li>Archived projects render dimmed at 0.55 opacity; trashed
+    projects soft-delete with a confirm alert and disappear from the
+    sidebar.</li>
+  <li>A "Show archived &amp; trash" toggle at the sidebar footer reveals
+    them when needed; <em>Restore</em> brings them back.</li>
+  <li>"Delete forever…" on a trashed project is a second confirm step
+    before the row is permanently removed from the store.</li>
+  <li>If you trash the project owning the selected scene, the editor
+    auto-snaps to a sibling project's scene so you don't see a stale
+    selection.</li>
+</ul>
+
+<h2>Under the hood</h2>
+
+<ul>
+  <li><strong>StyleCheckService</strong> — pure-logic scanner in
+    PenovaKit. 30 unit tests pinning adverb / cliché / passive
+    detection contracts.</li>
+  <li><strong>CommandRegistry + FuzzyMatcher</strong> — the palette's
+    foundation. 25 tests for the matcher and registry.</li>
+  <li><strong>SaveRevisionService</strong> — orchestrates the
+    snapshot → row → colour-advance flow. 20 tests including a
+    five-save round-trip with distinct content edits between saves.</li>
+  <li><strong>StructureOverlay + StructureMapper</strong> — pure data.
+    21 tests covering beat counts, midpoint anchors, page-anchor
+    clamping, and best-fit Penova→other-overlay translation.</li>
+  <li><strong>Voice catalogue + assignment + table-read engine</strong>
+    — 26 tests for the catalogue lookup, assignment service CRUD,
+    queue construction, and settings respected.</li>
+  <li><strong>End-to-end XCUITest</strong> walks every new surface in
+    one deterministic run — Sprint chip, Command Palette, Save
+    Revision, Beat Board, Search, Title Page, Export. Green on every
+    integration commit.</li>
+</ul>
+
+<h2>Two real bugs caught + fixed before ship</h2>
+
+<ul>
+  <li><strong>⌘K didn't open the palette in some launches.</strong>
+    The hidden Button lived in its own <code>.background()</code>
+    modifier that a later one was masking. Fixed by consolidating
+    all the keyboard shortcuts into one responder block.</li>
+  <li><strong>ESC didn't always dismiss the palette.</strong>
+    <code>.onKeyPress(.escape)</code> was on the TextField only — if
+    the field hadn't won focus, ESC was a no-op. Fixed with a window-
+    level <code>cancelAction</code> button.</li>
+</ul>
+
+<h2>Numbers</h2>
+<ul>
+  <li><strong>13 PRs</strong> shipped (12 features + 1 fixup)</li>
+  <li><strong>~150 new unit tests</strong>, plus a comprehensive XCUITest</li>
+  <li><strong>540 tests</strong> total (526 iOS + 14 Mac UI), all green</li>
+  <li><strong>Zero regressions</strong> in the existing suites</li>
+  <li><strong>One additive SwiftData migration</strong> (new
+    <code>VoiceAssignment</code> table) — automatic, no MigrationPlan</li>
+</ul>
+
+<p style="margin-top: 32px; color: #5e5a52; font-size: 12px;">
+  Feedback or bug reports — <a href="mailto:rudra.ptp.singh@gmail.com" style="color: #f0a94a;">rudra.ptp.singh@gmail.com</a>
+  · <a href="tel:+919956340651" style="color: #f0a94a;">+91 99563 40651</a>
+  · <a href="https://wa.me/919956340651" style="color: #f0a94a;">WhatsApp</a>.
+</p>
+</body>
+</html>
