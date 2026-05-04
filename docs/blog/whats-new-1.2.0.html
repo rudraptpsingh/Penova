@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's new in Penova 1.2.0 — Command Palette, Voiced Table Read, Beat Board, Style Check</title>
+<meta name="description" content="Penova 1.2.0 ships six headline features: ⌘K Command Palette, one-click WGA Save Revision, Beat Board with structure overlays, Voiced Table Read on AVSpeech, in-inspector Style Check, and a Sprint timer.">
+<meta name="keywords" content="Penova 1.2.0, screenwriting features, command palette, voiced table read, beat board, style check, save revision, save the cat, hero's journey">
+<link rel="canonical" href="https://penova.pages.dev/blog/whats-new-1.2.0">
+<meta property="og:title" content="What's new in Penova 1.2.0 — six new features that change how you write">
+<meta property="og:description" content="Six headline features land in 1.2.0. Here's what each one does and why it matters.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://penova.pages.dev/blog/whats-new-1.2.0">
+<meta property="og:image" content="https://penova.pages.dev/img/mac/editor.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Penova 1.2.0 — Command Palette, Table Read, Beat Board, Style Check">
+<meta name="twitter:description" content="Six new features in the biggest Penova release since launch.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-style='italic' text-anchor='middle' fill='%23f0a94a'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What's new in Penova 1.2.0 — six new features that change how you write",
+  "datePublished": "2026-05-04",
+  "dateModified": "2026-05-04",
+  "author": { "@type": "Person", "name": "Rudra Pratap Singh" },
+  "publisher": { "@type": "Organization", "name": "Penova",
+                 "logo": { "@type": "ImageObject", "url": "https://penova.pages.dev/img/mac/editor.png" } },
+  "image": "https://penova.pages.dev/img/mac/editor.png",
+  "url": "https://penova.pages.dev/blog/whats-new-1.2.0",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://penova.pages.dev/blog/whats-new-1.2.0" }
+}
+</script>
+</head>
+
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="topnav">
+  <a href="../" class="brand">
+    <img src="../img/penova-mark-32.svg" alt="Penova" width="22" height="22">
+    <span>Penova</span>
+  </a>
+  <a href="./">All posts</a>
+  <a href="https://github.com/rudraptpsingh/Penova">GitHub</a>
+</nav>
+
+<main class="wrap" id="main">
+
+  <header class="post-head">
+    <div class="post-eyebrow">Release notes · 1.2.0</div>
+    <h1>What's new in Penova 1.2.0 — <em>six new features that change how you write</em></h1>
+    <p class="post-deck">
+      The biggest Penova release since launch. ⌘K Command Palette,
+      one-click WGA Save Revision, Beat Board with slidable structure
+      overlays, Voiced Table Read on Apple's on-device speech engine,
+      an in-inspector Style Check that flags adverbs and clichés, and
+      a Sprint timer in the toolbar. All free, all on-device, all
+      shipping today.
+    </p>
+    <div class="post-meta">
+      <span>By Rudra</span>
+      <span>4 May 2026</span>
+      <span>9 min read</span>
+    </div>
+  </header>
+
+  <article>
+
+    <h2>The 30-second tour</h2>
+    <p>
+      Penova 1.2.0 lands six headline features. Each one solves a
+      friction Penova users hit between write-time and production.
+      Each one stays out of your way until you ask for it.
+    </p>
+
+    <ol>
+      <li><strong><a href="#palette">⌘K Command Palette</a></strong>
+        — type three letters, find any command. Linear / Raycast
+        flavour, eleven actions wired up at launch.</li>
+      <li><strong><a href="#revisions">Save Revision (⌥⌘R)</a></strong>
+        — one-click through the full WGA colour sequence with an
+        explicit confirm sheet, optional note, and Fountain snapshot
+        per save.</li>
+      <li><strong><a href="#beatboard">Beat Board with structure overlays</a></strong>
+        — toggle Penova-default / Field 3-Act / Save the Cat / Hero's
+        Journey over the same scene cards. Empty beats render
+        placeholders so you see what's missing.</li>
+      <li><strong><a href="#tableread">Voiced Table Read (⌥⌘P)</a></strong>
+        — hit play, hear the scene. Per-character voice assignment,
+        cream-paper render with NOW-line halo, free Apple speech
+        engine on-device.</li>
+      <li><strong><a href="#style">Style Check in the inspector</a></strong>
+        — quiet ember/amber cards flag adverbs ("quickly"), clichés
+        ("we see", "begins to", "a beat"), and passive voice
+        ("is being"). Never blocking, never preachy.</li>
+      <li><strong><a href="#sprint">Sprint timer in the toolbar</a></strong>
+        — click to start a 25-min / 1000-word session. Live timer +
+        word delta in the toolbar pill.</li>
+    </ol>
+
+    <p>
+      Plus first-class <strong>project rename / archive / trash</strong>
+      on Mac, which the app shipped without. <a href="#projects">Skip
+      to that section</a> if it's the bug you've been waiting on.
+    </p>
+
+    <p style="margin-top: 24px;">
+      <em>Want the full changelog?
+      <a href="../release-notes/1.2.0.html">Read the release notes</a>.</em>
+    </p>
+
+    <hr style="margin: 36px 0; border: none; border-top: 1px solid #2a2925;">
+
+    <!-- ============================== -->
+    <h2 id="palette">⌘K Command Palette</h2>
+    <p>
+      Five years ago Linear taught the productivity world that the
+      whole app should be one keystroke away. Raycast doubled down.
+      Superhuman built a $500/year company on it. <strong>No
+      screenwriting app shipped it</strong> — until now.
+    </p>
+    <p>
+      Hit <kbd>⌘K</kbd> anywhere in Penova. A 640pt modal floats
+      from the top of the window with a single search input. Type
+      "rena" — first result is "Rename character… across 47
+      instances · 14 scenes." Hit ⏎. Done.
+    </p>
+    <p>
+      The matching is sub-sequence with bonuses: <strong>+20</strong>
+      for matches at index 0, <strong>+10</strong> after a word
+      boundary, <strong>+5</strong> for consecutive matches,
+      <strong>+1</strong> baseline. Same flavour as Sublime Text and
+      VS Code. The result you want is usually the first one because
+      it has more bonus structure than the alternatives.
+    </p>
+    <p>
+      Eleven starter commands are wired in 1.2.0 — switch view modes,
+      open search, edit title page, save revision, lock script,
+      unlock script, new scene, generate sides, export, reports,
+      open table read. Each command resolves to the same closure
+      the menu bar item fires, so there's exactly one source of
+      truth.
+    </p>
+
+    <!-- ============================== -->
+    <h2 id="revisions">One-click Save Revision (⌥⌘R)</h2>
+    <p>
+      Pre-1.2.0, ⌥⌘R silently created a revision row. You pressed it,
+      something happened, you weren't sure what. 1.2.0 makes it an
+      explicit confirm sheet — the same conversation a 1st AD has
+      with a writer when revisions go out.
+    </p>
+    <p>
+      The sheet opens with the next colour pre-selected — White →
+      Blue → Pink → Yellow → Green → Goldenrod → Buff → Salmon →
+      Cherry → Tan → Ivory → Double White, then wraps. The colour
+      you'll save shows in <strong style="color: #f0a94a;">amber</strong>
+      next to the date and round number ("<em>Save Pink revision · round
+      #3 since Blue</em>"). A horizontal rail of all eight near-term
+      slots renders the past saves dimmed, the next save with an
+      amber ring, and the future colours faintly visible.
+    </p>
+    <p>
+      An optional note field lets you attach context ("<em>Tightened
+      the diner scene</em>"). The save snapshots the full project as
+      a Fountain string — diff-able in git, restorable later if you
+      need to.
+    </p>
+    <p>
+      Round numbers track independently of colour. After the colour
+      wraps from Cherry → Tan, your round number keeps incrementing —
+      so "Round #14" remains meaningful even if it happens to also
+      be Blue.
+    </p>
+
+    <!-- ============================== -->
+    <h2 id="beatboard">Beat Board with slidable structure overlays</h2>
+    <p>
+      Click the Index Cards icon (⌘2) and the editor swaps to a
+      grouped card view. Across the top, four pills toggle the
+      <strong>structure overlay</strong>: Penova default (the 6
+      beats already in the model — Setup / Inciting / Turn / Midpoint
+      / Climax / Resolution), <strong>Field 3-Act</strong> (Setup /
+      Confrontation / Resolution), <strong>Save the Cat</strong>
+      (Blake Snyder's 15), and <strong>Hero's Journey</strong>
+      (Vogler's 12).
+    </p>
+    <p>
+      Toggle from Penova default to Save the Cat. The same scenes
+      regroup under the new beats. Your Setup-tagged scenes land
+      under "Setup", your Inciting-tagged scenes under "Catalyst",
+      your Midpoint under "Midpoint", your Climax under "Finale".
+      The mapping is <strong>best-fit, not lossy</strong> — the
+      writer's actual `beatType` assignments don't change. The
+      overlay is just a different lens on the same data.
+    </p>
+    <p>
+      Each beat section in the rail shows a name (uppercase, amber
+      gold for the midpoint), the suggested page-range as a
+      percentage (<code>pp 30—55%</code>), and a one-line
+      description. <strong>Empty beats render a dashed-border
+      placeholder</strong> with a cue: "<em>No scenes here yet —
+      drag a card or assign Refusal of the Call in the inspector.</em>"
+      Instant feedback that your structure has a hole.
+    </p>
+    <p>
+      The "COVERAGE 87%" pill on the right counts how many of the
+      overlay's beats have at least one scene mapped to them. A
+      writer with all six Penova beats covered will see "100%" in
+      Penova-default mode and a lower number in Save the Cat mode
+      — because Save the Cat asks for nine more specific beats.
+    </p>
+
+    <!-- ============================== -->
+    <h2 id="tableread">Voiced Table Read (⌥⌘P)</h2>
+    <p>
+      The single most-requested feature on screenwriting forums is
+      "let me hear the script read aloud." 1.2.0 ships it.
+    </p>
+    <p>
+      Hit <kbd>⌥⌘P</kbd> on any scene. A 1100×720 sheet opens with
+      the cream paper page on the left and the cast / voice panel
+      on the right. The line being read lights up with an amber NOW
+      band. The page auto-scrolls as the read advances.
+    </p>
+    <p>
+      Each character is mapped to a voice from a curated catalogue:
+      <strong>Vihaan</strong> (low, weathered, mid-30s),
+      <strong>Aanya</strong> (warm, measured, late-20s),
+      <strong>Saraswati</strong> (clipped, regional, 60s),
+      <strong>Kabir</strong> (gravel, older man),
+      <strong>Meera</strong> (bright, young woman),
+      <strong>Kai</strong> (light, slightly nasal, 20s),
+      <strong>Rohan</strong> (neutral mid-tone), and a
+      <strong>Narrator</strong> for action lines. Auto-assigned by
+      name + gender heuristic on first open; overridable in the cast
+      panel.
+    </p>
+    <p>
+      Audio plays via Apple's on-device <code>AVSpeechSynthesizer</code>
+      — no network call, no API key, no cost. The provider picks
+      <strong>premium &gt; enhanced &gt; default</strong> quality
+      voices automatically. Premium voices on macOS are
+      neural-trained — dramatically more natural than the default
+      tier — but require a one-time download from System Settings →
+      Accessibility → Spoken Content. Penova surfaces a hint in the
+      cast panel pointing you there.
+    </p>
+    <p>
+      Curated voice mapping per preset means the same character
+      gets the same timbre across sessions. Per-utterance pitch
+      jitter and breath pauses on em-dash / ellipsis / question-mark
+      make the delivery less metronome-flat. Pace is tunable in the
+      cast panel.
+    </p>
+    <p>
+      An ElevenLabs adapter behind the same <code>TTSProvider</code>
+      protocol is on the v1.5 roadmap for writers who want
+      studio-grade neural voices. Same architecture; swap one line.
+    </p>
+
+    <!-- ============================== -->
+    <h2 id="style">Style Check in the inspector</h2>
+    <p>
+      The right-hand inspector now has a <strong>Style</strong>
+      section that quietly flags three things in your action lines:
+    </p>
+    <ul>
+      <li><strong>Adverbs</strong> — <code>quickly</code>,
+        <code>quietly</code>, <code>suddenly</code>. Word-ending-in-
+        <em>-ly</em> with a stop-list ("ugly", "family", "fly")
+        keeping false-positives down.</li>
+      <li><strong>Clichés</strong> — twenty curated screenplay tics:
+        <code>we see</code>, <code>begins to</code>, <code>a beat</code>,
+        <code>the kind of tired that sleep doesn't fix</code>.
+        Word-boundary anchored, longest-match-wins.</li>
+      <li><strong>Passive voice</strong> — <code>is being</code>,
+        <code>was being</code>, plus <code>is/are/was/were
+        + past-participle</code>. Conservative; flags less than it
+        misses.</li>
+    </ul>
+    <p>
+      Each finding renders as a small card with a 2px coloured strip
+      on the leading edge — ember red for adverbs and clichés, amber
+      for passive — plus the matched span tinted in the same colour
+      inside a quoted excerpt. Up to ~32 chars of leading context,
+      ~48 trailing, ellipsised when clipped.
+    </p>
+    <p>
+      <strong>Quiet by design.</strong> Hidden when the scene has
+      zero marks (a clean scene shows a clean inspector). No squiggly
+      red underlines on the page. No popups. No nagging. The findings
+      live in a panel you scan when you choose to.
+    </p>
+    <p>
+      Style check skips dialogue entirely (real characters speak
+      naturally), and limits parentheticals to the adverb check (the
+      classic "(quietly)" tic).
+    </p>
+
+    <!-- ============================== -->
+    <h2 id="sprint">Sprint timer</h2>
+    <p>
+      A small toolbar pill that turns into a stopwatch when you click
+      it. Idle: <em>Sprint</em> with a grey dot. Active: <strong
+      style="color: #f0a94a;">00:15 · 487 / 1000</strong> with an
+      amber dot pulsing.
+    </p>
+    <p>
+      Default goal — 25 minutes / 1000 words. Click the chip again
+      to end the session. Word count tracked from session start; no
+      penalty for revising existing prose, the goal is what you ADD
+      during the sprint.
+    </p>
+    <p>
+      Pomodoro purists will recognise the cadence. Writers who don't
+      believe in arbitrary timers can ignore the chip — it's idle
+      until you click it, and the toolbar still works the same with
+      it sitting there.
+    </p>
+
+    <!-- ============================== -->
+    <h2 id="projects">Project management on Mac (the missing-feature fix)</h2>
+    <p>
+      The Mac app shipped without a way to rename, archive, or
+      delete projects. Every project a writer created lived in the
+      sidebar forever. <strong>1.2.0 closes the gap.</strong>
+    </p>
+    <p>
+      <strong>Right-click any project</strong> in the sidebar. The
+      menu shows <em>Rename… · Archive · Move to Trash</em>. Archived
+      projects render dimmed at 0.55 opacity. Trashed projects
+      soft-delete with a confirm alert and disappear from the sidebar.
+    </p>
+    <p>
+      A "Show archived &amp; trash" toggle at the sidebar footer
+      reveals them when you want them. <em>Restore</em> brings them
+      back. <em>Delete forever…</em> on a trashed project is a
+      second confirm step before the row is permanently removed.
+    </p>
+    <p>
+      If you trash the project owning the currently-selected scene,
+      the editor auto-snaps to a sibling scene so you don't see a
+      stale selection.
+    </p>
+
+    <!-- ============================== -->
+    <h2>Numbers</h2>
+    <ul>
+      <li><strong>13 PRs</strong> shipped (12 features + 1 fixup)</li>
+      <li><strong>540 tests</strong> total — 526 iOS unit + 14 Mac UI,
+        all green</li>
+      <li><strong>~150 new unit tests</strong>, plus a deterministic
+        end-to-end XCUITest that walks every new surface in one run</li>
+      <li><strong>Zero regressions</strong> in the existing suite</li>
+      <li><strong>One additive SwiftData migration</strong> (the
+        new <code>VoiceAssignment</code> table) — automatic, no
+        MigrationPlan needed</li>
+    </ul>
+
+    <h2>What's next</h2>
+    <p>
+      The full plan is still public — bring Penova to the web (and
+      Windows) for adoption, ship per-recipient PDF watermarks for
+      production teams, add the ElevenLabs adapter for studio-grade
+      neural voices behind a Pro tier, and finally the
+      drag-card-onto-beat workflow on the Beat Board. Each one
+      stacks on the foundations 1.2.0 just laid.
+    </p>
+
+    <p style="margin-top: 32px;">
+      <em>Penova is free, 3.7 MB, no account.</em>
+      <a href="../" style="color: #f0a94a; font-weight: 500;">
+        Download for Mac →
+      </a>
+    </p>
+
+  </article>
+
+  <footer class="post-foot">
+    <p>
+      Feedback or bug reports —
+      <a href="mailto:rudra.ptp.singh@gmail.com">rudra.ptp.singh@gmail.com</a>
+      · <a href="https://wa.me/919956340651">WhatsApp</a>.
+    </p>
+  </footer>
+
+</main>
+</body>
+</html>
