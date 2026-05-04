@@ -28,6 +28,7 @@ struct SceneInspector: View {
                     beatSection(scene: scene)
                     pageSection(scene: scene)
                     charactersSection(scene: scene)
+                    styleSection(scene: scene)
                     Divider()
                         .background(PenovaColor.ink4)
                     deleteSection(scene: scene)
@@ -227,6 +228,118 @@ struct SceneInspector: View {
         .frame(width: 60, height: 3)
     }
 
+    // MARK: - Style check
+
+    /// Quiet, opinionated style hints over action lines + parentheticals
+    /// in this scene. Surfaces every `StyleMark` produced by
+    /// `StyleCheckService.marks(for:)` as a small card with the matched
+    /// excerpt — the matched span is emphasised in the semantic colour.
+    /// Hidden when the scene has zero marks so a clean scene shows a
+    /// clean inspector.
+    @ViewBuilder
+    private func styleSection(scene: ScriptScene) -> some View {
+        let summary = StyleCheckService.marks(for: scene)
+        let total = summary.reduce(0) { $0 + $1.marks.count }
+        if total > 0 {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    sectionLabel("Style")
+                    Spacer()
+                    Text("\(total) " + (total == 1 ? "mark" : "marks"))
+                        .font(.custom("RobotoMono-Medium", size: 10))
+                        .foregroundStyle(PenovaColor.snow4)
+                }
+                ForEach(Array(summary.enumerated()), id: \.offset) { _, entry in
+                    ForEach(Array(entry.marks.enumerated()), id: \.offset) { _, mark in
+                        styleMarkCard(mark: mark, source: entry.element.text)
+                    }
+                }
+            }
+        }
+    }
+
+    private func styleMarkCard(mark: StyleMark, source: String) -> some View {
+        let colour = styleMarkColour(mark.kind)
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(mark.kind.display.uppercased())
+                .font(PenovaFont.labelTiny)
+                .tracking(PenovaTracking.labelTiny)
+                .foregroundStyle(colour)
+            Text(styleMarkExcerpt(mark: mark, source: source))
+                .font(.custom("RobotoMono-Regular", size: 11.5))
+                .foregroundStyle(PenovaColor.snow2)
+                .lineLimit(3)
+                .truncationMode(.tail)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PenovaColor.ink3)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(colour)
+                .frame(width: 2)
+                .clipShape(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 8,
+                        bottomLeadingRadius: 8
+                    )
+                )
+        }
+    }
+
+    /// Semantic colour per mark kind, drawn from PenovaColor:
+    /// adverb + cliché use `ember` (the "fix this" red); passive uses
+    /// `amber` (the gentler "consider this" tone).
+    private func styleMarkColour(_ kind: StyleMarkKind) -> Color {
+        switch kind {
+        case .adverb, .cliche: return PenovaColor.ember
+        case .passive:         return PenovaColor.amber
+        }
+    }
+
+    /// Build an excerpt around the mark with the matched span emphasised.
+    /// Falls back to the matched substring alone if the mark range can't
+    /// be resolved against the source (shouldn't happen for marks
+    /// produced by StyleCheckService, but we degrade gracefully).
+    private func styleMarkExcerpt(mark: StyleMark, source: String) -> AttributedString {
+        guard let range = mark.range(in: source) else {
+            return AttributedString(mark.matched)
+        }
+        let leading  = source[source.startIndex..<range.lowerBound]
+        let trailing = source[range.upperBound..<source.endIndex]
+
+        // Trim the lead/tail to keep cards compact — show ~32 chars of
+        // context on either side, ellipsised with a leading "…" if we
+        // had to clip.
+        let leadStr = String(leading)
+        let tailStr = String(trailing)
+        let leadDisplay: String = {
+            if leadStr.count > 32 {
+                let start = leadStr.index(leadStr.endIndex, offsetBy: -32)
+                return "… " + String(leadStr[start...])
+            }
+            return leadStr
+        }()
+        let tailDisplay: String = {
+            if tailStr.count > 48 {
+                let end = tailStr.index(tailStr.startIndex, offsetBy: 48)
+                return String(tailStr[..<end]) + " …"
+            }
+            return tailStr
+        }()
+
+        var attr = AttributedString(leadDisplay)
+
+        var matched = AttributedString(mark.matched)
+        matched.foregroundColor = PenovaColor.snow
+        matched.backgroundColor = styleMarkColour(mark.kind).opacity(0.18)
+        attr.append(matched)
+
+        attr.append(AttributedString(tailDisplay))
+        return attr
+    }
+
     // MARK: - Beat colour
 
     private func beatColor(_ beat: BeatType) -> Color {
@@ -357,4 +470,104 @@ struct FlowLayout: Layout {
             rowH = max(rowH, s.height)
         }
     }
+}
+
+// MARK: - Preview
+//
+// Open this file in Xcode and the canvas-side preview will render the
+// inspector populated with a Mumbai-set scene whose action lines trip
+// every style-check rule. Use this to visually verify the "Style"
+// section renders correctly when iterating on its layout — the live
+// app surface is harder to reach without seeded data.
+
+#Preview("With style marks") {
+    let schema = Schema(PenovaSchema.models)
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(
+        for: schema,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let context = container.mainContext
+
+    let project = Project(title: "Ek Raat Mumbai Mein", logline: "")
+    context.insert(project)
+    let episode = Episode(title: "Arrival", order: 0)
+    episode.project = project
+    project.episodes.append(episode)
+    context.insert(episode)
+
+    let scene = ScriptScene(
+        locationName: "MUMBAI LOCAL TRAIN",
+        location: .interior,
+        time: .night,
+        order: 0
+    )
+    scene.episode = episode
+    episode.scenes.append(scene)
+    scene.beatType = .midpoint
+    scene.bookmarked = true
+    context.insert(scene)
+
+    // Lines that trip every rule:
+    //   • action #1: "the kind of tired that sleep doesn't fix" → cliché
+    //                "is being careful" → passive
+    //   • action #2: "begins to" → cliché
+    //                "quietly" inside parenthetical (separate element)
+    //   • parenthetical: "(quietly)" → adverb
+    //   • dialogue (skipped): proves the section ignores spoken lines
+    let elements: [(SceneElementKind, String, String?)] = [
+        (.action,
+         "Arjun has the kind of tired that sleep doesn't fix. He is being careful with the satchel.",
+         nil),
+        (.action,
+         "The train begins to slow. Outside, headlights cut through the rain.",
+         nil),
+        (.character,     "ZAINA", nil),
+        (.parenthetical, "(quietly)", "ZAINA"),
+        (.dialogue,
+         "You said you wouldn't come back, but here you are quickly disembarking.",
+         "ZAINA"),
+    ]
+    for (i, (kind, text, name)) in elements.enumerated() {
+        let el = SceneElement(kind: kind, text: text, order: i, characterName: name)
+        el.scene = scene
+        scene.elements.append(el)
+        context.insert(el)
+    }
+
+    return SceneInspector(scene: scene)
+        .frame(width: 320, height: 800)
+        .modelContainer(container)
+}
+
+#Preview("Clean scene — section hidden") {
+    let schema = Schema(PenovaSchema.models)
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(
+        for: schema,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let context = container.mainContext
+
+    let project = Project(title: "Demo", logline: "")
+    context.insert(project)
+    let ep = Episode(title: "Pilot", order: 0); ep.project = project
+    project.episodes.append(ep); context.insert(ep)
+    let scene = ScriptScene(
+        locationName: "ROOFTOP",
+        location: .exterior,
+        time: .dawn,
+        order: 0
+    )
+    scene.episode = ep; ep.scenes.append(scene); context.insert(scene)
+    let el = SceneElement(
+        kind: .action,
+        text: "She watches the city wake. Birds. A vendor. A dog.",
+        order: 0
+    )
+    el.scene = scene; scene.elements.append(el); context.insert(el)
+
+    return SceneInspector(scene: scene)
+        .frame(width: 320, height: 800)
+        .modelContainer(container)
 }
