@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Penova 1.2.2 — release notes</title>
+<style>
+  body { background: #0b0a08; color: #efe9db;
+         font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+         font-size: 14px; line-height: 1.55; margin: 24px; max-width: 720px; }
+  h1 { font-size: 22px; margin: 0 0 16px; color: #fff; }
+  h2 { font-size: 16px; margin: 24px 0 8px; color: #f0a94a; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .date { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+          font-size: 11px; color: #948e80; letter-spacing: 0.06em;
+          text-transform: uppercase; margin-bottom: 18px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+         font-size: 12.5px; background: #1a1a17; padding: 1px 5px;
+         border-radius: 3px; color: #d4cebe; }
+  kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px; background: #1f1d1a; border: 1px solid #2e2c28;
+        padding: 1px 5px; border-radius: 3px; color: #efe9db; }
+  strong { color: #fff; }
+</style>
+</head>
+<body>
+<h1>Penova 1.2.2</h1>
+<div class="date">4 May 2026 · macOS 14+</div>
+
+<p>
+  Patch release that lands the bigger
+  <a href="1.2.0.html" style="color: #f0a94a;">1.2.0 feature train</a>
+  on top of the live 1.2.1 baseline, plus two bugs that surfaced when
+  the v1.2 PRs were integration-tested end to end.
+</p>
+
+<h2>What's actually new in this patch</h2>
+<ul>
+  <li><strong>⌘K Command Palette</strong> reliably opens in every
+    layout. The hidden ⌘K Button was sometimes routed out of the
+    window's responder chain by another <code>.background()</code>
+    modifier; consolidated to a single hidden-shortcuts block.</li>
+  <li><strong>Esc dismiss</strong> works on the palette regardless of
+    where focus sits. A window-level <code>cancelAction</code> button
+    catches the keystroke even before the TextField wins focus.</li>
+  <li><strong>End-to-end XCUITest</strong> walks every v1.2 surface in
+    one deterministic run — Sprint chip, Command Palette, Save Revision
+    sheet, Beat Board overlay toggle, Search, Title Page, Export. Green
+    on every commit going forward.</li>
+  <li><strong>Mac project management gap</strong> closed if you missed
+    the 1.2.0 line: right-click any project in the sidebar for
+    <em>Rename… / Archive / Move to Trash</em>. Trashed and archived
+    projects hide by default; the <em>"Show archived &amp; trash"</em>
+    toggle at the sidebar footer reveals them.</li>
+  <li><strong>Save Revision sheet</strong> (⌥⌘R) replaces the silent
+    save with an explicit confirm step + optional note. Walks the
+    full WGA colour rotation — White → Blue → Pink → Yellow → … →
+    Double Cherry, then wraps.</li>
+  <li><strong>Style Check</strong> in the inspector flags adverbs,
+    clichés, and passive voice in action lines and parentheticals.
+    Quiet, never blocking.</li>
+  <li><strong>Voiced Table Read</strong> (⌥⌘P) reads the script
+    aloud with per-character voices via Apple's on-device speech
+    engine. Premium voices auto-detected when installed.</li>
+  <li><strong>Beat Board structure overlays</strong> in Index Cards
+    view — toggle Penova-default / Field 3-Act / Save the Cat /
+    Hero's Journey over the same scenes.</li>
+  <li><strong>Sprint timer</strong> in the toolbar — click to start
+    a focused-writing session with live elapsed + word delta.</li>
+</ul>
+
+<p>
+  For the full feature breakdown with rationale, see the
+  <a href="1.2.0.html" style="color: #f0a94a;">1.2.0 release notes</a>
+  or the <a href="../blog/whats-new-1.2.0.html" style="color: #f0a94a;">launch
+  blog post</a>.
+</p>
+
+<h2>Numbers</h2>
+<ul>
+  <li><strong>540 tests</strong> green (526 iOS + 14 Mac UI incl. the
+    new E2E)</li>
+  <li><strong>~150 new unit tests</strong> across the v1.2 PR train</li>
+  <li><strong>Zero regressions</strong></li>
+</ul>
+
+<p style="margin-top: 32px; color: #5e5a52; font-size: 12px;">
+  Feedback or bug reports — <a href="mailto:rudra.ptp.singh@gmail.com" style="color: #f0a94a;">rudra.ptp.singh@gmail.com</a>
+  · <a href="tel:+919956340651" style="color: #f0a94a;">+91 99563 40651</a>
+  · <a href="https://wa.me/919956340651" style="color: #f0a94a;">WhatsApp</a>.
+</p>
+</body>
+</html>
