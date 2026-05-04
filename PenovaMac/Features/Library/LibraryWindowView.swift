@@ -54,10 +54,23 @@ struct LibraryWindowView: View {
     @State private var renameDraft: String = ""
     @State private var pendingProjectTrash: Project?
     @State private var pendingProjectDeleteForever: Project?
+    @State private var paletteVisible: Bool = false
+    @StateObject private var commandRegistry = CommandRegistry()
 
     var body: some View {
         baseShell
             .accessibilityIdentifier(A11yID.libraryWindow)
+            .overlay {
+                if paletteVisible {
+                    CommandPaletteView(
+                        registry: commandRegistry,
+                        visible: $paletteVisible
+                    )
+                    .transition(.opacity)
+                }
+            }
+            .background(paletteShortcut)
+            .onAppear { registerStarterCommands() }
             .modifier(SheetsAndOverlays(
                 searchVisible: $searchVisible,
                 titlePageVisible: $titlePageEditorVisible,
@@ -103,36 +116,14 @@ struct LibraryWindowView: View {
             } message: {
                 Text("This removes “\(pendingSceneDelete?.heading ?? "")” and every element in it. This can't be undone.")
             }
-            .alert(
-                "Move \"\(pendingProjectTrash?.title ?? "")\" to Trash?",
-                isPresented: Binding(
-                    get: { pendingProjectTrash != nil },
-                    set: { if !$0 { pendingProjectTrash = nil } }
-                )
-            ) {
-                Button("Cancel", role: .cancel) { pendingProjectTrash = nil }
-                Button("Move to Trash", role: .destructive) { confirmTrash() }
-            } message: {
-                Text("The project disappears from the sidebar. Toggle \"Show archived & trash\" at the bottom to restore or delete forever.")
-            }
-            .alert(
-                "Delete \"\(pendingProjectDeleteForever?.title ?? "")\" forever?",
-                isPresented: Binding(
-                    get: { pendingProjectDeleteForever != nil },
-                    set: { if !$0 { pendingProjectDeleteForever = nil } }
-                )
-            ) {
-                Button("Cancel", role: .cancel) { pendingProjectDeleteForever = nil }
-                Button("Delete forever", role: .destructive) { confirmDeleteForever() }
-            } message: {
-                Text("Removes the project and every episode, scene, and character it contains. This can't be undone.")
-            }
-            .sheet(isPresented: Binding(
-                get: { renamingProject != nil },
-                set: { if !$0 { renamingProject = nil } }
-            )) {
-                renameProjectSheet
-            }
+            .modifier(ProjectManagementAlerts(
+                pendingProjectTrash: $pendingProjectTrash,
+                pendingProjectDeleteForever: $pendingProjectDeleteForever,
+                renamingProject: $renamingProject,
+                onConfirmTrash: { confirmTrash() },
+                onConfirmDeleteForever: { confirmDeleteForever() },
+                renameSheet: { renameProjectSheet }
+            ))
             .background(hiddenShortcuts)
             .onAppear {
                 if selectedScene == nil {
@@ -250,6 +241,133 @@ struct LibraryWindowView: View {
             name: .penovaSetElementKind,
             object: nil,
             userInfo: ["kind": kind.rawValue]
+        )
+    }
+
+    // MARK: - Command palette
+
+    /// Hidden ⌘K button. Toggles the palette overlay; Boolean state
+    /// is observed by the body's `.overlay { … }` so the modal slides
+    /// in / out without disturbing the scene editor focus.
+    @ViewBuilder
+    private var paletteShortcut: some View {
+        Button("") { paletteVisible.toggle() }
+            .keyboardShortcut("k", modifiers: .command)
+            .opacity(0)
+    }
+
+    /// Register the first batch of palette commands. Mirrors the
+    /// shortcuts already exposed in `hiddenShortcuts` and the
+    /// CommandGroup menu blocks. Each command resolves to a small
+    /// closure that does the same thing the existing menu item does;
+    /// this keeps the palette and the menus in step.
+    ///
+    /// Idempotent — `register(_:handler:)` is keyed by id, so if the
+    /// view appears twice in a session we don't end up with duplicates.
+    private func registerStarterCommands() {
+        commandRegistry.register(
+            PenovaCommand(
+                id: "view-editor",
+                title: "Switch to Editor",
+                group: .views,
+                shortcut: PenovaCommandShortcut([.command], "1")
+            ),
+            handler: { viewMode = .editor }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "view-cards",
+                title: "Switch to Index Cards",
+                group: .views,
+                aliases: ["board", "cards"],
+                shortcut: PenovaCommandShortcut([.command], "2")
+            ),
+            handler: { viewMode = .cards }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "view-outline",
+                title: "Switch to Outline",
+                group: .views,
+                shortcut: PenovaCommandShortcut([.command], "3")
+            ),
+            handler: { viewMode = .outline }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "open-search",
+                title: "Search the script",
+                subtitle: "Find scenes, characters, dialogue",
+                group: .navigation,
+                shortcut: PenovaCommandShortcut([.command], "F")
+            ),
+            handler: { searchVisible = true }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "open-title-page",
+                title: "Edit title page",
+                group: .editing,
+                shortcut: PenovaCommandShortcut([.shift, .command], "T")
+            ),
+            handler: { titlePageEditorVisible = true }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "export",
+                title: "Export…",
+                subtitle: "PDF, FDX, or Fountain",
+                group: .production,
+                aliases: ["share", "send"],
+                shortcut: PenovaCommandShortcut([.command], "E")
+            ),
+            handler: { exportSheetVisible = true }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "open-reports",
+                title: "Production reports",
+                subtitle: "Scene + character counts",
+                group: .production,
+                shortcut: PenovaCommandShortcut([.shift, .command], "R")
+            ),
+            handler: { reportsSheetVisible = true }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "lock-script",
+                title: "Lock script for production",
+                subtitle: "Freeze scene numbers — Project.lock()",
+                group: .production,
+                aliases: ["freeze"]
+            ),
+            handler: {
+                if currentProject?.locked == false {
+                    lockConfirmVisible = true
+                }
+            }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "unlock-script",
+                title: "Unlock script",
+                subtitle: "Resume live scene numbering",
+                group: .production
+            ),
+            handler: {
+                if currentProject?.locked == true {
+                    unlockConfirmVisible = true
+                }
+            }
+        )
+        commandRegistry.register(
+            PenovaCommand(
+                id: "new-scene",
+                title: "New scene",
+                group: .editing,
+                shortcut: PenovaCommandShortcut([.shift, .command], "N")
+            ),
+            handler: { newScene() }
         )
     }
 
@@ -771,5 +889,56 @@ private struct StatusBar: View {
         .frame(maxWidth: .infinity)
         .background(PenovaColor.ink1)
         .overlay(Rectangle().fill(PenovaColor.ink4).frame(height: 1), alignment: .top)
+    }
+}
+
+// MARK: - Project management alerts modifier
+//
+// Extracted from LibraryWindowView.body to keep the type-checker
+// happy. Three modifiers deep was tipping Swift's expression
+// inference timeout. Each ViewModifier you add costs the type-
+// checker; pulling these into a struct with a single body avoids
+// inference of the parent's chain.
+
+private struct ProjectManagementAlerts<RenameContent: View>: ViewModifier {
+    @Binding var pendingProjectTrash: Project?
+    @Binding var pendingProjectDeleteForever: Project?
+    @Binding var renamingProject: Project?
+    let onConfirmTrash: () -> Void
+    let onConfirmDeleteForever: () -> Void
+    @ViewBuilder let renameSheet: () -> RenameContent
+
+    func body(content: Content) -> some View {
+        content
+            .alert(
+                "Move \"\(pendingProjectTrash?.title ?? "")\" to Trash?",
+                isPresented: Binding(
+                    get: { pendingProjectTrash != nil },
+                    set: { if !$0 { pendingProjectTrash = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) { pendingProjectTrash = nil }
+                Button("Move to Trash", role: .destructive) { onConfirmTrash() }
+            } message: {
+                Text("The project disappears from the sidebar. Toggle \"Show archived & trash\" at the bottom to restore or delete forever.")
+            }
+            .alert(
+                "Delete \"\(pendingProjectDeleteForever?.title ?? "")\" forever?",
+                isPresented: Binding(
+                    get: { pendingProjectDeleteForever != nil },
+                    set: { if !$0 { pendingProjectDeleteForever = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) { pendingProjectDeleteForever = nil }
+                Button("Delete forever", role: .destructive) { onConfirmDeleteForever() }
+            } message: {
+                Text("Removes the project and every episode, scene, and character it contains. This can't be undone.")
+            }
+            .sheet(isPresented: Binding(
+                get: { renamingProject != nil },
+                set: { if !$0 { renamingProject = nil } }
+            )) {
+                renameSheet()
+            }
     }
 }
