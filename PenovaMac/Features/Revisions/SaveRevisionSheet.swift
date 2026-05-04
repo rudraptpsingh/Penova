@@ -43,6 +43,7 @@ struct SaveRevisionSheet: View {
             noteField
             footer
         }
+        .accessibilityIdentifier("sheet.save-revision")
         .background(PenovaColor.ink2)
         .frame(width: 640)
         .onAppear {

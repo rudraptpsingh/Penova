@@ -71,7 +71,6 @@ struct LibraryWindowView: View {
                     .transition(.opacity)
                 }
             }
-            .background(paletteShortcut)
             .onAppear { registerStarterCommands() }
             .modifier(SheetsAndOverlays(
                 searchVisible: $searchVisible,
@@ -238,6 +237,13 @@ struct LibraryWindowView: View {
             Button("") { exportSheetVisible = true }
                 .keyboardShortcut("e", modifiers: .command)
                 .opacity(0)
+            // ⌘K — Command Palette. Lives in the same hidden block as
+            // the other shortcuts so it lands in the window's responder
+            // chain reliably (a separate .background() can be pruned
+            // by SwiftUI in some layouts).
+            Button("") { paletteVisible.toggle() }
+                .keyboardShortcut("k", modifiers: .command)
+                .opacity(0)
 
             // ⌘1–⌘7 set the focused element's kind directly (Final Draft
             // / Highland / Fade In all expose this same chord).
@@ -258,16 +264,6 @@ struct LibraryWindowView: View {
     }
 
     // MARK: - Command palette
-
-    /// Hidden ⌘K button. Toggles the palette overlay; Boolean state
-    /// is observed by the body's `.overlay { … }` so the modal slides
-    /// in / out without disturbing the scene editor focus.
-    @ViewBuilder
-    private var paletteShortcut: some View {
-        Button("") { paletteVisible.toggle() }
-            .keyboardShortcut("k", modifiers: .command)
-            .opacity(0)
-    }
 
     /// Register the first batch of palette commands. Mirrors the
     /// shortcuts already exposed in `hiddenShortcuts` and the
