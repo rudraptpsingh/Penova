@@ -57,6 +57,7 @@ struct LibraryWindowView: View {
     @State private var paletteVisible: Bool = false
     @StateObject private var commandRegistry = CommandRegistry()
     @State private var saveRevisionSheetVisible: Bool = false
+    @StateObject private var sprintSession = SprintSession()
 
     var body: some View {
         baseShell
@@ -397,6 +398,26 @@ struct LibraryWindowView: View {
         projects.reduce(0) { $0 + $1.totalSceneCount }
     }
 
+    /// Total word count across the current project's scene elements.
+    /// Used by the SprintChip to compute the "words added during this
+    /// sprint" delta. Cheap: walks element text and splits on
+    /// whitespace; no SwiftData query beyond what's already loaded.
+    private var totalWordCount: Int {
+        guard let project = currentProject else { return 0 }
+        var total = 0
+        for ep in project.activeEpisodesOrdered {
+            for scene in ep.scenesOrdered {
+                for el in scene.elements {
+                    total += el.text
+                        .split { $0.isWhitespace || $0.isNewline }
+                        .filter { !$0.isEmpty }
+                        .count
+                }
+            }
+        }
+        return total
+    }
+
     /// The episode the export sheet should target — the currently
     /// selected scene's episode, falling back to the first episode of
     /// the first project. Picks the project's biggest episode if no
@@ -444,6 +465,19 @@ struct LibraryWindowView: View {
             .controlSize(.large)
             .tint(PenovaColor.amber)
             .keyboardShortcut("n", modifiers: [.command, .shift])
+        }
+
+        ToolbarItem(placement: .secondaryAction) {
+            SprintChip(
+                session: sprintSession,
+                currentWordCount: { totalWordCount }
+            )
+            .onChange(of: pageEstimate) { _, _ in
+                // Cheap way to nudge the chip's word count: piggy-back
+                // on the page estimate which already updates on every
+                // edit. Avoids adding another SwiftData query.
+                sprintSession.update(currentWords: totalWordCount)
+            }
         }
 
         ToolbarItemGroup(placement: .secondaryAction) {
