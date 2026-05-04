@@ -56,6 +56,7 @@ struct LibraryWindowView: View {
     @State private var pendingProjectDeleteForever: Project?
     @State private var paletteVisible: Bool = false
     @StateObject private var commandRegistry = CommandRegistry()
+    @State private var saveRevisionSheetVisible: Bool = false
 
     var body: some View {
         baseShell
@@ -90,6 +91,17 @@ struct LibraryWindowView: View {
             .sheet(isPresented: $reportsSheetVisible) {
                 if let project = currentProject {
                     MacReportsSheet(project: project)
+                }
+            }
+            .sheet(isPresented: $saveRevisionSheetVisible) {
+                if let project = currentProject {
+                    SaveRevisionSheet(project: project) { _ in
+                        // Saved — nothing else to do; SaveRevisionService
+                        // already persisted the row and bumped the
+                        // project's updatedAt.
+                    } onCancel: {
+                        // Cancel — nothing to clean up either.
+                    }
                 }
             }
             .alert("Lock script for production?", isPresented: $lockConfirmVisible) {
@@ -668,30 +680,14 @@ struct LibraryWindowView: View {
     /// menu's "Start New Revision…" command (⌘⌥R). Subsequent edits
     /// will stamp `lastRevisedRevisionID` on this revision so the PDF
     /// renderer flags the changed pages.
+    /// Show the SaveRevisionSheet. Replaces the previous inline save
+    /// path — the sheet itself routes through SaveRevisionService to
+    /// snapshot Fountain, build the Revision row, and advance the
+    /// colour. Keeps menu shortcut behaviour unchanged but adds an
+    /// explicit confirm step + optional note before persisting.
     private func startNewRevisionOnCurrentProject() {
-        guard let p = currentProject else { return }
-        let nextColor = p.nextRevisionColor()
-        let snapshot = FountainExporter.export(project: p)
-        let wordCount = snapshot
-            .split(whereSeparator: { $0.isWhitespace || $0.isNewline })
-            .filter { !$0.isEmpty }
-            .count
-        let storedAuthor = UserDefaults.standard
-            .string(forKey: "penova.auth.fullName") ?? ""
-        let rev = Revision(
-            label: "\(nextColor.display) Revision",
-            fountainSnapshot: snapshot,
-            authorName: storedAuthor,
-            sceneCountAtSave: p.totalSceneCount,
-            wordCountAtSave: wordCount,
-            color: nextColor,
-            roundNumber: p.nextRevisionRoundNumber()
-        )
-        rev.project = p
-        p.revisions.append(rev)
-        context.insert(rev)
-        try? context.save()
-        PenovaLog.editor.info("New revision started: \(nextColor.display, privacy: .public)")
+        guard currentProject != nil else { return }
+        saveRevisionSheetVisible = true
     }
 
     // MARK: - Project management (Mac)
