@@ -46,6 +46,13 @@ struct CommandPaletteView: View {
                 .padding(.top, 80)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        // Window-level ESC binding so dismiss works even when the
+        // TextField hasn't won focus yet (test mode hits this).
+        .background(
+            Button("") { dismiss() }
+                .keyboardShortcut(.cancelAction)
+                .opacity(0)
+        )
         .onAppear {
             inputFocused = true
             updateSelectionToFirstResult()
@@ -73,6 +80,7 @@ struct CommandPaletteView: View {
             Divider().background(PenovaColor.ink4)
             footerHints
         }
+        .accessibilityIdentifier("overlay.palette")
         .background(PenovaColor.ink2)
         .overlay(
             RoundedRectangle(cornerRadius: PenovaRadius.md)
