@@ -18,6 +18,7 @@
 		05CB5087FA61CF1AA1279F4C /* AppFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2D8BA716D668581E9FAB3E /* AppFlowView.swift */; };
 		0AE426C3671EECCAD7FBD2CF /* FountainImportPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF2D48D683C1E3C0124F948 /* FountainImportPicker.swift */; };
 		0B22BADB791826FE15738A6C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D9B7F2F7A18A3156660103 /* RootView.swift */; };
+		0D3B2405548D070E0D6B2F50 /* SprintChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C7840C2AE71EC25375C7CC /* SprintChip.swift */; };
 		0F7E757BB62963B5F2E864DB /* PDFLineSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 272D8B66F02F2E38BD3C672C /* PDFLineSource.swift */; };
 		124441D3EA9131225BE4F16C /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80956E613FA97F2234F7D02F /* SettingsScreen.swift */; };
 		130830C432481169CB6C6C82 /* EditorContdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018FA2F6059EC0C90E3BD678 /* EditorContdTests.swift */; };
@@ -276,6 +277,7 @@
 		C303CD56BA9A30D36DFD75BB /* PenovaKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PenovaKit; path = PenovaKit; sourceTree = SOURCE_ROOT; };
 		C39ADE4E5B85D0541A7286D9 /* PDFScreenplayParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFScreenplayParserTests.swift; sourceTree = "<group>"; };
 		C4C69447CF748F361B7C7ADD /* FountainParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FountainParserTests.swift; sourceTree = "<group>"; };
+		C8C7840C2AE71EC25375C7CC /* SprintChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprintChip.swift; sourceTree = "<group>"; };
 		CBE639691AC6770463FFE2C0 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		CDF3C6C14728D73932A79E0E /* ScreenshotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotMode.swift; sourceTree = "<group>"; };
 		D06E1633EEA1A73230CCAF90 /* ProductionReportsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionReportsTests.swift; sourceTree = "<group>"; };
@@ -582,6 +584,7 @@
 			isa = PBXGroup;
 			children = (
 				1BD9C67C488C867C969A1DF2 /* ScriptEditorPane.swift */,
+				C8C7840C2AE71EC25375C7CC /* SprintChip.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -1128,6 +1131,7 @@
 				FE15DFA88C81ECA666E59F3D /* ScriptEditorPane.swift in Sources */,
 				46DE3194BB6715CAC43F0779 /* SmartGroupPane.swift in Sources */,
 				E33B2E2C309A68CC3113131E /* SmokeTest.swift in Sources */,
+				0D3B2405548D070E0D6B2F50 /* SprintChip.swift in Sources */,
 				6CF5E8CDB6236A96F744ED79 /* TitlePageEditorSheet.swift in Sources */,
 				B2684AB2672FB97DDCFC0481 /* UpdaterService.swift in Sources */,
 			);
