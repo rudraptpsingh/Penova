@@ -607,8 +607,9 @@
   .foot-meta { font-family: var(--mono); font-size: 11px; color: var(--snow-4); letter-spacing: 0.06em; }
 
   @media (max-width: 760px) {
-    nav { flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px 24px; }
-    .nav-links { gap: 18px; }
+    .wrap { padding: 0 20px; }
+    nav { flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px 20px; }
+    .nav-links { gap: 18px; flex-wrap: wrap; }
     .nav-meta { display: none; }
     .hero-grid, .ios-grid, .flow-card, .flow-card.reverse {
       grid-template-columns: 1fr; gap: 32px;
@@ -617,6 +618,12 @@
     .flow-card.reverse .flow-shot { order: 2; }
     .feat-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .ios-shots { grid-template-columns: 1fr 1fr; }
+    .pricing-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .price-card { padding: 20px 14px; }
+    .price-card .price { font-size: 26px; }
+  }
+  @media (max-width: 480px) {
+    .pricing-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
