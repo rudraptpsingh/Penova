@@ -24,6 +24,20 @@
         <description>Auto-update feed for Penova for Mac.</description>
         <language>en</language>
         <item>
+            <title>Penova 1.2.0</title>
+            <pubDate>Mon, 04 May 2026 10:46:53 +0530</pubDate>
+            <sparkle:version>120</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://penova.pages.dev/release-notes/1.2.0.html</sparkle:releaseNotesLink>
+            <enclosure
+                url="https://penova.pages.dev/releases/Penova.dmg"
+                type="application/x-apple-diskimage"
+                length="4320467"
+                sparkle:edSignature="NP7GGwYKRiwCmODNLQeiKprFW7akEK0G6e0Oz+S4h6ccdW7eG95kThYn2Fhuq7K6geE88RoE2HxY6xnzGO9SCA=="
+            />
+        </item>
+        <item>
             <title>Penova 1.1.2</title>
             <pubDate>Sat, 02 May 2026 02:36:29 +0530</pubDate>
             <sparkle:version>112</sparkle:version>
@@ -31,7 +45,7 @@
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:releaseNotesLink>https://penova.pages.dev/release-notes/1.1.2.html</sparkle:releaseNotesLink>
             <enclosure
-                url="https://penova.pages.dev/releases/Penova.dmg"
+                url="https://penova.pages.dev/releases/Penova-1.1.2.dmg"
                 type="application/x-apple-diskimage"
                 length="3935366"
                 sparkle:edSignature="KG6An6AJrzuLCYd2cdnGAVUJBZ6UotEgCCAZF32zfMUlgLRIIPX8gvU7gDgcJosOe1mZ5tK3jJXQpCkeUegFBg=="
